@@ -16,7 +16,7 @@ public class NetworkClient {
     public Map<Integer, String> receivedGameObjects = new HashMap<>();
     public int clientId;
 
-    public NetworkClient() throws ConnectionExpiredException {
+    public NetworkClient() throws RuntimeException {
         client = new Client();
         client.start();
         this.connect();

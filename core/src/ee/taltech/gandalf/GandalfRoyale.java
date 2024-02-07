@@ -1,15 +1,11 @@
 package ee.taltech.gandalf;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import ee.taltech.network.NetworkClient;
-import ee.taltech.player.PlayerInput;
 import ee.taltech.screens.MenuScreen;
 import jdk.internal.net.http.common.ConnectionExpiredException;
-
-import java.io.IOException;
 
 public class GandalfRoyale extends Game {
     public SpriteBatch batch;
@@ -24,7 +20,7 @@ public class GandalfRoyale extends Game {
         font = new BitmapFont();
         try {
             nc = new NetworkClient();
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             throw new RuntimeException(e);
         }
         setScreen(new MenuScreen(this));
