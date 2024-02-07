@@ -25,11 +25,11 @@ public class NetworkClient {
         clientId = client.getID();
     }
 
-    public void connect() throws ConnectionExpiredException {
+    public void connect() {
         try {
             client.connect(5000, "localhost", 8080, 8081);
         } catch (IOException e) {
-            throw new ConnectionExpiredException(e);
+            throw new RuntimeException(e);
         }
     }
 
