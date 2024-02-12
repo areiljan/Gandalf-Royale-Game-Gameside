@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import ee.taltech.network.NetworkClient;
 import ee.taltech.screens.MenuScreen;
-import jdk.internal.net.http.common.ConnectionExpiredException;
 
 public class GandalfRoyale extends Game {
     public SpriteBatch batch;

@@ -1,8 +1,6 @@
 package ee.taltech.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,9 +9,7 @@ import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.network.NetworkClient;
 import ee.taltech.player.PlayerCharacter;
 import ee.taltech.player.PlayerInput;
-import jdk.internal.net.http.common.ConnectionExpiredException;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,73 +19,51 @@ public class GameScreen extends ScreenAdapter {
     NetworkClient nc;
     Texture img;
     Texture opponentImg;
-    int x, y;
-
-    private Map<Integer, SpriteBatch> opponentBatches;
-    private InputProcessor inputProcessor; // Do not remove ;)
 
     public PlayerCharacter playerCharacter;
 
     public GameScreen(GandalfRoyale game) {
         this.game = game;
         this.nc = game.nc;
-        opponentBatches = new HashMap<>();
-        nc.addListener();
-        playerCharacter = new PlayerCharacter(game);
-        inputProcessor = new PlayerInput(game);
-        x = 0;
-        y = 0;
+        nc.addListener(); // Add NetworkClient listener, that listens for the messages from the server.
+        playerCharacter = new PlayerCharacter(this.nc.clientId); // Create the client character object.
     }
 
     @Override
     public void show() {
         img = new Texture("wizard.png");
         opponentImg = new Texture("opponent.png");
+        Gdx.input.setInputProcessor(new PlayerInput(game, playerCharacter)); // Start listening to custom inputs.
     }
 
     @Override
     public void render(float delta) {
-        // Add this, when server can accept new KeyPress Object.
-        // Gdx.input.setInputProcessor(this.inputProcessor).
-        // Then remove the function below accordingly.
-
         ScreenUtils.clear(0, 0, 0, 0);
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            x -= 10;
-            nc.sendUDP(x + "," + y);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            x += 10;
-            nc.sendUDP(x + "," + y);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            y += 10;
-            nc.sendUDP(x + "," + y);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            y -= 10;
-            nc.sendUDP(x + "," + y);
-        }
+        playerCharacter.updatePosition(); // Update the player position prediction for smoother response.
+        checkOverwritePlayerPosition(); // Check if server needs to overwrite client position prediction.
         game.batch.begin();
-        game.batch.draw(img, x, y);
+        drawPlayer(); // Draw client character
         game.batch.end();
+    }
 
-        // Getting entries from server.
-        for (Map.Entry<Integer, String> entry : nc.receivedGameObjects.entrySet()) {
-            int id = entry.getKey();
-            if (id == nc.clientId) continue;
-            if (!opponentBatches.containsKey(id)) {
-                opponentBatches.put(id, new SpriteBatch());
-            }
-            SpriteBatch b = opponentBatches.get(id);
-            String[] coordinates = entry.getValue().split(",");
-
-            // Drawing Opponents to coordinates.
-            b.begin();
-            b.draw(opponentImg, Integer.parseInt(coordinates[0]), Integer.parseInt(coordinates[1]));
-            b.end();
-
+    public void checkOverwritePlayerPosition() {
+        // Set the threshold for the server to override the position difference
+        int threshold = 5;
+        // Check if there is an incoming Position message and if it matches the clientID
+        if (this.nc.receivedPosition != null && this.nc.receivedPosition.userID == this.nc.clientId &&
+                // Check for the difference in client prediction and actual server position
+                (Math.abs(playerCharacter.xPosition - this.nc.receivedPosition.xPosition) > threshold
+                        || Math.abs(playerCharacter.yPosition - this.nc.receivedPosition.yPosition) > threshold)) {
+            // Locates the client according to the server position (override the prediction made on client).
+            playerCharacter.setPosition(this.nc.receivedPosition.xPosition, this.nc.receivedPosition.yPosition);
         }
+    }
+
+    private void drawPlayer() {
+        // Set the image to 3 times smaller picture and flip it, if player is moving left.
+        game.batch.draw(img, playerCharacter.xPosition, playerCharacter.yPosition,
+                (float) img.getWidth() / 3, (float) img.getHeight() / 3, 0, 0, img.getWidth(), img.getHeight(),
+                playerCharacter.moveLeft, false);
     }
 
     @Override
