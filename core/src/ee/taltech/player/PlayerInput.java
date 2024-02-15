@@ -5,6 +5,8 @@ import com.badlogic.gdx.InputProcessor;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.network.messages.KeyPress;
 
+import java.util.Objects;
+
 public class PlayerInput implements InputProcessor {
 
     private GandalfRoyale game;
@@ -33,10 +35,13 @@ public class PlayerInput implements InputProcessor {
                 key = new KeyPress(KeyPress.Direction.RIGHT, true);
                 break;
         }
-        // Send LEFT to server
-        game.nc.sendUDP(key);
-        // Send LEFT to client
-        playerCharacter.setMovement(key);
+        if (!Objects.equals(key, null)) {
+            // Send LEFT to server
+            game.nc.sendUDP(key);
+            // Send LEFT to client
+            playerCharacter.setMovement(key);
+            key = null;
+        }
         return false;
     }
 
@@ -56,10 +61,13 @@ public class PlayerInput implements InputProcessor {
                 key = new KeyPress(KeyPress.Direction.RIGHT, false);
                 break;
         }
-        // Send LEFT to server
-        game.nc.sendUDP(key);
-        // Send LEFT to client
-        playerCharacter.setMovement(key);
+        if (!Objects.equals(key, null)) {
+            // Send LEFT to server
+            game.nc.sendUDP(key);
+            // Send LEFT to client
+            playerCharacter.setMovement(key);
+            key = null;
+        }
         return false;
     }
 
