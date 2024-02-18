@@ -13,56 +13,79 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ee.taltech.gandalf.GandalfRoyale;
+import ee.taltech.network.messages.GetLobbies;
+import ee.taltech.network.messages.Join;
+import ee.taltech.network.messages.LobbyCreation;
+import ee.taltech.utilities.Lobby;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class LobbyScreen extends ScreenAdapter {
 
     GandalfRoyale game;
+    Map<Integer, Lobby> lobbies;
+    Map<Integer, Table> lobbyTables;
+    Map<Integer, Label> lobbyPlayerCountLabels;
     Stage stage;
+    Table root;
+    Table headerTable;
     Window gameNamingWindow;
-    String gameName;
-    Integer numberOfPlayers;
     TextButton buttonCreateGame;
     TextButton buttonBack;
     TextButton buttonJoin;
     TextButton buttonCancel;
     TextButton buttonCreate;
     TextField nameTextField;
-
+    Label playersLabel;
     TextButton.TextButtonStyle textButtonStyle;
     Label.LabelStyle headingStyle;
     Label.LabelStyle gameStyle;
 
-    Logger logger = Logger.getLogger(getClass().getName()); // need to be deleted later
+    Logger logger = Logger.getLogger(getClass().getName()); // Used for debugging
 
+    /**
+     * Construct LobbyScreen.
+     *
+     * @param game GandalfRoyale game instance
+     */
     public LobbyScreen(GandalfRoyale game) {
         this.game = game;
-        gameName = "Game_Name"; // Game name variable (changed by player)
-        numberOfPlayers = 0; // Number of players variable (changed by sever)
 
+        lobbies = new HashMap<>(); // Map where all the lobbies are held by lobby ID
+        lobbyTables = new HashMap<>(); // Map where all the lobby tables are held by lobby ID
+        lobbyPlayerCountLabels = new HashMap<>(); // Map where all the player count labels are held by lobby ID
 
-        // Creating a Stage (place, where things can be put on)
-        stage = new Stage(new ScreenViewport());
-//        skin = new Skin(Gdx.files.internal("uiskin.json"));
+        stage = new Stage(new ScreenViewport()); // Creating a stage (place, where things can be put on)
 
-        createUI(); // Creating user interface
-        setupListeners(); // Setup listeners
+        root = new Table(); // Creating root table that covers the whole stage
+        root.top(); // Starts from the top of the screen
+        root.setFillParent(true); // Fill the stage
+        stage.addActor(root); // Add root to stage (only actor on stage)
+
+//        skin = new Skin(Gdx.files.internal("uiskin.json")); // Skin for UI
+
+        createHeader(); // Creating lobby header (stated only in constructor)
+        setupListeners(); // Set up listeners for buttons (stated only in constructor)
+
+        game.nc.addListener(); // Add NetworkClient listener, that listens for the messages from the server
+        game.nc.registerListener("LobbyScreen", this); // Register lobby screen for network client
+        game.nc.sendTCP(new GetLobbies()); // Send GetLobbies message to server
     }
 
-    private void createUI() {
-        // Creating a Table (place, where things can be put in and positioned)
-        Table table = new Table();
-        table.setFillParent(true); // Fill the stage
-
-        // Add items to stage
-        stage.addActor(table);
+    /**
+     * Create header part for LobbyScreen.
+     */
+    private void createHeader() {
+        // Creating a headerTable (place, where things can be put in and positioned)
+        headerTable = new Table();
 
         // Styling labels
         headingStyle = new Label.LabelStyle(game.font, Color.FIREBRICK);
         gameStyle = new Label.LabelStyle(game.font, Color.WHITE);
 
-        // Styling button
+        // Styling buttons
         textButtonStyle = new TextButton.TextButtonStyle();
 //        textButtonStyle.up = skin.getDrawable("button.up")
 //        textButtonStyle.down = skin.getDrawable("button.down")
@@ -74,29 +97,69 @@ public class LobbyScreen extends ScreenAdapter {
         // Create pop-up window where player can name their game
         gameNamingWindow = createGameNamingWindow();
 
-        // Create top row
+        // Create header
         buttonBack = new TextButton("Back", textButtonStyle);
         Label heading = new Label("LOBBY", headingStyle);
         buttonCreateGame = new TextButton("Create game", textButtonStyle);
 
+        // Add header to headerTable
+        headerTable.add(buttonBack).pad(10).left();
+        headerTable.add(heading).pad(10).expandX();
+        headerTable.add(buttonCreateGame).pad(10).right();
 
-        // Add top row to the table
-        table.add(buttonBack).pad(10).left();
-        table.add(heading).pad(10).expandX();
-        table.add(buttonCreateGame).pad(10).right();
-
-        // Create one game instance
-        Label gameNameLabel = new Label(gameName, gameStyle);
-        Label playersLabel = new Label( numberOfPlayers + " /10", gameStyle);
-        buttonJoin = new TextButton("Join", textButtonStyle);
-
-        // Add game info to the table
-        table.row().padTop(20);
-        table.add(gameNameLabel).colspan(2).center();
-        table.add(playersLabel).center();
-        table.add(buttonJoin).right();
+        // Add headerTable to root table
+        root.add(headerTable).growX().top();
     }
 
+    /**
+     * Set up listeners for buttons to work.
+     */
+    private void setupListeners() {
+
+        // Back button functionality on click
+        buttonBack.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(game.menuScreen); // Change screen to MenuScreen
+                game.menuScreen.lobbyScreenDispose(); // Dispose this LobbyScreen (TEMPORARY)
+            }
+        });
+
+        // Create game button functionality on click
+        buttonCreateGame.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                stage.addActor(gameNamingWindow); // Add gameNamingWindow to stage (show the window)
+            }
+        });
+
+        // Cancel button in game naming window functionality on mouse click
+        buttonCancel.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                nameTextField.setText(""); // Clear input field
+                gameNamingWindow.remove(); // Remove gameNamingWindow from screen
+            }
+        });
+
+        // Create button in game naming window functionality on mouse click
+        buttonCreate.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // Send LobbyCreation message to sever with game name and host ID
+                game.nc.sendTCP(new LobbyCreation(nameTextField.getText(), game.nc.clientId));
+
+                nameTextField.setText(""); // Clear input field
+                gameNamingWindow.remove(); // Remove game name window
+            }
+        });
+    }
+
+    /**
+     * Create visual part of GameNamingWindow.
+     *
+     * @return done GameNamingWindow
+     */
     private Window createGameNamingWindow() {
         // Styling window
         Window.WindowStyle windowStyle = new Window.WindowStyle();
@@ -135,71 +198,103 @@ public class LobbyScreen extends ScreenAdapter {
         namingWindow.setPosition(stage.getWidth() / 2 - namingWindow.getWidth() / 2,
                 stage.getHeight() / 2 - namingWindow.getHeight() / 2);
 
-        // Returning working window
+        // Returning visual part of the window
         return namingWindow;
     }
 
-    private void setupListeners() {
+    /**
+     * Show new lobby when LobbyCreation or GetLobbies message has been sent by sever.
+     *
+     * @param lobby Lobby class instance
+     */
+    public void showLobby(Lobby lobby) {
+        lobbies.put(lobby.getId(), lobby); // Add lobby to lobbies Map
 
-        // Back button functionality on mouse click
-        buttonBack.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                // If Back button is pressed go to MenuScreen
-                game.setScreen(new MenuScreen(game));
-            }
-        });
+        // Create lobbyTable
+        Table lobbyTable = new Table();
+        lobbyTables.put(lobby.getId(), lobbyTable); // Add lobbyTable to lobbyTables Map
 
-        // Create game button functionality on mouse click
-        buttonCreateGame.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                // If Create Game button is pressed create a new game
-                stage.addActor(gameNamingWindow);
-            }
-        });
+        // Create lobby labels
+        Label gameNameLabel = new Label(lobby.getName(), gameStyle);
+        playersLabel = new Label(lobby.getPlayerCount() + "/10", gameStyle);
+        lobbyPlayerCountLabels.put(lobby.getId(), playersLabel); // Add playerCountLabel to lobbyPlayerCountLabels Map
 
-        // Join button functionality on mouse click
-        buttonJoin.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                // If number of players in game is less than 10 join and add 1 player
-                if (numberOfPlayers < 10) {
-                    game.setScreen(new GameScreen(game));
-                    numberOfPlayers++;
-                } else {
-                    // Tell that game is full
-                    logger.info("Game is FULL!");
-                }
-            }
-        });
+        // Create Join button
+        buttonJoin = new TextButton("Join", textButtonStyle);
+        buttonJoin.setUserObject(lobby.getId()); // Set game ID as user object for button
+        buttonJoin.addListener(buttonJoinClicked); // Add new listener for every button
 
-        // Cancel button in game naming window functionality on mouse click
-        buttonCancel.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                nameTextField.setText("");
-                gameNamingWindow.remove();
-            }
-        });
+        // Add lobby elements to lobbyTable
+        lobbyTable.add(gameNameLabel).pad(10).expandX().left();
+        lobbyTable.add(playersLabel).pad(10).center();
+        lobbyTable.add(buttonJoin).pad(10).left();
 
-        // Create button in game naming window functionality on mouse click
-        buttonCreate.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                gameName = nameTextField.getText();
-                nameTextField.setText("");
-                gameNamingWindow.remove();
-            }
-        });
+        // Add lobbyTable to root table
+        root.row().padTop(20); // Empty row
+        root.add(lobbyTable).growX();
     }
 
+    /**
+     * Set up listener for Join button.
+     */
+    private ClickListener buttonJoinClicked = new ClickListener() {
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+            // Get game ID from button user object
+            Integer gameId = (Integer) event.getListenerActor().getUserObject();
+
+            // Send Join message to sever
+            game.nc.sendTCP(new Join(gameId, game.nc.clientId));
+        }
+    };
+
+    /**
+     * Make player join lobby when sever sent Join message.
+     *
+     * @param gameId which lobby player wants to join
+     * @param playerId of the player that wants to join lobby
+     */
+    public void joinLobby(Integer gameId, Integer playerId) {
+        Lobby lobby = lobbies.get(gameId); // Get correct lobby from lobbies Map
+        lobby.addPlayer(playerId); // Add player to given lobby
+        lobbyPlayerCountLabels.get(gameId).setText(lobby.getPlayerCount() + "/10"); // Show new player count
+    }
+
+    /**
+     * Make player leave lobby when sever sent Leave message.
+     *
+     * @param gameId which lobby player wants to leave
+     * @param playerId of the player that wants to leave lobby
+     */
+    public void leaveLobby(Integer gameId, Integer playerId) {
+        Lobby lobby = lobbies.get(gameId); // Get correct lobby from lobbies Map
+        lobby.removePlayer(playerId); // Remove player from given lobby
+        lobbyPlayerCountLabels.get(gameId).setText(lobby.getPlayerCount() + "/10"); // Show new player count
+    }
+
+    /**
+     * Dismantle lobby when sever sent LobbyDismantle message.
+     *
+     * @param gameId which lobby has to be dismantled
+     */
+    public void dismantleLobby(Integer gameId) {
+        lobbyTables.get(gameId).remove(); // Remove correct lobby table from root table
+    }
+
+    /**
+     * Show screen on initialisation.
+     */
     @Override
     public void show() {
         // Reading input
         Gdx.input.setInputProcessor(stage);
     }
 
+    /**
+     * Render the screen aka update every frame.
+     *
+     * @param delta time
+     */
     @Override
     public void render(float delta) {
         // Clear the screen and update the stage
@@ -211,14 +306,21 @@ public class LobbyScreen extends ScreenAdapter {
         stage.draw();
     }
 
+    /**
+     * Hide screen.
+     */
     @Override
     public void hide() {
         Gdx.input.setInputProcessor(null);
     }
 
+    /**
+     * Dispose screen.
+     */
     @Override
     public void dispose() {
-        stage.dispose();
+        stage.dispose(); // Dispose stage
+        game.nc.removeListener(); // Remove listeners
 //        skin.dispose();
     }
 }

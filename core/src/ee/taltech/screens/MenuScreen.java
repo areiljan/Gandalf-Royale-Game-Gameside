@@ -18,35 +18,47 @@ public class MenuScreen extends ScreenAdapter {
 
     GandalfRoyale game;
     Stage stage;
+    Table root;
+    TextButton buttonPlay;
+    TextButton buttonSettings;
+    TextButton buttonExit;
+    LobbyScreen lobbyScreen;
 
     // Background picture constants
-    private static final Texture BACKGROUND_TEXTURE = new Texture("menuBackground.png");
-    private static final Sprite BACKGROUND_SPRITE = new Sprite(BACKGROUND_TEXTURE);
+    private static final Texture BACKGROUND_TEXTURE = new Texture("menuBackground.png"); // Background image
+    private static final Sprite BACKGROUND_SPRITE = new Sprite(BACKGROUND_TEXTURE); // Background sprite made from image
 
+    /**
+     * Construct MenuScreen.
+     *
+     * @param game GandalfRoyale game instance
+     */
     public MenuScreen(GandalfRoyale game) {
         this.game = game;
+
+        stage = new Stage(); // Creating a stage (place, where things can be put on)
+
+        root = new Table(); // Creating root table that covers the whole stage
+        root.top(); // Starts from the top of the screen
+        root.setFillParent(true); // Fill the stage
+        stage.addActor(root); // Add root to stage (only actor on stage)
+
+        createUI(); // Create visual part (stated only in constructor)
+        setupListeners(); // Set up listeners for buttons (stated only in constructor)
     }
 
-    @Override
-    public void show() {
-        // Creating a Stage (place, where things can be put on)
-        stage = new Stage();
-
-        // Reading input
-        Gdx.input.setInputProcessor(stage);
-
-        // Creating a Table (place, where things can be put in and positioned)
+    /**
+     * Create visual part of the MenuScreen.
+     */
+    private void createUI() {
+        // Creating a table (place, where things can be put in and positioned)
         Table table = new Table();
         table.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // Styling heading
         Label.LabelStyle headingStyle = new Label.LabelStyle(game.font, Color.FIREBRICK);
 
-        // Creating heading
-        Label heading = new Label("GandalfRoyale", headingStyle);
-        heading.setFontScale(6);
-
-        // Styling button
+        // Styling buttons
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
 //        textButtonStyle.up = skin.getDrawable("button.up")
 //        textButtonStyle.down = skin.getDrawable("button.down")
@@ -55,41 +67,26 @@ public class MenuScreen extends ScreenAdapter {
         textButtonStyle.font = game.font;
         textButtonStyle.fontColor = Color.BLACK;
 
+        // Creating heading
+        Label heading = new Label("GandalfRoyale", headingStyle);
+        heading.setFontScale(6);
+
         // Creating Play button
-        TextButton buttonPlay = new TextButton("Play", textButtonStyle);
-        buttonPlay.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new LobbyScreen(game));
-            }
-        });
+        buttonPlay = new TextButton("Play", textButtonStyle);
         buttonPlay.pad(20);
         buttonPlay.getLabel().setFontScale(3);
 
         // Creating Settings button
-        TextButton buttonSettings = new TextButton("Settings", textButtonStyle);
-        buttonSettings.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-//                game.setScreen(new SettingsScreen(game));
-            }
-        });
+        buttonSettings = new TextButton("Settings", textButtonStyle);
         buttonSettings.pad(20);
         buttonSettings.getLabel().setFontScale(3);
 
-
         // Creating Exit button
-        TextButton buttonExit = new TextButton("Exit", textButtonStyle);
-        buttonExit.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
-            }
-        });
+        buttonExit = new TextButton("Exit", textButtonStyle);
         buttonExit.pad(20);
         buttonExit.getLabel().setFontScale(3);
 
-        // Creating credits(creator names) label
+        // Creating credits (creator names) label
         Label credits = new Label("*Artur_Reiljan*Rasmus_Kilkson*Ramus_Raasuke*", headingStyle);
 
         // Adding elements to the Table
@@ -104,10 +101,62 @@ public class MenuScreen extends ScreenAdapter {
         table.row();
         table.add(credits);
 
-        // Adding the Table to the Stage
-        stage.addActor(table);
+        // Adding the Table to the root table that is on stage
+        root.add(table);
     }
 
+    /**
+     * Set up listeners for buttons to work.
+     */
+    private void setupListeners() {
+
+        // Play button functionality on click
+        buttonPlay.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                lobbyScreen = new LobbyScreen(game); // Create LobbyScreen
+                game.setScreen(lobbyScreen); // Change screen to LobbyScreen
+            }
+        });
+
+        // Settings button functionality on click
+        buttonSettings.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+//                game.setScreen(new SettingsScreen(game)); // Change screen to SettingsScreen
+            }
+        });
+
+        // Exit button functionality on click
+        buttonExit.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.exit(); // Close the whole application
+            }
+        });
+    }
+
+    /**
+     * Dispose LobbyScreen.
+     */
+    public void lobbyScreenDispose() {
+        lobbyScreen.dispose();
+    }
+
+    /**
+     * Show screen on initialisation.
+     */
+    @Override
+    public void show() {
+        // Reading input
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    /**
+     * Render the screen aka update every frame.
+     *
+     * @param delta time
+     */
     @Override
     public void render(float delta) {
         // Draw background picture
@@ -115,11 +164,14 @@ public class MenuScreen extends ScreenAdapter {
         BACKGROUND_SPRITE.draw(game.batch);
         game.batch.end();
 
-        // Start stage
+        // Update stage every frame
         stage.act(delta);
         stage.draw();
     }
 
+    /**
+     * Hide screen.
+     */
     @Override
     public void hide() {
         Gdx.input.setInputProcessor(null);
