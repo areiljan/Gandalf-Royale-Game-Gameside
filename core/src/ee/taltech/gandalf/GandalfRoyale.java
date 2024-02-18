@@ -11,18 +11,22 @@ public class GandalfRoyale extends Game {
     public BitmapFont font;
 
     public NetworkClient nc;
+    public MenuScreen menuScreen;
 
 
     @Override
     public void create() {
         batch = new SpriteBatch();
         font = new BitmapFont();
+        menuScreen = new MenuScreen(this); // Creating MenuScreen
+
         try {
             nc = new NetworkClient();
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         }
-        setScreen(new MenuScreen(this));
+
+        setScreen(menuScreen); // Setting screen to MenuScreen
     }
 
     @Override
