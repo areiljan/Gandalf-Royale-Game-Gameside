@@ -10,17 +10,17 @@ Each player has three resources: health, mana and gold. <br>
 
 ### Installation and starting
 
-Until we do not have server client has to run both server and clinet side on the same machine.
+Until we do not have server, client has to run both server and clinet side on the same machine.
 
 **Server Side:** <br>
 1. Clone this repositroy [iti0301-2024-server](https://gitlab.cs.taltech.ee/rkilks/iti0301-2024-server)
-2. If you don't have Gradle plugin download it
+2. If you don't have Gradle plugin, download it
 3. Open Project view and go to iti0301-2024-server -> server -> src -> main -> java -> ee.taltech.game.server -> datamanagement -> GameServer
 4. Run this file and you shoud have working server side
 
 **Client Side:** <br>
 1. Clone this repositroy [iti0301-2024-game](https://gitlab.cs.taltech.ee/rkilks/iti0301-2024-game)
-2. If you don't have Gradle plugin download it
+2. If you don't have Gradle plugin, download it
 3. Open Gradle plugin on project and go to iti0301-2024-game -> Tasks -> Other -> run
 4. Now if you run this iti0301-2024-game\[run\] file you should have working client side
 
