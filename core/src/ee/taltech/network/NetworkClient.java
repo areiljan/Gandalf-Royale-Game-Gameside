@@ -50,13 +50,13 @@ public class NetworkClient {
         // Add sendable data structures.
         Kryo kryo = client.getKryo();
         kryo.register(java.util.ArrayList.class);
-        kryo.register(StartGame.class);
         kryo.register(Position.class);
         kryo.register(Join.class);
         kryo.register(Leave.class);
         kryo.register(LobbyCreation.class);
         kryo.register(LobbyDismantle.class);
         kryo.register(GetLobbies.class);
+        kryo.register(StartGame.class);
         kryo.register(KeyPress.class);
         kryo.register(KeyPress.Direction.class);
         kryo.addDefaultSerializer(KeyPress.Direction.class, DefaultSerializers.EnumSerializer.class);
