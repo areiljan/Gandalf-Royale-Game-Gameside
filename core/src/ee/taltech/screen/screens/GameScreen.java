@@ -11,6 +11,9 @@ import ee.taltech.player.PlayerCharacter;
 import ee.taltech.player.PlayerInput;
 import ee.taltech.utilities.Lobby;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class GameScreen extends ScreenAdapter {
 
     GandalfRoyale game;
@@ -18,6 +21,7 @@ public class GameScreen extends ScreenAdapter {
     Texture img;
     Texture opponentImg;
     Lobby lobby;
+    private Map<Integer, PlayerCharacter> alivePlayers;
 
     // Threshold for the server to override the position difference
     private static final Integer OVERWRITE_THRESHOLD = 5;
@@ -33,7 +37,12 @@ public class GameScreen extends ScreenAdapter {
         this.game = game;
         this.nc = game.nc;
         this.lobby = lobby;
-        playerCharacter = new PlayerCharacter(this.nc.clientId); // Create the client character object.
+        alivePlayers = new HashMap<>();
+        for (Integer playerId : lobby.getPlayers()) {
+            alivePlayers.put(playerId, new PlayerCharacter(playerId));
+        }
+        playerCharacter = alivePlayers.get(this.nc.clientId); // Create the client character object.
+        game.nc.addGameListeners();
     }
 
     /**
@@ -61,6 +70,28 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * Draw the enemy wizard player.
+     */
+    private void drawEnemy() {
+        for (PlayerCharacter enemyPlayer : alivePlayers.values()) {
+            if (enemyPlayer.playerID != nc.clientId) {
+                game.batch.draw(img, enemyPlayer.xPosition, enemyPlayer.yPosition,
+                        (float) img.getWidth() / 3, (float) img.getHeight() / 3, 0, 0,
+                        img.getWidth(), img.getHeight(), enemyPlayer.moveLeft, false);
+            }
+        }
+    }
+    /**
+     * Method to move enemy players.
+     *
+     * @param position Message from server, that contains playerID, X, Y coordinates.
+     */
+    public void movePlayer(Position position) {
+        PlayerCharacter enemyPlayer = alivePlayers.get(position.userID);
+        enemyPlayer.setPosition(position.xPosition, position.yPosition);
+    }
+
+    /**
      * Show screen on initialisation.
      */
     @Override
@@ -81,6 +112,7 @@ public class GameScreen extends ScreenAdapter {
         playerCharacter.updatePosition(); // Update the player position prediction for smoother response.
         game.batch.begin();
         drawPlayer(); // Draw client character
+        drawEnemy(); // Draw enemy wizards.
         game.batch.end();
     }
 

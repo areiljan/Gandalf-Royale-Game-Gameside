@@ -2,7 +2,7 @@ package ee.taltech.network.listeners;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import ee.taltech.network.messages.*;
+import ee.taltech.network.messages.Position;
 import ee.taltech.screen.ScreenController;
 import ee.taltech.screen.screens.GameScreen;
 
@@ -30,7 +30,11 @@ public class PlayerPositionListener extends Listener {
         GameScreen gameScreen = screenController.getGameScreen();
         switch (incomingData){
             case Position position: // Position message
-                gameScreen.checkOverwritePlayerPosition(position);
+                if (position.userID == connection.getID()) {
+                    gameScreen.checkOverwritePlayerPosition(position);
+                } else {
+                    gameScreen.movePlayer(position);
+                }
                 break;
             default: // If something else comes through
                 break;
