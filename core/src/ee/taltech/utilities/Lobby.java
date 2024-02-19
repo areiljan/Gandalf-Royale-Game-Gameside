@@ -21,6 +21,24 @@ public class Lobby {
     }
 
     /**
+     * Add player to lobby.
+     *
+     * @param playerId that will join lobby
+     */
+    public void addPlayer(Integer playerId) {
+        players.add(playerId);
+    }
+
+    /**
+     * Remove player form lobby.
+     *
+     * @param playerId that will leave lobby
+     */
+    public void removePlayer(Integer playerId) {
+        players.remove(playerId);
+    }
+
+    /**
      * Get lobby's player count.
      *
      * @return player count
@@ -48,20 +66,20 @@ public class Lobby {
     }
 
     /**
-     * Add player to lobby.
+     * Get lobby's host ID.
      *
-     * @param playerId that will join lobby
+     * @return host ID
      */
-    public void addPlayer(Integer playerId) {
-        players.add(playerId);
+    public Integer getHostId() {
+        return players.getFirst();
     }
 
     /**
-     * Remove player form lobby.
+     * Get player list.
      *
-     * @param playerId that will leave lobby
+     * @return player list
      */
-    public void removePlayer(Integer playerId) {
-        players.remove(playerId);
+    public List<Integer> getPlayers() {
+        return players;
     }
 }
