@@ -15,8 +15,9 @@ Until we do not have server, client has to run both server and clinet side on th
 **Server Side:** <br>
 1. Clone this repositroy [iti0301-2024-server](https://gitlab.cs.taltech.ee/rkilks/iti0301-2024-server)
 2. If you don't have Gradle plugin, download it
-3. Open Project view and go to iti0301-2024-server -> server -> src -> main -> java -> ee.taltech.game.server -> datamanagement -> GameServer
-4. Run this file and you shoud have working server side
+3. Make sure you have server file as module in project structure, if it is not you should make it a module
+4. Open Project view and go to iti0301-2024-server -> server -> src -> main -> java -> ee.taltech.game.server -> datamanagement -> GameServer
+5. Run this file and you shoud have working server side
 
 **Client Side:** <br>
 1. Clone this repositroy [iti0301-2024-game](https://gitlab.cs.taltech.ee/rkilks/iti0301-2024-game)
