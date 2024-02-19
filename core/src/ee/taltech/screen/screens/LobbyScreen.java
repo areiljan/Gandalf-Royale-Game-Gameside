@@ -1,4 +1,4 @@
-package ee.taltech.screens;
+package ee.taltech.screen.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
@@ -69,8 +69,7 @@ public class LobbyScreen extends ScreenAdapter {
         createHeader(); // Creating lobby header (stated only in constructor)
         setupListeners(); // Set up listeners for buttons (stated only in constructor)
 
-        game.nc.addListener(); // Add NetworkClient listener, that listens for the messages from the server
-        game.nc.registerListener("LobbyScreen", this); // Register lobby screen for network client
+        game.nc.addLobbyListener(); // Add NetworkClient listener, that listens for the messages from the server
         game.nc.sendTCP(new GetLobbies()); // Send GetLobbies message to server
     }
 
@@ -120,8 +119,8 @@ public class LobbyScreen extends ScreenAdapter {
         buttonBack.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(game.menuScreen); // Change screen to MenuScreen
-                game.menuScreen.lobbyScreenDispose(); // Dispose this LobbyScreen (TEMPORARY)
+                dispose();
+                game.screenController.setMenuScreen(); // Change screen to MenuScreen
             }
         });
 
@@ -148,7 +147,6 @@ public class LobbyScreen extends ScreenAdapter {
             public void changed(ChangeEvent event, Actor actor) {
                 // Send LobbyCreation message to sever with game name and host ID
                 game.nc.sendTCP(new LobbyCreation(nameTextField.getText(), game.nc.clientId));
-
                 nameTextField.setText(""); // Clear input field
                 gameNamingWindow.remove(); // Remove game name window
             }
@@ -249,6 +247,16 @@ public class LobbyScreen extends ScreenAdapter {
     };
 
     /**
+     * Go to LobbyRoomScreen.
+     *
+     * @param lobby given lobby
+     */
+    public void goToLobbyRoomScreen(Lobby lobby) {
+        Gdx.app.postRunnable(this::dispose);
+        game.screenController.setLobbyRoomScreen(lobby);
+    }
+
+    /**
      * Make player join lobby when sever sent Join message.
      *
      * @param gameId which lobby player wants to join
@@ -258,6 +266,9 @@ public class LobbyScreen extends ScreenAdapter {
         Lobby lobby = lobbies.get(gameId); // Get correct lobby from lobbies Map
         lobby.addPlayer(playerId); // Add player to given lobby
         lobbyPlayerCountLabels.get(gameId).setText(lobby.getPlayerCount() + "/10"); // Show new player count
+        if (playerId == game.nc.clientId) {
+            goToLobbyRoomScreen(lobby);
+        }
     }
 
     /**
@@ -302,7 +313,7 @@ public class LobbyScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         // Show the stage
-        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        stage.act(delta);
         stage.draw();
     }
 
@@ -319,8 +330,8 @@ public class LobbyScreen extends ScreenAdapter {
      */
     @Override
     public void dispose() {
-        stage.dispose(); // Dispose stage
-        game.nc.removeListener(); // Remove listeners
+        stage.dispose();
+        game.nc.removeAllListeners(); // Remove listener
 //        skin.dispose();
     }
 }

@@ -1,4 +1,4 @@
-package ee.taltech.screens;
+package ee.taltech.screen.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
@@ -114,8 +114,8 @@ public class MenuScreen extends ScreenAdapter {
         buttonPlay.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                lobbyScreen = new LobbyScreen(game); // Create LobbyScreen
-                game.setScreen(lobbyScreen); // Change screen to LobbyScreen
+                dispose();
+                game.screenController.setLobbyScreen(); // Change screen to LobbyScreen
             }
         });
 
@@ -134,13 +134,6 @@ public class MenuScreen extends ScreenAdapter {
                 Gdx.app.exit(); // Close the whole application
             }
         });
-    }
-
-    /**
-     * Dispose LobbyScreen.
-     */
-    public void lobbyScreenDispose() {
-        lobbyScreen.dispose();
     }
 
     /**
@@ -175,5 +168,13 @@ public class MenuScreen extends ScreenAdapter {
     @Override
     public void hide() {
         Gdx.input.setInputProcessor(null);
+    }
+
+    /**
+     * Dispose screen.
+     */
+    @Override
+    public void dispose() {
+        stage.dispose();
     }
 }

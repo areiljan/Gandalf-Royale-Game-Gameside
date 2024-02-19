@@ -3,33 +3,36 @@ package ee.taltech.network;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 import com.esotericsoftware.kryonet.Client;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
+import ee.taltech.network.listeners.LobbyListener;
+import ee.taltech.network.listeners.LobbyRoomListener;
+import ee.taltech.network.listeners.PlayerPositionListener;
 import ee.taltech.network.messages.*;
-import ee.taltech.screens.LobbyScreen;
-import ee.taltech.utilities.Lobby;
+import ee.taltech.screen.ScreenController;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class NetworkClient {
 
+    ScreenController screenController;
     public Client client;
-    public Position receivedPosition;
     public int clientId;
-    public Map<String, Object> listeners;
-    public Listener.ThreadedListener threadedListener;
+    List<Listener> listeners;
+    LobbyListener lobbyListener;
+    LobbyRoomListener lobbyRoomListener;
+    PlayerPositionListener playerPositionListener;
+
 
     /**
      * Construct NetworkClient.
      *
      * @throws RuntimeException if connecting ti server fails
      */
-    public NetworkClient() throws RuntimeException {
+    public NetworkClient(ScreenController screenController) throws RuntimeException {
+        this.screenController = screenController;
+
         client = new Client(); // Create new client
         client.start(); // Start client
 
@@ -37,7 +40,7 @@ public class NetworkClient {
         registerKryos(); // Register sendable data
 
         clientId = client.getID(); // Client id variable
-        listeners = new HashMap<>(); // Map of all listeners
+        listeners = new ArrayList<>();
     }
 
     /**
@@ -47,6 +50,7 @@ public class NetworkClient {
         // Add sendable data structures.
         Kryo kryo = client.getKryo();
         kryo.register(java.util.ArrayList.class);
+        kryo.register(StartGame.class);
         kryo.register(Position.class);
         kryo.register(Join.class);
         kryo.register(Leave.class);
@@ -56,16 +60,6 @@ public class NetworkClient {
         kryo.register(KeyPress.class);
         kryo.register(KeyPress.Direction.class);
         kryo.addDefaultSerializer(KeyPress.Direction.class, DefaultSerializers.EnumSerializer.class);
-    }
-
-    /**
-     * Register new client side listener for NetworkClient.
-     *
-     * @param type string that tells which class is registering as listener
-     * @param listener class instants that wants to register as listener
-     */
-    public void registerListener(String type, Object listener) {
-        listeners.put(type, listener); // Add new listener to listener Map
     }
 
     /**
@@ -106,57 +100,39 @@ public class NetworkClient {
     }
 
     /**
-     * Create listener for listening messages from sever.
+     * Add LobbyListener.
      */
-    public void addListener() {
-        // Listen to incoming data from the connected server.
-        threadedListener = new Listener.ThreadedListener(new Listener() {
-            @Override
-            public void received(Connection connection, Object incomingData) {
-                Lobby lobby;
-                LobbyScreen lobbyScreen;
-
-                switch (incomingData){
-                    case Position position: // Position message
-                        receivedPosition = position;
-                        break;
-                    case GetLobbies givenLobby: // GetLobbies message
-                        lobby = new Lobby(givenLobby.name, givenLobby.gameId, givenLobby.players);
-                        lobbyScreen = (LobbyScreen) listeners.get("LobbyScreen");
-                        lobbyScreen.showLobby(lobby);
-                        break;
-                    case LobbyCreation newLobby: // LobbyCreation message
-                        lobby = new Lobby(newLobby.gameName, newLobby.gameId,
-                                new ArrayList<>(List.of(newLobby.hostId)));
-                        lobbyScreen = (LobbyScreen) listeners.get("LobbyScreen");
-                        lobbyScreen.showLobby(lobby);
-                        break;
-                    case Join join: // Join message
-                        lobbyScreen = (LobbyScreen) listeners.get("LobbyScreen");
-                        lobbyScreen.joinLobby(join.gameId, join.playerId);
-                        break;
-                    case Leave leave: // Leave message
-                        lobbyScreen = (LobbyScreen) listeners.get("LobbyScreen");
-                        lobbyScreen.leaveLobby(leave.gameId, leave.playerId);
-                        break;
-                    case LobbyDismantle givenLobby: // LobbyDismantle message
-                        lobbyScreen = (LobbyScreen) listeners.get("LobbyScreen");
-                        lobbyScreen.dismantleLobby(givenLobby.gameId);
-                        break;
-                    case FrameworkMessage.KeepAlive ignored: // KeepAlive message
-                        break;
-                    default: // If something else comes through
-                        throw new IllegalStateException("Unexpected value: " + incomingData);
-                }
-            }
-        });
-        client.addListener(threadedListener); // Add created listener to client
+    public void addLobbyListener() {
+        lobbyListener = new LobbyListener(screenController);
+        listeners.add(lobbyListener);
+        client.addListener(lobbyListener);
     }
 
     /**
-     * Remove sever listener.
+     * Add LobbyRoomListener.
      */
-    public void removeListener() {
-        client.removeListener(threadedListener);
+    public void addLobbyRoomListener() {
+        lobbyRoomListener = new LobbyRoomListener(screenController);
+        listeners.add(lobbyRoomListener);
+        client.addListener(lobbyRoomListener);
+    }
+
+    /**
+     * Add LobbyRoomListener.
+     */
+    public void addGameListeners() {
+        playerPositionListener = new PlayerPositionListener(screenController);
+        listeners.add(playerPositionListener);
+        client.addListener(playerPositionListener);
+        // Add here more game listeners
+    }
+
+    /**
+     * Remove all listeners.
+     */
+    public void removeAllListeners() {
+        for (Listener listener : listeners) {
+            client.removeListener(listener);
+        }
     }
 }
