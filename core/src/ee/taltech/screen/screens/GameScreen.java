@@ -3,6 +3,7 @@ package ee.taltech.screen.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.ScreenUtils;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.network.NetworkClient;
@@ -25,8 +26,11 @@ public class GameScreen extends ScreenAdapter {
 
     // Threshold for the server to override the position difference
     private static final Integer OVERWRITE_THRESHOLD = 5;
-
     public PlayerCharacter playerCharacter;
+
+    // Used ONLY for static background image (TEMPORARY)
+    private static final Texture BACKGROUND_TEXTURE = new Texture("game.png"); // Background image
+    private static final Sprite BACKGROUND_SPRITE = new Sprite(BACKGROUND_TEXTURE); // Background sprite made from image
 
     /**
      * Construct GameScreen.
@@ -110,12 +114,24 @@ public class GameScreen extends ScreenAdapter {
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 0);
         playerCharacter.updatePosition(); // Update the player position prediction for smoother response.
+
+        // Update camera position to follow player
+        game.camera.position.x = playerCharacter.xPosition;
+        game.camera.position.y = playerCharacter.yPosition;
+
+        // Update camera matrices
+        game.camera.update();
+
+        // Set camera projection matrix
+        game.batch.setProjectionMatrix(game.camera.combined);
+
+        // Render game objects
         game.batch.begin();
+        BACKGROUND_SPRITE.draw(game.batch); // Used ONLY for static background image (TEMPORARY)
         drawPlayer(); // Draw client character
         drawEnemy(); // Draw enemy wizards.
         game.batch.end();
     }
-
 
     /**
      * Hide screen.
