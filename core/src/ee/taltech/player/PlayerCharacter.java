@@ -10,14 +10,44 @@ public class PlayerCharacter {
     boolean moveRight;
     boolean moveDown;
     boolean moveUp;
+    public Integer health;
+    public Integer mana;
 
+    /**
+     * Construct PlayerCharacter.
+     *
+     * @param playerID player's ID
+     */
     public PlayerCharacter(Integer playerID) {
         // Here should be the random spawn points for a PlayerCharacter
         this.xPosition = 0;
         this.yPosition = 0;
         this.playerID = playerID;
+        health = 100;
+        mana = 100;
     }
 
+    /**
+     * Set player's health.
+     *
+     * @param newHealth new health that is set to player
+     */
+    public void setHealth(Integer newHealth) {
+        health = newHealth;
+    }
+
+    /**
+     * Set player's mana.
+     *
+     * @param newMana new mana that is set to player.
+     */
+    public void setMana(Integer newMana) {
+        health = newMana;
+    }
+
+    /**
+     * Update player's position.
+     */
     public void updatePosition() {
         // updatePosition is activated every TPS.
 
@@ -53,7 +83,11 @@ public class PlayerCharacter {
         }
     }
 
-
+    /**
+     * Set player's movement based on keypress.
+     *
+     * @param keyPress incoming keypress
+     */
     public void setMovement(KeyPress keyPress) {
         // Set a direction where player should be headed.
         if (keyPress.direction == KeyPress.Direction.LEFT) {
@@ -70,6 +104,12 @@ public class PlayerCharacter {
         }
     }
 
+    /**
+     * Set player characters position.
+     *
+     * @param xPosition x coordinate
+     * @param yPosition y coordinate
+     */
     public void setPosition(int xPosition, int yPosition) {
         this.xPosition = xPosition;
         this.yPosition = yPosition;
