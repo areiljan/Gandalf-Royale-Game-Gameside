@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
+import ee.taltech.network.listeners.HealthAndManaListener;
 import ee.taltech.network.listeners.LobbyListener;
 import ee.taltech.network.listeners.LobbyRoomListener;
 import ee.taltech.network.listeners.PlayerPositionListener;
@@ -23,6 +24,7 @@ public class NetworkClient {
     LobbyListener lobbyListener;
     LobbyRoomListener lobbyRoomListener;
     PlayerPositionListener playerPositionListener;
+    HealthAndManaListener healthAndManaListener;
 
 
     /**
@@ -59,6 +61,8 @@ public class NetworkClient {
         kryo.register(StartGame.class);
         kryo.register(KeyPress.class);
         kryo.register(KeyPress.Direction.class);
+        kryo.register(UpdateHealth.class);
+        kryo.register(UpdateMana.class);
         kryo.addDefaultSerializer(KeyPress.Direction.class, DefaultSerializers.EnumSerializer.class);
     }
 
@@ -118,12 +122,17 @@ public class NetworkClient {
     }
 
     /**
-     * Add LobbyRoomListener.
+     * Add Game listeners.
      */
     public void addGameListeners() {
         playerPositionListener = new PlayerPositionListener(screenController);
+        healthAndManaListener = new HealthAndManaListener(screenController);
+
         listeners.add(playerPositionListener);
+        listeners.add(healthAndManaListener);
+
         client.addListener(playerPositionListener);
+        client.addListener(healthAndManaListener);
         // Add here more game listeners
     }
 

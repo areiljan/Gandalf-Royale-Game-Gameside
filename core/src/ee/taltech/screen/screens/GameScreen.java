@@ -2,8 +2,10 @@ package ee.taltech.screen.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.network.NetworkClient;
@@ -31,6 +33,7 @@ public class GameScreen extends ScreenAdapter {
     // Used ONLY for static background image (TEMPORARY)
     private static final Texture BACKGROUND_TEXTURE = new Texture("game.png"); // Background image
     private static final Sprite BACKGROUND_SPRITE = new Sprite(BACKGROUND_TEXTURE); // Background sprite made from image
+    private final ShapeRenderer shapeRenderer;
 
     /**
      * Construct GameScreen.
@@ -47,6 +50,7 @@ public class GameScreen extends ScreenAdapter {
         }
         playerCharacter = alivePlayers.get(this.nc.clientId); // Create the client character object.
         game.nc.addGameListeners();
+        shapeRenderer = new ShapeRenderer();
     }
 
     /**
@@ -68,9 +72,14 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawPlayer() {
         // Set the image to 3 times smaller picture and flip it, if player is moving left.
+        game.batch.begin();
         game.batch.draw(img, playerCharacter.xPosition, playerCharacter.yPosition,
                 (float) img.getWidth() / 3, (float) img.getHeight() / 3, 0, 0,
                 img.getWidth(), img.getHeight(), playerCharacter.moveLeft, false);
+        game.batch.end();
+
+        // Draw health and mana bar
+        drawBars(playerCharacter);
     }
 
     /**
@@ -79,12 +88,53 @@ public class GameScreen extends ScreenAdapter {
     private void drawEnemy() {
         for (PlayerCharacter enemyPlayer : alivePlayers.values()) {
             if (enemyPlayer.playerID != nc.clientId) {
+                // Draw enemy player
+                game.batch.begin();
                 game.batch.draw(img, enemyPlayer.xPosition, enemyPlayer.yPosition,
                         (float) img.getWidth() / 3, (float) img.getHeight() / 3, 0, 0,
                         img.getWidth(), img.getHeight(), enemyPlayer.moveLeft, false);
+                game.batch.end();
+
+                // Draw health and mana bar
+                drawBars(enemyPlayer);
             }
         }
     }
+
+    /**
+     * Draw health and mana bar for player.
+     *
+     * @param player any PlayerCharacter
+     */
+    private void drawBars(PlayerCharacter player) {
+        // Render shapes
+        shapeRenderer.setProjectionMatrix(game.camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        // Draw missing health bar
+        shapeRenderer.setColor(Color.FIREBRICK);
+        shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3 + 10,
+                100 * 2, 5);
+
+        // Draw health bar
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3 + 10,
+                player.health * 2, 5);
+
+        // Draw missing mana bar
+        shapeRenderer.setColor(Color.NAVY);
+        shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3,
+                100 * 2, 5);
+
+        // Draw mana bar
+        shapeRenderer.setColor(Color.BLUE);
+        shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3,
+                player.mana * 2, 5);
+
+        // Stop rendering shapes
+        shapeRenderer.end();
+    }
+
     /**
      * Method to move enemy players.
      *
@@ -93,6 +143,26 @@ public class GameScreen extends ScreenAdapter {
     public void movePlayer(Position position) {
         PlayerCharacter enemyPlayer = alivePlayers.get(position.userID);
         enemyPlayer.setPosition(position.xPosition, position.yPosition);
+    }
+
+    /**
+     * Update player's health.
+     *
+     * @param id player's ID
+     * @param health player's new health
+     */
+    public void updatePlayersHealth(Integer id, Integer health) {
+        alivePlayers.get(id).setHealth(health);
+    }
+
+    /**
+     * Update player's mana.
+     *
+     * @param id player's ID
+     * @param mana player's new mana
+     */
+    public void updatePlayersMana(Integer id, Integer mana) {
+        alivePlayers.get(id).setMana(mana);
     }
 
     /**
@@ -128,9 +198,10 @@ public class GameScreen extends ScreenAdapter {
         // Render game objects
         game.batch.begin();
         BACKGROUND_SPRITE.draw(game.batch); // Used ONLY for static background image (TEMPORARY)
+        game.batch.end();
+
         drawPlayer(); // Draw client character
         drawEnemy(); // Draw enemy wizards.
-        game.batch.end();
     }
 
     /**
