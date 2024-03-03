@@ -2,20 +2,25 @@ package ee.taltech.network.listeners;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import ee.taltech.network.messages.Position;
+import ee.taltech.network.messages.*;
+import ee.taltech.objects.Fireball;
 import ee.taltech.screen.ScreenController;
 import ee.taltech.screen.screens.GameScreen;
+import ee.taltech.screen.screens.LobbyScreen;
+import ee.taltech.utilities.Lobby;
 
-public class PlayerPositionListener extends Listener {
+import java.util.ArrayList;
+import java.util.List;
 
+public class FireballListener extends Listener {
     ScreenController screenController;
 
     /**
-     * Construct PlayerPositionListener.
+     * Construct LobbyListener.
      *
      * @param screenController game screen controller
      */
-    public PlayerPositionListener(ScreenController screenController) {
+    public FireballListener(ScreenController screenController) {
         this.screenController = screenController;
     }
 
@@ -27,20 +32,16 @@ public class PlayerPositionListener extends Listener {
      */
     @Override
     public void received(Connection connection, Object incomingData) {
-        GameScreen gameScreen;
-        gameScreen = screenController.getGameScreen();
+        GameScreen gameScreen = screenController.getGameScreen();
         switch (incomingData){
-            case Position position: // Position message
-                if (position.userID == connection.getID()) {
-                    gameScreen.checkOverwritePlayerPosition(position);
-                } else {
-                    gameScreen.movePlayer(position);
+            case FireballPosition fireballPosition: // fireballPosition message
+                Fireball fireball = gameScreen.getFireball();
+                if (fireball != null) {
+                    fireball.updateFireballPositions(fireballPosition);
                 }
                 break;
-            default: // If something else comes through
+            default: // Ignore if something else comes through
                 break;
         }
     }
 }
-
-
