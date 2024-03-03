@@ -1,15 +1,35 @@
 package ee.taltech.player;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector3;
 import ee.taltech.network.messages.KeyPress;
+import ee.taltech.network.messages.MouseClicks;
+import ee.taltech.screen.screens.GameScreen;
 
 public class PlayerCharacter {
+    public int getxPosition() {
+        return xPosition;
+    }
+
     public int xPosition;
+
+    public int getyPosition() {
+        return yPosition;
+    }
+
     public int yPosition;
     public int playerID;
     public boolean moveLeft;
     boolean moveRight;
     boolean moveDown;
     boolean moveUp;
+    public double mouseXPosition;
+    public double mouseYPosition;
+    public boolean mouseLeftClick;
+    public boolean faceLeft = false;
+    private GameScreen gameScreen;
     public Integer health;
     public Integer mana;
 
@@ -49,8 +69,6 @@ public class PlayerCharacter {
      * Update player's position.
      */
     public void updatePosition() {
-        // updatePosition is activated every TPS.
-
         // One key press distance that a character travels.
         int distance = 8;
         // Diagonal movement correction formula.
@@ -82,6 +100,14 @@ public class PlayerCharacter {
             }
         }
     }
+
+    public void setMouseHover(MouseClicks mouseClicks) {
+        this.mouseXPosition = mouseClicks.mouseXPosition;
+        this.mouseYPosition = mouseClicks.mouseYPosition;
+        this.mouseLeftClick = mouseClicks.leftMouse;
+    }
+
+
 
     /**
      * Set player's movement based on keypress.

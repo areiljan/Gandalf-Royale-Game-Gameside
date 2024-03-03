@@ -4,10 +4,15 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
+import ee.taltech.network.listeners.FireballListener;
 import ee.taltech.network.listeners.HealthAndManaListener;
 import ee.taltech.network.listeners.LobbyListener;
 import ee.taltech.network.listeners.LobbyRoomListener;
 import ee.taltech.network.listeners.PlayerPositionListener;
+import ee.taltech.network.messages.FireballPosition;
+import ee.taltech.network.messages.KeyPress;
+import ee.taltech.network.messages.MouseClicks;
+import ee.taltech.network.messages.Position;
 import ee.taltech.network.messages.*;
 import ee.taltech.screen.ScreenController;
 
@@ -24,6 +29,7 @@ public class NetworkClient {
     LobbyListener lobbyListener;
     LobbyRoomListener lobbyRoomListener;
     PlayerPositionListener playerPositionListener;
+    FireballListener fireballPositionListener;
     HealthAndManaListener healthAndManaListener;
 
 
@@ -60,10 +66,16 @@ public class NetworkClient {
         kryo.register(GetLobbies.class);
         kryo.register(StartGame.class);
         kryo.register(KeyPress.class);
+        kryo.register(MouseClicks.class);
+        kryo.register(MouseClicks.Spell.class);
         kryo.register(KeyPress.Direction.class);
         kryo.register(UpdateHealth.class);
         kryo.register(UpdateMana.class);
+        kryo.register(Position.class);
+        kryo.register(FireballPosition.class);
         kryo.addDefaultSerializer(KeyPress.Direction.class, DefaultSerializers.EnumSerializer.class);
+        kryo.addDefaultSerializer(MouseClicks.Spell.class, DefaultSerializers.EnumSerializer.class);
+
     }
 
     /**
@@ -126,12 +138,15 @@ public class NetworkClient {
      */
     public void addGameListeners() {
         playerPositionListener = new PlayerPositionListener(screenController);
+        fireballPositionListener = new FireballListener(screenController);
         healthAndManaListener = new HealthAndManaListener(screenController);
 
         listeners.add(playerPositionListener);
+        listeners.add(fireballPositionListener);
         listeners.add(healthAndManaListener);
 
         client.addListener(playerPositionListener);
+        client.addListener(fireballPositionListener);
         client.addListener(healthAndManaListener);
         // Add here more game listeners
     }

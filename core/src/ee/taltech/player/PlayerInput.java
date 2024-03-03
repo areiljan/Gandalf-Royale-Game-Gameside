@@ -1,22 +1,36 @@
 package ee.taltech.player;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.network.messages.KeyPress;
+import ee.taltech.network.messages.MouseClicks;
+import ee.taltech.screen.screens.GameScreen;
+import ee.taltech.utilities.Lobby;
 
 import java.util.Objects;
 
 public class PlayerInput implements InputProcessor {
-
+    private final GameScreen gameScreen;
     private GandalfRoyale game;
     private PlayerCharacter playerCharacter;
-
     private KeyPress key;
+    private MouseClicks mouse;
+    private boolean leftMouseDown;
+    private boolean faceLeft;
+    private OrthographicCamera camera = new OrthographicCamera();
 
-    public PlayerInput(GandalfRoyale game, PlayerCharacter playerCharacter) {
+
+    public PlayerInput(GandalfRoyale game, PlayerCharacter playerCharacter, GameScreen gameScreen) {
         this.game = game;
         this.playerCharacter = playerCharacter;
+        this.gameScreen = gameScreen;
     }
 
     @Override
@@ -76,14 +90,48 @@ public class PlayerInput implements InputProcessor {
         return false;
     }
 
-    @Override
-    public boolean touchDown(int xPressPosition, int yPressPosition, int i2, int mouseButton) {
-        // mouseButton gives an int of given button press on the mouse
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        int windowHeight = Gdx.graphics.getHeight();
+        int windowWidth = Gdx.graphics.getWidth();
+        if (button == Buttons.LEFT) {
+            // Get the character's position
+            Vector2 characterPositionOnScreen = new Vector2(windowWidth / 2, windowHeight / 2);
+
+            // Create a vector representing the mouse position
+            Vector2 mousePosition = new Vector2(screenX, screenY);
+
+            // Subtract the character's position from the mouse position to get the relative position
+            Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
+
+            leftMouseDown = true;
+            mouse = new MouseClicks(MouseClicks.Spell.FIREBALL, leftMouseDown, relativeMousePosition.x, relativeMousePosition.y);
+            leftMouseDown = false;
+            game.nc.sendUDP(mouse);
+        }
         return false;
     }
 
     @Override
-    public boolean touchUp(int i, int i1, int i2, int i3) {
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    // Mouse positions
+    @Override
+    public boolean mouseMoved(int xMousePosition, int yMousePosition) {
+        int windowHeight = Gdx.graphics.getHeight();
+        int windowWidth = Gdx.graphics.getWidth();
+        // Get the character's position
+        Vector2 characterPositionOnScreen = new Vector2(windowWidth / 2, windowHeight / 2);
+
+        // Create a vector representing the mouse position
+        Vector2 mousePosition = new Vector2(xMousePosition, yMousePosition);
+
+        // Subtract the character's position from the mouse position to get the relative position
+        Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
+
+        mouse = new MouseClicks(MouseClicks.Spell.FIREBALL, leftMouseDown, relativeMousePosition.x, relativeMousePosition.y);
+        game.nc.sendUDP(mouse);
         return false;
     }
 
@@ -94,11 +142,6 @@ public class PlayerInput implements InputProcessor {
 
     @Override
     public boolean touchDragged(int i, int i1, int i2) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int xMousePosition, int yMousePosition) {
         return false;
     }
 
