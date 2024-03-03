@@ -17,13 +17,24 @@ Until we do not have server, client has to run both server and clinet side on th
 2. If you don't have Gradle plugin, download it
 3. Make sure you have server file as module in project structure, if it is not you should make it a module
 4. Open Project view and go to iti0301-2024-server -> server -> src -> main -> java -> ee.taltech.game.server -> datamanagement -> GameServer
-5. Run this file and you shoud have working server side
+5. Make sure the project is running with Java 21 and Language level 21 (SDK default should work also). You can do that in Project Strucutre -> Project
+6. Run this file and you shoud have working server side
 
 **Client Side:** <br>
 1. Clone this repositroy [iti0301-2024-game](https://gitlab.cs.taltech.ee/rkilks/iti0301-2024-game)
 2. If you don't have Gradle plugin, download it
 3. Open Gradle plugin on project and go to iti0301-2024-game -> Tasks -> Other -> run
-4. Now if you run this iti0301-2024-game\[run\] file you should have working client side
+4. Make sure the project is running with Java 21 and Language level 21 (SDK default should work also). You can do that in Project Strucutre -> Project
+5. Now if you run this iti0301-2024-game\[run\] file you should have working client side
 
 If you have started sever first and after that client then you shoud have working game instance on your screen.
 Have fun :P
+
+### How to play
+
+Please note: This game is still under development, so you might encounter some bugs.
+
+1. Start your adventure: Click the "Play" button on the main screen.
+2. Host a game: Click the "Create Game" button in the top right corner. Choose a catchy name for your lobby, and others will see it appear in the lobby list.
+3. Ready, set, play!: You can start the game with at least 2 players.
+4. Fire away!: Click the left mouse button to shoot fireballs.
