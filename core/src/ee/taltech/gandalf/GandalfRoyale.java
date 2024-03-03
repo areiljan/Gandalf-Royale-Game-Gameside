@@ -16,10 +16,8 @@ import ee.taltech.screen.ScreenController;
 public class GandalfRoyale extends Game {
     public SpriteBatch batch;
     public BitmapFont font;
-
     public NetworkClient nc;
     public ScreenController screenController;
-
 
     /**
      * Create game instance.
@@ -38,8 +36,6 @@ public class GandalfRoyale extends Game {
 
         screenController.setMenuScreen(); // Set MenuScreen as the first screen.
     }
-
-
 
     /**
      * Dispose game.

@@ -32,9 +32,9 @@ public class PlayerPositionListener extends Listener {
         switch (incomingData){
             case Position position: // Position message
                 if (position.userID == connection.getID()) {
-                    gameScreen.checkOverwritePlayerPosition(position);
+                    gameScreen.startedGame.checkOverwritePlayerPosition(position);
                 } else {
-                    gameScreen.movePlayer(position);
+                    gameScreen.startedGame.movePlayer(position);
                 }
                 break;
             default: // If something else comes through

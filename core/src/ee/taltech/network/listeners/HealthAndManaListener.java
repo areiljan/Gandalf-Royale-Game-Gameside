@@ -31,10 +31,10 @@ public class HealthAndManaListener extends Listener {
         GameScreen gameScreen = screenController.getGameScreen();
         switch (incomingData) {
             case UpdateHealth message: // UpdateHealth message
-                gameScreen.updatePlayersHealth(message.playerId, message.health);
+                gameScreen.startedGame.updatePlayersHealth(message.playerId, message.health);
                 break;
             case UpdateMana message: // UpdateMana message
-                gameScreen.updatePlayersMana(message.playerId, message.mana);
+                gameScreen.startedGame.updatePlayersMana(message.playerId, message.mana);
                 break;
             default: // Something else
                 break;

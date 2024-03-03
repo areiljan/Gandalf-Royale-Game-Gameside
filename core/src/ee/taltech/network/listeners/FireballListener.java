@@ -11,6 +11,7 @@ import ee.taltech.utilities.Lobby;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FireballListener extends Listener {
     ScreenController screenController;
@@ -34,11 +35,9 @@ public class FireballListener extends Listener {
     public void received(Connection connection, Object incomingData) {
         GameScreen gameScreen = screenController.getGameScreen();
         switch (incomingData){
-            case FireballPosition fireballPosition: // fireballPosition message
-                Fireball fireball = gameScreen.getFireball();
-                if (fireball != null) {
-                    fireball.updateFireballPositions(fireballPosition);
-                }
+            case FireballPosition fireball: // fireballPosition message
+                gameScreen.startedGame.updateFireballPositions(fireball.senderPlayerID,
+                        fireball.xPosition, fireball.yPosition, fireball.id);
                 break;
             default: // Ignore if something else comes through
                 break;
