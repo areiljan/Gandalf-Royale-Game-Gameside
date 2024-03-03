@@ -1,5 +1,6 @@
 package ee.taltech.player;
 
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -9,16 +10,12 @@ import ee.taltech.network.messages.MouseClicks;
 import ee.taltech.screen.screens.GameScreen;
 
 public class PlayerCharacter {
-    public int getxPosition() {
-        return xPosition;
-    }
 
+    public static final Integer WIDTH = 55;
+    public static final Integer HEIGHT = 70;
+
+    private Body body;
     public int xPosition;
-
-    public int getyPosition() {
-        return yPosition;
-    }
-
     public int yPosition;
     public int playerID;
     public boolean moveLeft;
@@ -28,8 +25,6 @@ public class PlayerCharacter {
     public double mouseXPosition;
     public double mouseYPosition;
     public boolean mouseLeftClick;
-    public boolean faceLeft = false;
-    private GameScreen gameScreen;
     public Integer health;
     public Integer mana;
 
@@ -45,6 +40,35 @@ public class PlayerCharacter {
         this.playerID = playerID;
         health = 100;
         mana = 100;
+    }
+
+    /**
+     * Create player's hit box.
+     *
+     * @param world world, where hit boxes are in
+     */
+    public void createHitBox(World world) {
+        // Create a dynamic or static body for the player
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(xPosition, yPosition);
+        Body hitBoxBody = world.createBody(bodyDef);
+
+        // Create a fixture defining the hit box shape
+        PolygonShape hitBoxShape = new PolygonShape();
+        hitBoxShape.setAsBox(PlayerCharacter.WIDTH, PlayerCharacter.HEIGHT);
+
+        // Attach the fixture to the body
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = hitBoxShape;
+        fixtureDef.density = 1.0f;
+        hitBoxBody.createFixture(fixtureDef);
+
+        // Clean up
+        hitBoxShape.dispose();
+
+        hitBoxBody.setUserData("player");
+        this.body = hitBoxBody;
     }
 
     /**
@@ -66,9 +90,20 @@ public class PlayerCharacter {
     }
 
     /**
+     * Get player's body.
+     *
+     * @return body
+     */
+    public Body getBody() {
+        return body;
+    }
+
+    /**
      * Update player's position.
      */
     public void updatePosition() {
+        // updatePosition is activated every TPS.
+
         // One key press distance that a character travels.
         int distance = 8;
         // Diagonal movement correction formula.
@@ -86,28 +121,42 @@ public class PlayerCharacter {
             this.xPosition += diagonal;
             this.yPosition -= diagonal;
         } else {
-            if (moveLeft) {
-                this.xPosition -= distance;
-            }
-            if (moveRight) {
-                this.xPosition += distance;
-            }
-            if (moveUp) {
-                this.yPosition += distance;
-            }
-            if (moveDown) {
-                this.yPosition -= distance;
-            }
+            oneDirectionMovement(distance);
+        }
+        // Set the position of the Box2D body to match the player's coordinates
+        body.setTransform( (float) xPosition + 91, (float) yPosition + 70, body.getAngle());
+    }
+
+    /**
+     * Moving only in one direction
+     *
+     * @param distance how much player is moving
+     */
+    private void oneDirectionMovement(int distance) {
+        if (moveLeft) {
+            this.xPosition -= distance;
+        }
+        if (moveRight) {
+            this.xPosition += distance;
+        }
+        if (moveUp) {
+            this.yPosition += distance;
+        }
+        if (moveDown) {
+            this.yPosition -= distance;
         }
     }
 
+    /**
+     * Set move hover values.
+     *
+     * @param mouseClicks where move was clicked
+     */
     public void setMouseHover(MouseClicks mouseClicks) {
         this.mouseXPosition = mouseClicks.mouseXPosition;
         this.mouseYPosition = mouseClicks.mouseYPosition;
         this.mouseLeftClick = mouseClicks.leftMouse;
     }
-
-
 
     /**
      * Set player's movement based on keypress.

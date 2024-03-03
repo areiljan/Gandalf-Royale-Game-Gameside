@@ -69,7 +69,6 @@ public class LobbyScreen extends ScreenAdapter {
         createHeader(); // Creating lobby header (stated only in constructor)
         setupListeners(); // Set up listeners for buttons (stated only in constructor)
 
-        game.nc.addLobbyListener(); // Add NetworkClient listener, that listens for the messages from the server
         game.nc.sendTCP(new GetLobbies()); // Send GetLobbies message to server
     }
 

@@ -50,8 +50,6 @@ public class LobbyRoomScreen extends ScreenAdapter {
 
         createHeader();
         setupListerners();
-
-        game.nc.addLobbyRoomListener();
     }
 
     private void createHeader() {

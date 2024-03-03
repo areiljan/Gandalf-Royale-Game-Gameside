@@ -5,65 +5,52 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.network.NetworkClient;
 import ee.taltech.network.messages.FireballPosition;
 import ee.taltech.network.messages.MouseClicks;
-import ee.taltech.network.messages.Position;
 import ee.taltech.objects.Fireball;
 import ee.taltech.player.PlayerCharacter;
 import ee.taltech.player.PlayerInput;
+import ee.taltech.utilities.CollisionHandler;
 import ee.taltech.utilities.Lobby;
+import ee.taltech.utilities.StartedGame;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GameScreen extends ScreenAdapter {
 
-    private final OrthogonalTiledMapRenderer renderer;
-    private final ExtendViewport viewport;
-
-    public OrthographicCamera getCamera() {
-        return camera;
-    }
-
-    public OrthographicCamera camera;
+    private final World world;
+    private final CollisionHandler collisionHandler;
     GandalfRoyale game;
     NetworkClient nc;
+    private final OrthogonalTiledMapRenderer renderer;
+    private final ExtendViewport viewport;
+    public final OrthographicCamera camera;
     Texture img;
-    Texture opponentImg;
-    Lobby lobby;
-    private Map<Integer, PlayerCharacter> alivePlayers;
-
-    // Threshold for the server to override the position difference
-    private static final Integer OVERWRITE_THRESHOLD = 5;
-    public PlayerCharacter playerCharacter;
-
-    // Used ONLY for static background image (TEMPORARY)
+    public final StartedGame startedGame;
+    private final Map<Integer, PlayerCharacter> alivePlayers;
+    private final PlayerCharacter clientCharacter;
+    private final Map<Integer, Fireball> fireballs;
     private final TmxMapLoader mapLoader;
     private final TiledMap map;
-    // private static final Sprite BACKGROUND_SPRITE = new Sprite(BACKGROUND_TEXTURE); // Background sprite made from image
     Texture fireballImg;
-    Fireball fireball;
     MouseClicks mouseClicks;
-    private final int GAME_WORLD_HEIGHT = 500;
-    private final int GAME_WORLD_WIDTH = 500;
 
-    private static final Texture BACKGROUND_TEXTURE = new Texture("game.png"); // Background image
-    private static final Sprite BACKGROUND_SPRITE = new Sprite(BACKGROUND_TEXTURE); // Background sprite made from image
     private final ShapeRenderer shapeRenderer;
+
+
+    private Box2DDebugRenderer debugRenderer; // For debugging
 
     /**
      * Construct GameScreen.
@@ -71,82 +58,45 @@ public class GameScreen extends ScreenAdapter {
      * @param game GandalfRoyale game instance
      */
     public GameScreen(GandalfRoyale game, Lobby lobby) {
+        world = new World(new Vector2(0, 0), true); // Create a new Box2D world
+        collisionHandler = new CollisionHandler();
+        world.setContactListener(new CollisionHandler());
+
         this.game = game;
         this.nc = game.nc;
-        this.lobby = lobby;
-        this.camera = new OrthographicCamera();
+
+        camera = new OrthographicCamera();
         camera.setToOrtho(false);
-        viewport = new ExtendViewport(GAME_WORLD_HEIGHT, GAME_WORLD_WIDTH, camera);
+        viewport = new ExtendViewport(500, 500, camera);
         viewport.apply();
-        this.fireball = new Fireball();
-        alivePlayers = new HashMap<>();
+
         this.mapLoader = new TmxMapLoader();
         this.map = mapLoader.load("gameart2d-desert.tmx");
         this.renderer = new OrthogonalTiledMapRenderer(map);
-        for (Integer playerId : lobby.getPlayers()) {
-            alivePlayers.put(playerId, new PlayerCharacter(playerId, this));
-        }
-        playerCharacter = alivePlayers.get(this.nc.clientId); // Create the client character object.
-        game.nc.addGameListeners();
+
+        startedGame = new StartedGame(game, lobby, world);
+        alivePlayers = startedGame.getAlivePlayers();
+        clientCharacter = startedGame.getClientCharacter();
+        fireballs = startedGame.getFireballs();
+
         shapeRenderer = new ShapeRenderer();
+        debugRenderer = new Box2DDebugRenderer();
     }
 
     /**
-     * Correct camera position when resizing window.
-     *
-     * @param width window width
-     * @param height window height
+     * Draw all player character to screen.
      */
-    public void resize(int width, int height) {
-        viewport.update(width, height);
-    }
+    private void drawPlayers() {
+        for (PlayerCharacter player : alivePlayers.values()) {
+            game.batch.begin();
+            // Set the image to 3 times smaller picture and flip it, if player is moving left.
+            game.batch.draw(img, player.xPosition, player.yPosition,
+                    (float) img.getWidth() / 3, (float) img.getHeight() / 3, 0, 0,
+                    img.getWidth(), img.getHeight(), player.moveLeft, false);
+            game.batch.end();
 
-    /**
-     * Check and Overwrite players position if difference is over the threshold.
-     */
-    public void checkOverwritePlayerPosition(Position position) {
-        // Check if there is an incoming Position message and if it matches the clientID
-        if (position != null && position.userID == this.nc.clientId
-                // Check for the difference in client prediction and actual server position
-                && (Math.abs(playerCharacter.xPosition - position.xPosition) > OVERWRITE_THRESHOLD
-                || Math.abs(playerCharacter.yPosition - position.yPosition) > OVERWRITE_THRESHOLD)) {
-            // Locates the client according to the server position (override the prediction made on client).
-            playerCharacter.setPosition(position.xPosition, position.yPosition);
-        }
-    }
-
-    /**
-     * Draw player character to screen.
-     */
-    private void drawPlayer() {
-        // Set the image to 3 times smaller picture and flip it, if player is moving left.
-        game.batch.begin();
-        game.batch.draw(img, playerCharacter.xPosition, playerCharacter.yPosition,
-                (float) img.getWidth() / 3, (float) img.getHeight() / 3, 0, 0,
-                img.getWidth(), img.getHeight(), playerCharacter.faceLeft, false);
-                img.getWidth(), img.getHeight(), playerCharacter.moveLeft, false);
-        game.batch.end();
-
-        // Draw health and mana bar
-        drawBars(playerCharacter);
-    }
-
-    /**
-     * Draw the enemy wizard player.
-     */
-    private void drawEnemy() {
-        for (PlayerCharacter enemyPlayer : alivePlayers.values()) {
-            if (enemyPlayer.playerID != nc.clientId) {
-                // Draw enemy player
-                game.batch.begin();
-                game.batch.draw(img, enemyPlayer.xPosition, enemyPlayer.yPosition,
-                        (float) img.getWidth() / 3, (float) img.getHeight() / 3, 0, 0,
-                        img.getWidth(), img.getHeight(), enemyPlayer.moveLeft, false);
-                game.batch.end();
-
-                // Draw health and mana bar
-                drawBars(enemyPlayer);
-            }
+            // Draw health and mana bar
+            drawBars(player);
         }
     }
 
@@ -157,61 +107,44 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawBars(PlayerCharacter player) {
         // Render shapes
-        shapeRenderer.setProjectionMatrix(game.camera.combined);
+        shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         // Draw missing health bar
         shapeRenderer.setColor(Color.FIREBRICK);
         shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3 + 10,
-                100 * 2, 5);
+                (float) 100 * 2, 5);
 
         // Draw health bar
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3 + 10,
-                player.health * 2, 5);
+                (float) player.health * 2, 5);
 
         // Draw missing mana bar
         shapeRenderer.setColor(Color.NAVY);
         shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3,
-                100 * 2, 5);
+                (float) 100 * 2, 5);
 
         // Draw mana bar
         shapeRenderer.setColor(Color.BLUE);
         shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3,
-                player.mana * 2, 5);
+                (float) player.mana * 2, 5);
 
         // Stop rendering shapes
         shapeRenderer.end();
     }
 
     /**
-     * Method to move enemy players.
-     *
-     * @param position Message from server, that contains playerID, X, Y coordinates.
+     * Draw fireballs.
      */
-    public void movePlayer(Position position) {
-        PlayerCharacter enemyPlayer = alivePlayers.get(position.userID);
-        enemyPlayer.setPosition(position.xPosition, position.yPosition);
-    }
-
-    /**
-     * Update player's health.
-     *
-     * @param id player's ID
-     * @param health player's new health
-     */
-    public void updatePlayersHealth(Integer id, Integer health) {
-        alivePlayers.get(id).setHealth(health);
-    }
-
-    /**
-     * Update player's mana.
-     *
-     * @param id player's ID
-     * @param mana player's new mana
-     */
-    public void updatePlayersMana(Integer id, Integer mana) {
-        alivePlayers.get(id).setMana(mana);
+    private void drawFireball() {
+        for (Fireball oneFireball : fireballs.values()) {
+            game.batch.begin();
+            game.batch.draw(fireballImg, (float) oneFireball.getXPosition() - (float) fireballImg.getWidth() / 6 ,
+                    (float) oneFireball.getYPosition() - (float) fireballImg.getHeight() / 3,
+                    (float) fireballImg.getWidth() / 3, (float) fireballImg.getHeight() / 3);
+            game.batch.end();
+        }
     }
 
     /**
@@ -220,10 +153,10 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         img = new Texture("wizard.png");
-        opponentImg = new Texture("opponent.png");
         fireballImg = new Texture("fireball.png");
-        Gdx.input.setInputProcessor(new PlayerInput(game, playerCharacter, this)); // Start listening to custom inputs.
+        Gdx.input.setInputProcessor(new PlayerInput(game, clientCharacter));
     }
+
 
     /**
      * Render the screen aka update every frame.
@@ -233,13 +166,15 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 0);
-        playerCharacter.updatePosition(); // Update the player position prediction for smoother response.
+        world.step(delta, 6, 2);
+        startedGame.update(delta);
+
         if(mouseClicks != null) {
-            playerCharacter.setMouseHover(mouseClicks);
+            clientCharacter.setMouseHover(mouseClicks);
         }
         // Update camera position to follow player
-        camera.position.x = playerCharacter.xPosition;
-        camera.position.y = playerCharacter.yPosition;
+        camera.position.x = clientCharacter.xPosition;
+        camera.position.y = clientCharacter.yPosition;
 
         // Update camera matrices
         camera.update();
@@ -249,14 +184,27 @@ public class GameScreen extends ScreenAdapter {
 
         // Render game objects
         game.batch.begin();
-        // BACKGROUND_SPRITE.draw(game.batch); // Used ONLY for static background image (TEMPORARY)
         renderer.setView(camera);
         renderer.render();
-        drawPlayer(); // Draw client character.
-        BACKGROUND_SPRITE.draw(game.batch); // Used ONLY for static background image (TEMPORARY)
-        drawEnemy(); // Draw enemy wizards.
-        drawFireball(); // Draw fireballs.
         game.batch.end();
+
+        drawPlayers(); // Draw client character.
+        if (!fireballs.isEmpty()) {
+            drawFireball(); // Draw fireballs.
+        }
+
+        debugRenderer.render(world, camera.combined);
+    }
+
+    /**
+     * Correct camera position when resizing window.
+     *
+     * @param width window width
+     * @param height window height
+     */
+    @Override
+    public void resize(int width, int height) {
+        viewport.update(width, height);
     }
 
     /**
@@ -266,6 +214,7 @@ public class GameScreen extends ScreenAdapter {
     public void hide() {
         Gdx.input.setInputProcessor(null);
         img.dispose();
-        opponentImg.dispose();
+        world.dispose();
+        debugRenderer.dispose();
     }
 }

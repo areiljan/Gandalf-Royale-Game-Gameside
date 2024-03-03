@@ -41,6 +41,7 @@ public class ScreenController {
         Gdx.app.postRunnable(() -> {
             lobbyScreen = new LobbyScreen(game);
             game.setScreen(lobbyScreen);
+            game.nc.addLobbyListener();
         });
     }
 
@@ -51,6 +52,7 @@ public class ScreenController {
         Gdx.app.postRunnable(() -> {
             lobbyRoomScreen = new LobbyRoomScreen(game, lobby);
             game.setScreen(lobbyRoomScreen);
+            game.nc.addLobbyRoomListener();
         });
 
     }
@@ -62,6 +64,7 @@ public class ScreenController {
         Gdx.app.postRunnable(() -> {
             gameScreen = new GameScreen(game, lobby);
             game.setScreen(gameScreen);
+            game.nc.addGameListeners();
         });
     }
 

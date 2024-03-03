@@ -1,45 +1,126 @@
 package ee.taltech.objects;
 
-import ee.taltech.gandalf.GandalfRoyale;
-import ee.taltech.network.NetworkClient;
-import ee.taltech.network.messages.FireballPosition;
-import ee.taltech.screen.screens.GameScreen;
-import ee.taltech.utilities.Lobby;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.World;
 
 
 public class Fireball {
-    NetworkClient nc;
-    public List<FireballPosition> fireballPositions = new ArrayList<>();
-    public Fireball() {
+
+    private final Integer senderId;
+    private double xPosition;
+    private double yPosition;
+    private final Integer id;
+    private final Body body;
+
+    /**
+     * Construct fireball.
+     *
+     * @param senderId fireball sender
+     * @param xPosition x position
+     * @param yPosition y position
+     * @param id fireball ID
+     * @param world world where fireball is
+     */
+    public Fireball(Integer senderId, double xPosition, double yPosition, Integer id, World world) {
+        this.senderId = senderId;
+        this.xPosition = xPosition;
+        this.yPosition = yPosition;
+        this.id = id;
+
+        // Create fireball body
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set((float) xPosition, (float) yPosition); // Initial position
+//        bodyDef.bullet = true; // Set as bullet body
+        body = world.createBody(bodyDef);
+
+        // Create fixture for fireball hit box
+        CircleShape shape = new CircleShape();
+        shape.setRadius(20.0f); // Example hit box size
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        body.createFixture(fixtureDef);
+
+        // Dispose shape
+        shape.dispose();
+
+        // Set user data to identify fireball
+        body.setUserData("fireball");
     }
 
-    public void updateFireballPositions(FireballPosition fireballToUpdate) {
-        System.out.println("X: " + fireballToUpdate.fireballXPosition + " Y: " + fireballToUpdate.fireballYPosition);
+    /**
+     * Get sender ID.
+     *
+     * @return senderId
+     */
+    public Integer getSenderId() {
+        return senderId;
+    }
 
-        if (fireballToUpdate != null) {
-            if (fireballPositions.isEmpty()) {
-                // If the fireballPositions list is empty, simply add the received fireball position
-                fireballPositions.add(fireballToUpdate);
-            } else {
-                // If the fireballPositions list is not empty, check if the received fireball position matches any existing fireball
-                boolean found = false;
-                for (FireballPosition fireball : fireballPositions) {
-                    if (fireball.fireballID == fireballToUpdate.fireballID) {
-                        // If a matching fireball is found, update its position
-                        int index = fireballPositions.indexOf(fireball);
-                        fireballPositions.set(index, fireballToUpdate);
-                        found = true;
-                        break; // Exit the loop since the fireball is found and updated
-                    }
-                }
-                // If the received fireball position doesn't match any existing fireball, add it to the list
-                if (!found) {
-                    fireballPositions.add(fireballToUpdate);
-                }
-            }
-        }
+    /**
+     * Get x position.
+     *
+     * @return x position
+     */
+    public double getXPosition() {
+        return xPosition;
+    }
+
+    /**
+     * Get y position.
+     *
+     * @return y position
+     */
+    public double getYPosition() {
+        return yPosition;
+    }
+
+    /**
+     * Get ID.
+     *
+     * @return id
+     */
+    public Integer getId() {
+        return id;
+    }
+
+    /**
+     * Get fireball body.
+     *
+     * @return body
+     */
+    public Body getBody() {
+        return body;
+    }
+
+    /**
+     * Set x position.
+     *
+     * @param xPosition new x position
+     */
+    public void setXPosition(double xPosition) {
+        this.xPosition = xPosition;
+    }
+
+    /**
+     * Set y position.
+     *
+     * @param yPosition new y position
+     */
+    public void setYPosition(double yPosition) {
+        this.yPosition = yPosition;
+    }
+
+    /**
+     * Set hit box position.
+     *
+     * @param x x coordinate
+     * @param y y coordinate
+     */
+    public void setHitBoxPosition(double x, double y) {
+        body.setTransform((float) x, (float) y, body.getAngle());
     }
 }
