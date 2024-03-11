@@ -3,7 +3,7 @@ package ee.taltech.network.messages;
 public class UpdateMana {
 
     public Integer playerId;
-    public Integer mana;
+    public double mana;
 
     /**
      * Empty constructor for Kryonet.

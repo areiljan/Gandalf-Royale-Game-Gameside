@@ -26,7 +26,7 @@ public class PlayerCharacter {
     public double mouseYPosition;
     public boolean mouseLeftClick;
     public Integer health;
-    public Integer mana;
+    public double mana;
 
     /**
      * Construct PlayerCharacter.
@@ -85,8 +85,8 @@ public class PlayerCharacter {
      *
      * @param newMana new mana that is set to player.
      */
-    public void setMana(Integer newMana) {
-        health = newMana;
+    public void setMana(double newMana) {
+        mana = newMana;
     }
 
     /**
