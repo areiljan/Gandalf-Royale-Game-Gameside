@@ -148,6 +148,13 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * Disable players movement aka don't listen to input.
+     */
+    public void disableClientPlayerCharacter() {
+        Gdx.input.setInputProcessor(null);
+    }
+
+    /**
      * Show screen on initialisation.
      */
     @Override

@@ -8,13 +8,16 @@ import ee.taltech.player.PlayerCharacter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class StartedGame {
 
     // Threshold for the server to override the position difference
     private static final Integer OVERWRITE_THRESHOLD = 5;
     private final World world;
+    private final GandalfRoyale game;
     private final Map<Integer, PlayerCharacter> alivePlayers;
+    private final Map<Integer, PlayerCharacter> deadPlayers;
     private final Integer clientId;
     private final PlayerCharacter clientCharacter;
     private final Map<Integer, Fireball> fireballs;
@@ -27,8 +30,10 @@ public class StartedGame {
      */
     public StartedGame(GandalfRoyale game, Lobby lobby, World world) {
         this.world = world;
+        this.game = game;
 
         alivePlayers = createAlivePlayersMap(lobby);
+        deadPlayers = new HashMap<>();
         clientId = game.nc.clientId;
         clientCharacter = alivePlayers.get(game.nc.clientId);
         clientCharacter.createHitBox(world);
@@ -42,6 +47,15 @@ public class StartedGame {
      */
     public Map<Integer, PlayerCharacter> getAlivePlayers() {
         return alivePlayers;
+    }
+
+    /**
+     * Get dead players.
+     *
+     * @return deadPlayers
+     */
+    public Map<Integer, PlayerCharacter> getDeadPlayers() {
+        return deadPlayers;
     }
 
     /**
@@ -90,6 +104,9 @@ public class StartedGame {
      */
     public void updatePlayersHealth(Integer id, Integer health) {
         alivePlayers.get(id).setHealth(health);
+        if (health == 0) {
+            killPlayer(id);
+        }
     }
 
     /**
@@ -98,7 +115,7 @@ public class StartedGame {
      * @param id player's ID
      * @param mana player's new mana
      */
-    public void updatePlayersMana(Integer id, Integer mana) {
+    public void updatePlayersMana(Integer id, double mana) {
         alivePlayers.get(id).setMana(mana);
     }
 
@@ -151,5 +168,20 @@ public class StartedGame {
      */
     public void update(float delta) {
         clientCharacter.updatePosition(); // Update the player position prediction for smoother response.
+    }
+
+    /**
+     * Kill player.
+     *
+     * @param id player who is killed
+     */
+    private void killPlayer(Integer id) {
+        PlayerCharacter player = alivePlayers.get(id);
+        deadPlayers.put(id, player);
+
+        // Don't read players input if they are dead
+        if (Objects.equals(id, clientId)) {
+            game.screenController.getGameScreen().disableClientPlayerCharacter();
+        }
     }
 }
