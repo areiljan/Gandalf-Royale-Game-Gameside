@@ -4,7 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 import ee.taltech.gandalf.GandalfRoyale;
@@ -34,6 +36,10 @@ public class GameScreen extends ScreenAdapter {
     private static final Texture BACKGROUND_TEXTURE = new Texture("game.png"); // Background image
     private static final Sprite BACKGROUND_SPRITE = new Sprite(BACKGROUND_TEXTURE); // Background sprite made from image
     private final ShapeRenderer shapeRenderer;
+    private float elapsedTime = 0f;
+    public Texture spriteSheet;
+    private Animation<TextureRegion> idleAnimation;
+
 
     /**
      * Construct GameScreen.
@@ -73,9 +79,9 @@ public class GameScreen extends ScreenAdapter {
     private void drawPlayer() {
         // Set the image to 3 times smaller picture and flip it, if player is moving left.
         game.batch.begin();
-        game.batch.draw(img, playerCharacter.xPosition, playerCharacter.yPosition,
-                (float) img.getWidth() / 3, (float) img.getHeight() / 3, 0, 0,
-                img.getWidth(), img.getHeight(), playerCharacter.moveLeft, false);
+        // game.batch.draw(img, playerCharacter.xPosition, playerCharacter.yPosition,
+        // (float) img.getWidth() / 3, (float) img.getHeight() / 3, 0, 0,
+        // img.getWidth(), img.getHeight(), playerCharacter.moveLeft, false);
         game.batch.end();
 
         // Draw health and mana bar
@@ -172,6 +178,21 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         img = new Texture("wizard.png");
         opponentImg = new Texture("opponent.png");
+        spriteSheet = new Texture("1.png");
+
+        // Define frames in the spritesheet
+        TextureRegion[][] frames = TextureRegion.split(spriteSheet, 64, 64);
+
+        // Convert 2D array to 1D array
+        TextureRegion[] animationFrames = new TextureRegion[36];
+        int index = 0;
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 6; j++) {
+                animationFrames[index++] = frames[i][j];
+            }
+        }
+
+        idleAnimation = new Animation<>(0.1F, animationFrames);
         Gdx.input.setInputProcessor(new PlayerInput(game, playerCharacter)); // Start listening to custom inputs.
     }
 
@@ -195,8 +216,12 @@ public class GameScreen extends ScreenAdapter {
         // Set camera projection matrix
         game.batch.setProjectionMatrix(game.camera.combined);
 
+        elapsedTime += Gdx.graphics.getDeltaTime();
+        TextureRegion currentFrame = idleAnimation.getKeyFrame(elapsedTime, true);
+
         // Render game objects
         game.batch.begin();
+        game.batch.draw(currentFrame, playerCharacter.xPosition, playerCharacter.yPosition, 250, 250);
         BACKGROUND_SPRITE.draw(game.batch); // Used ONLY for static background image (TEMPORARY)
         game.batch.end();
 
