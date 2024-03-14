@@ -22,7 +22,9 @@ public class PlayerCharacter {
     public boolean mouseLeftClick;
     public Integer health;
     public double mana;
-
+    private Item inventorySlot1;
+    private Item inventorySlot2;
+    private Item inventorySlot3;
     /**
      * Construct PlayerCharacter.
      *
@@ -35,6 +37,9 @@ public class PlayerCharacter {
         this.playerID = playerID;
         health = 100;
         mana = 100;
+        this.inventorySlot1 = null;
+        this.inventorySlot2 = null;
+        this.inventorySlot3 = null;
     }
 
     /**
@@ -91,6 +96,60 @@ public class PlayerCharacter {
      */
     public Body getBody() {
         return body;
+    }
+
+    /**
+     * Get player's first inventory slot.
+     *
+     * @return inventorySlot1
+     */
+    public Item getInventorySlot1() {
+        return inventorySlot1;
+    }
+
+    /**
+     * Get player's second inventory slot.
+     *
+     * @return inventorySlot2
+     */
+    public Item getInventorySlot2() {
+        return inventorySlot2;
+    }
+
+    /**
+     * Get player's third inventory slot.
+     *
+     * @return inventorySlot3
+     */
+    public Item getInventorySlot3() {
+        return inventorySlot3;
+    }
+
+    /**
+     * Set item into player's first inventory slot.
+     *
+     * @param item item that will be in the first slot
+     */
+    public void setInventorySlot1(Item item) {
+        this.inventorySlot1 = item;
+    }
+
+    /**
+     * Set item into player's second inventory slot.
+     *
+     * @param item item that will be in the second slot
+     */
+    public void setInventorySlot2(Item item) {
+        this.inventorySlot2 = item;
+    }
+
+    /**
+     * Set item into player's third inventory slot.
+     *
+     * @param item item thaw will be in the third slot
+     */
+    public void setInventorySlot3(Item item) {
+        this.inventorySlot3 = item;
     }
 
     /**

@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
+import ee.taltech.gandalf.entities.Item;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
 import ee.taltech.gandalf.components.StartedGame;
 import ee.taltech.gandalf.network.NetworkClient;
@@ -36,14 +37,16 @@ public class GameScreen extends ScreenAdapter {
     private final OrthogonalTiledMapRenderer renderer;
     private final ExtendViewport viewport;
     public final OrthographicCamera camera;
-    Texture img;
     public final StartedGame startedGame;
     private final Map<Integer, PlayerCharacter> alivePlayers;
     private final PlayerCharacter clientCharacter;
     private final Map<Integer, Spell> spells;
+    private final Map<Integer, Item> items;
     private final TmxMapLoader mapLoader;
     private final TiledMap map;
-    Texture fireballImg;
+    private Texture img;
+    private Texture fireballImg;
+    private Texture fireballBook;
     MouseClicks mouseClicks;
 
     private final ShapeRenderer shapeRenderer;
@@ -76,6 +79,7 @@ public class GameScreen extends ScreenAdapter {
         alivePlayers = startedGame.getAlivePlayers();
         clientCharacter = startedGame.getClientCharacter();
         spells = startedGame.getSpells();
+        items = startedGame.getItems();
 
         shapeRenderer = new ShapeRenderer();
         debugRenderer = new Box2DDebugRenderer();
@@ -148,6 +152,21 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * Draw items that are on the ground.
+     */
+    private void drawItems() {
+        for (Item item : items.values()) {
+            if (item.getType() == SpellTypes.FIREBALL) {
+                game.batch.begin();
+                game.batch.draw(fireballBook, (float) item.getXPosition() - (float) fireballBook.getWidth() / 6,
+                        (float) item.getYPosition() - (float) fireballBook.getHeight() / 3,
+                        fireballBook.getWidth(), fireballBook.getHeight());
+                game.batch.end();
+            }
+        }
+    }
+
+    /**
      * Disable players movement aka don't listen to input.
      */
     public void disableClientPlayerCharacter() {
@@ -161,6 +180,7 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         img = new Texture("wizard.png");
         fireballImg = new Texture("fireball.png");
+        fireballBook = new Texture("fireball_book.png");
         Gdx.input.setInputProcessor(new PlayerInput(game, clientCharacter));
     }
 
@@ -198,6 +218,7 @@ public class GameScreen extends ScreenAdapter {
         if (!spells.isEmpty()) {
             drawSpells(); // Draw spells.
         }
+        drawItems();
 
         debugRenderer.render(world, camera.combined);
     }
