@@ -1,17 +1,10 @@
 package ee.taltech.gandalf;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
-import ee.taltech.network.NetworkClient;
-import ee.taltech.screen.ScreenController;
+import ee.taltech.gandalf.network.NetworkClient;
+import ee.taltech.gandalf.screens.ScreenController;
 
 public class GandalfRoyale extends Game {
     public SpriteBatch batch;
