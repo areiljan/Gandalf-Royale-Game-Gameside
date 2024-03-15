@@ -66,12 +66,12 @@ public class NetworkClient {
         kryo.register(KeyPress.class);
         kryo.register(SpellTypes.class);
         kryo.register(MouseClicks.class);
-        kryo.register(KeyPress.Direction.class);
+        kryo.register(KeyPress.Action.class);
         kryo.register(Position.class);
         kryo.register(SpellPosition.class);
         kryo.register(UpdateHealth.class);
         kryo.register(UpdateMana.class);
-        kryo.addDefaultSerializer(KeyPress.Direction.class, DefaultSerializers.EnumSerializer.class);
+        kryo.addDefaultSerializer(KeyPress.Action.class, DefaultSerializers.EnumSerializer.class);
         kryo.addDefaultSerializer(SpellTypes.class, DefaultSerializers.EnumSerializer.class);
     }
 

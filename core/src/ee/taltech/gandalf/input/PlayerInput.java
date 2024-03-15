@@ -42,16 +42,28 @@ public class PlayerInput implements InputProcessor {
     public boolean keyDown(int keycode) {
         switch (keycode) {
             case Input.Keys.W:
-                key = new KeyPress(KeyPress.Direction.UP, true);
+                key = new KeyPress(KeyPress.Action.UP, true);
                 break;
             case Input.Keys.A:
-                key = new KeyPress(KeyPress.Direction.LEFT, true);
+                key = new KeyPress(KeyPress.Action.LEFT, true);
                 break;
             case Input.Keys.S:
-                key = new KeyPress(KeyPress.Direction.DOWN, true);
+                key = new KeyPress(KeyPress.Action.DOWN, true);
                 break;
             case Input.Keys.D:
-                key = new KeyPress(KeyPress.Direction.RIGHT, true);
+                key = new KeyPress(KeyPress.Action.RIGHT, true);
+                break;
+            case Input.Keys.F:
+                key = new KeyPress(KeyPress.Action.INTERACT, true);
+                break;
+            case Input.Keys.NUM_1:
+                playerCharacter.setSelectedSlot(1);
+                break;
+            case Input.Keys.NUM_2:
+                playerCharacter.setSelectedSlot(2);
+                break;
+            case Input.Keys.NUM_3:
+                playerCharacter.setSelectedSlot(3);
                 break;
             default:
                 break;
@@ -76,16 +88,19 @@ public class PlayerInput implements InputProcessor {
     public boolean keyUp(int keycode) {
         switch (keycode) {
             case Input.Keys.W:
-                key = new KeyPress(KeyPress.Direction.UP, false);
+                key = new KeyPress(KeyPress.Action.UP, false);
                 break;
             case Input.Keys.S:
-                key = new KeyPress(KeyPress.Direction.DOWN, false);
+                key = new KeyPress(KeyPress.Action.DOWN, false);
                 break;
             case Input.Keys.A:
-                key = new KeyPress(KeyPress.Direction.LEFT, false);
+                key = new KeyPress(KeyPress.Action.LEFT, false);
                 break;
             case Input.Keys.D:
-                key = new KeyPress(KeyPress.Direction.RIGHT, false);
+                key = new KeyPress(KeyPress.Action.RIGHT, false);
+                break;
+            case Input.Keys.F:
+                key = new KeyPress(KeyPress.Action.INTERACT, false);
                 break;
             default:
                 break;
@@ -210,15 +225,23 @@ public class PlayerInput implements InputProcessor {
     }
 
     /**
-     * IGNORED.
+     * Change selected inventory slot with scrolling.
      *
-     * @param v ignored
-     * @param v1 ignored
-     * @return false
+     * @param amountX ignored
+     * @param amountY positive if scrolled up, negative if scrolled down
+     * @return true
      */
     @Override
-    public boolean scrolled(float v, float v1) {
-        return false;
+    public boolean scrolled(float amountX, float amountY) {
+        if (amountY < 0) { // Scrolling up
+            if (playerCharacter.getSelectedSlot() != 3) {
+                playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() + 1);
+            }
+        } else if (amountY > 0) { // Scrolling down
+            if (playerCharacter.getSelectedSlot() != 1) {
+                playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() -1);
+            }
+        }
+        return true;
     }
-
 }

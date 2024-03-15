@@ -1,10 +1,10 @@
 package ee.taltech.gandalf.network.messages.game;
 
 public class KeyPress {
-    public enum Direction {
-        UP, DOWN, LEFT, RIGHT
+    public enum Action {
+        UP, DOWN, LEFT, RIGHT, INTERACT
     }
-    public Direction direction;
+    public Action action;
     public boolean pressed;
 
     /**
@@ -16,11 +16,11 @@ public class KeyPress {
     /**
      * Construct key press message.
      *
-     * @param direction where player wants to move
+     * @param action where player wants to move
      * @param pressed if key was pressed or realised
      */
-    public KeyPress(Direction direction, boolean pressed) {
-        this.direction = direction;
+    public KeyPress(Action action, boolean pressed) {
+        this.action = action;
         this.pressed = pressed;
     }
 }

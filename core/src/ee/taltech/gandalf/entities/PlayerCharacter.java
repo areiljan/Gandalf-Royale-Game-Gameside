@@ -25,6 +25,8 @@ public class PlayerCharacter {
     private Item inventorySlot1;
     private Item inventorySlot2;
     private Item inventorySlot3;
+    private Integer selectedSlot;
+
     /**
      * Construct PlayerCharacter.
      *
@@ -37,9 +39,10 @@ public class PlayerCharacter {
         this.playerID = playerID;
         health = 100;
         mana = 100;
-        this.inventorySlot1 = null;
-        this.inventorySlot2 = null;
-        this.inventorySlot3 = null;
+        inventorySlot1 = null;
+        inventorySlot2 = null;
+        inventorySlot3 = null;
+        selectedSlot = 1; // By default, player's first inventory slot is selected
     }
 
     /**
@@ -126,6 +129,15 @@ public class PlayerCharacter {
     }
 
     /**
+     * Get player's selected slot.
+     *
+      * @return selectedSlot
+     */
+    public Integer getSelectedSlot() {
+        return selectedSlot;
+    }
+
+    /**
      * Set item into player's first inventory slot.
      *
      * @param item item that will be in the first slot
@@ -150,6 +162,15 @@ public class PlayerCharacter {
      */
     public void setInventorySlot3(Item item) {
         this.inventorySlot3 = item;
+    }
+
+    /**
+     * Set player's selected slot.
+     *
+     * @param selectedSlot new selected slot
+     */
+    public void setSelectedSlot(Integer selectedSlot) {
+        this.selectedSlot = selectedSlot;
     }
 
     /**
@@ -182,7 +203,7 @@ public class PlayerCharacter {
     }
 
     /**
-     * Moving only in one direction
+     * Moving only in one direction.
      *
      * @param distance how much player is moving
      */
@@ -218,17 +239,17 @@ public class PlayerCharacter {
      * @param keyPress incoming keypress
      */
     public void setMovement(KeyPress keyPress) {
-        // Set a direction where player should be headed.
-        if (keyPress.direction == KeyPress.Direction.LEFT) {
+        // Set a action where player should be headed.
+        if (keyPress.action == KeyPress.Action.LEFT) {
             this.moveLeft = keyPress.pressed;
         }
-        if (keyPress.direction == KeyPress.Direction.RIGHT) {
+        if (keyPress.action == KeyPress.Action.RIGHT) {
             this.moveRight = keyPress.pressed;
         }
-        if (keyPress.direction == KeyPress.Direction.UP) {
+        if (keyPress.action == KeyPress.Action.UP) {
             this.moveUp = keyPress.pressed;
         }
-        if (keyPress.direction == KeyPress.Direction.DOWN) {
+        if (keyPress.action == KeyPress.Action.DOWN) {
             this.moveDown = keyPress.pressed;
         }
     }
