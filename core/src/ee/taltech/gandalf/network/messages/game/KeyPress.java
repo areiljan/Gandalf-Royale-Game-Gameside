@@ -2,10 +2,11 @@ package ee.taltech.gandalf.network.messages.game;
 
 public class KeyPress {
     public enum Action {
-        UP, DOWN, LEFT, RIGHT, INTERACT
+        UP, DOWN, LEFT, RIGHT, INTERACT, DROP
     }
     public Action action;
     public boolean pressed;
+    public Integer extraField;
 
     /**
      * Empty constructor for Kryonet.
@@ -22,5 +23,11 @@ public class KeyPress {
     public KeyPress(Action action, boolean pressed) {
         this.action = action;
         this.pressed = pressed;
+    }
+
+    public KeyPress(Action action, boolean pressed, Integer extraField) {
+        this.action = action;
+        this.pressed = pressed;
+        this.extraField = extraField;
     }
 }

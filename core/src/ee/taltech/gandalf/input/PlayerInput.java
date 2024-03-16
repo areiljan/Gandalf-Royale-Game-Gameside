@@ -18,7 +18,6 @@ public class PlayerInput implements InputProcessor {
     private PlayerCharacter playerCharacter;
     private KeyPress key;
     private MouseClicks mouse;
-    private boolean leftMouseDown;
     private boolean faceLeft;
 
     /**
@@ -55,6 +54,15 @@ public class PlayerInput implements InputProcessor {
                 break;
             case Input.Keys.F:
                 key = new KeyPress(KeyPress.Action.INTERACT, true);
+                break;
+            case Input.Keys.R:
+                Integer droppedItemID;
+                if (playerCharacter.getInventory()[playerCharacter.getSelectedSlot()] != null) {
+                    droppedItemID = playerCharacter.getInventory()[playerCharacter.getSelectedSlot()].getId();
+                } else {
+                    droppedItemID = null;
+                }
+                key = new KeyPress(KeyPress.Action.DROP, true, droppedItemID);
                 break;
             case Input.Keys.NUM_1:
                 playerCharacter.setSelectedSlot(0);
@@ -98,9 +106,6 @@ public class PlayerInput implements InputProcessor {
                 break;
             case Input.Keys.D:
                 key = new KeyPress(KeyPress.Action.RIGHT, false);
-                break;
-            case Input.Keys.F:
-                key = new KeyPress(KeyPress.Action.INTERACT, false);
                 break;
             default:
                 break;
@@ -148,10 +153,15 @@ public class PlayerInput implements InputProcessor {
             // Subtract the character's position from the mouse position to get the relative position
             Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
 
-            leftMouseDown = true;
-            mouse = new MouseClicks(SpellTypes.FIREBALL, true,
+            SpellTypes type;
+            if (playerCharacter.getInventory()[playerCharacter.getSelectedSlot()] != null) {
+                type = playerCharacter.getInventory()[playerCharacter.getSelectedSlot()].getType();
+            } else {
+                type = SpellTypes.NOTHING;
+            }
+
+            mouse = new MouseClicks(type, true,
                     relativeMousePosition.x, relativeMousePosition.y);
-            leftMouseDown = false;
             game.nc.sendUDP(mouse);
         }
         return false;
@@ -191,7 +201,7 @@ public class PlayerInput implements InputProcessor {
         // Subtract the character's position from the mouse position to get the relative position
         Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
 
-        mouse = new MouseClicks(SpellTypes.NOTHING, leftMouseDown,
+        mouse = new MouseClicks(SpellTypes.NOTHING, false,
                 relativeMousePosition.x, relativeMousePosition.y);
         game.nc.sendUDP(mouse);
         return false;

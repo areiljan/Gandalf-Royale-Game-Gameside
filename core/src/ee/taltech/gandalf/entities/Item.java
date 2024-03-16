@@ -8,8 +8,8 @@ public class Item {
     private boolean isDropped;
     private final SpellTypes type;
     private final Integer id;
-    private Integer xPosition;
-    private Integer yPosition;
+    private Float xPosition;
+    private Float yPosition;
 
     private Texture texture;
 
@@ -36,7 +36,7 @@ public class Item {
      * @param xPosition item's x coordinate
      * @param yPosition item's y coordinate
      */
-    public Item(Integer id, SpellTypes type, boolean isDropped, Integer xPosition, Integer yPosition) {
+    public Item(Integer id, SpellTypes type, boolean isDropped, Float xPosition, Float yPosition) {
         this.isDropped = isDropped;
         this.type = type;
         this.id = id;
@@ -86,7 +86,7 @@ public class Item {
      *
      * @return xPosition
      */
-    public Integer getXPosition() {
+    public Float getXPosition() {
         return xPosition;
     }
 
@@ -95,7 +95,7 @@ public class Item {
      *
      * @return yPosition
      */
-    public Integer getYPosition() {
+    public Float getYPosition() {
         return yPosition;
     }
 
@@ -113,7 +113,7 @@ public class Item {
      *
      * @param xPosition new x coordinate
      */
-    public void setXPosition(Integer xPosition) {
+    public void setXPosition(Float xPosition) {
         this.xPosition = xPosition;
     }
 
@@ -122,7 +122,7 @@ public class Item {
      *
      * @param yPosition new y coordinate
      */
-    public void setYPosition(Integer yPosition) {
+    public void setYPosition(Float yPosition) {
         this.yPosition = yPosition;
     }
 

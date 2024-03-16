@@ -122,21 +122,30 @@ public class PlayerCharacter {
     }
 
     /**
-     * Put item into player's inventory.
-     *
-     * @param item new item
-     */
-    public void putItemIntoInventory(Item item) {
-        inventory[selectedSlot] = item;
-    }
-
-    /**
      * Set player's selected slot.
      *
      * @param selectedSlot new selected slot
      */
     public void setSelectedSlot(Integer selectedSlot) {
         this.selectedSlot = selectedSlot;
+    }
+
+    /**
+     * Pick up item from the ground.
+     *
+     * @param item picked up item
+     */
+    public void pickUpItem(Item item) {
+        inventory[selectedSlot] = item;
+    }
+
+    /**
+     * Drop item.
+     *
+     * @param slot slot that the item was dropped from
+     */
+    public void dropItem(Integer slot) {
+        inventory[slot] = null;
     }
 
     /**
