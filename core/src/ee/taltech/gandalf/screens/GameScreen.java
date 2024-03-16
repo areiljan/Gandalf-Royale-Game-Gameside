@@ -48,7 +48,7 @@ public class GameScreen extends ScreenAdapter {
     private final TiledMap map;
     private Texture img;
     private Texture fireballImg;
-    private Texture fireballBook;
+    private static Texture fireballBook;
     MouseClicks mouseClicks;
 
     private final ShapeRenderer shapeRenderer;
@@ -162,8 +162,8 @@ public class GameScreen extends ScreenAdapter {
         for (Item item : items.values()) {
             if (item.getType() == SpellTypes.FIREBALL) {
                 game.batch.begin();
-                game.batch.draw(fireballBook, (float) item.getXPosition() - (float) fireballBook.getWidth() / 6,
-                        (float) item.getYPosition() - (float) fireballBook.getHeight() / 3,
+                game.batch.draw(fireballBook, item.getXPosition() - (float) fireballBook.getWidth() / 3,
+                        item.getYPosition() - (float) fireballBook.getHeight() / 3,
                         fireballBook.getWidth(), fireballBook.getHeight());
                 game.batch.end();
             }
@@ -175,6 +175,10 @@ public class GameScreen extends ScreenAdapter {
      */
     public void disableClientPlayerCharacter() {
         Gdx.input.setInputProcessor(null);
+    }
+
+    public static Texture getFireBallBookTexture() {
+        return fireballBook;
     }
 
     /**

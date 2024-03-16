@@ -5,6 +5,8 @@ import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
 import ee.taltech.gandalf.network.messages.game.MouseClicks;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class PlayerCharacter {
@@ -25,8 +27,7 @@ public class PlayerCharacter {
     public boolean mouseLeftClick;
     public Integer health;
     public double mana;
-
-    private Item[] inventory;
+    private List<Item> inventory;
     private Integer selectedSlot;
 
     /**
@@ -41,7 +42,10 @@ public class PlayerCharacter {
         this.playerID = playerID;
         health = 100;
         mana = 100;
-        inventory = new Item[3];
+        inventory = new ArrayList<>();
+        inventory.add(0, null);
+        inventory.add(1, null);
+        inventory.add(2, null);
         selectedSlot = 0; // By default, player's first inventory slot is selected
     }
 
@@ -106,7 +110,7 @@ public class PlayerCharacter {
      *
      * @return inventory
      */
-    public Item[] getInventory() {
+    public List<Item> getInventory() {
         return inventory;
     }
 
@@ -134,7 +138,7 @@ public class PlayerCharacter {
      * @param item picked up item
      */
     public void pickUpItem(Item item) {
-        inventory[selectedSlot] = item;
+        inventory.add(selectedSlot, item);
     }
 
     /**
@@ -144,11 +148,12 @@ public class PlayerCharacter {
      * @return droppedItem
      */
     public Item dropItem(Integer droppedItemsId) {
-        for (int i = 0; i < 3; i++) {
-            if (Objects.equals(inventory[i].getId(), droppedItemsId)) {
-                Item droppedItem = inventory[i];
-                inventory[i] = null;
-                return droppedItem;
+        for (Item item : inventory) {
+            if (!Objects.equals(item, null) && Objects.equals(item.getId(), droppedItemsId)) {
+                int itemsIndex = inventory.indexOf(item);
+                inventory.remove(item);
+                inventory.add(itemsIndex, null);
+                return item;
             }
         }
         return null;

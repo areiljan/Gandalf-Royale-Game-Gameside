@@ -94,10 +94,8 @@ public class Hud {
      */
     private Drawable drawItem(int i) {
         Texture itemTexture = null;
-        if (i == 0 && player.getInventory()[i] != null) { // Get items texture if item exists
-            itemTexture = player.getInventory()[i].getTexture();
-        }
-        if (itemTexture != null) { // Make drawable out of that texture if item exists
+        if (player.getInventory().get(i) != null) { // Get items texture if item exists
+            itemTexture = player.getInventory().get(i).getTexture();
             return new TextureRegionDrawable(new TextureRegion(itemTexture));
         }
         return null; // Return null if there is no item in that slot

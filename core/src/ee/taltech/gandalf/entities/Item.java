@@ -2,6 +2,7 @@ package ee.taltech.gandalf.entities;
 
 import com.badlogic.gdx.graphics.Texture;
 import ee.taltech.gandalf.components.SpellTypes;
+import ee.taltech.gandalf.screens.GameScreen;
 
 public class Item {
 
@@ -109,9 +110,10 @@ public class Item {
      * @return texture
      */
     private Texture setTextureBasedOnType() {
+        Texture itemsTexture = null;
         if (type == SpellTypes.FIREBALL) {
-            return new Texture("fireball_book.png");
+            itemsTexture = GameScreen.getFireBallBookTexture();
         }
-        return null;
+        return itemsTexture;
     }
 }

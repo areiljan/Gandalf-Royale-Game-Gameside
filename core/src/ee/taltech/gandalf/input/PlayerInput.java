@@ -53,16 +53,16 @@ public class PlayerInput implements InputProcessor {
                 key = new KeyPress(KeyPress.Action.RIGHT, true);
                 break;
             case Input.Keys.F:
-                key = new KeyPress(KeyPress.Action.INTERACT, true);
+                if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) == null) {
+                    key = new KeyPress(KeyPress.Action.INTERACT, true);
+                }
                 break;
             case Input.Keys.R:
                 Integer droppedItemID;
-                if (playerCharacter.getInventory()[playerCharacter.getSelectedSlot()] != null) {
-                    droppedItemID = playerCharacter.getInventory()[playerCharacter.getSelectedSlot()].getId();
-                } else {
-                    droppedItemID = null;
+                if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
+                    droppedItemID = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId();
+                    key = new KeyPress(KeyPress.Action.DROP, true, droppedItemID);
                 }
-                key = new KeyPress(KeyPress.Action.DROP, true, droppedItemID);
                 break;
             case Input.Keys.NUM_1:
                 playerCharacter.setSelectedSlot(0);
@@ -154,8 +154,8 @@ public class PlayerInput implements InputProcessor {
             Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
 
             SpellTypes type;
-            if (playerCharacter.getInventory()[playerCharacter.getSelectedSlot()] != null) {
-                type = playerCharacter.getInventory()[playerCharacter.getSelectedSlot()].getType();
+            if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
+                type = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getType();
             } else {
                 type = SpellTypes.NOTHING;
             }

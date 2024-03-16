@@ -5,8 +5,6 @@ import com.esotericsoftware.kryonet.Listener;
 import ee.taltech.gandalf.entities.Item;
 import ee.taltech.gandalf.network.messages.game.ItemDropped;
 import ee.taltech.gandalf.network.messages.game.ItemPickedUp;
-import ee.taltech.gandalf.network.messages.game.UpdateHealth;
-import ee.taltech.gandalf.network.messages.game.UpdateMana;
 import ee.taltech.gandalf.screens.GameScreen;
 import ee.taltech.gandalf.screens.ScreenController;
 
@@ -30,16 +28,16 @@ public class ItemListener extends Listener {
         Item item;
         switch (incomingData) {
             case ItemDropped message: // ItemDropped message
-                System.out.println("GOT DROPPED MESSAGE!!");
+                System.out.println("LISTENER got ItemDropped message, playerId: " + message.playerId);
                 if (message.playerId != null) {
                     item = gameScreen.startedGame.getAlivePlayers().get(message.playerId).dropItem(message.itemId);
                 } else {
                     item = new Item(message.itemId, message.type, message.xPosition, message.yPosition);
                 }
+
                 gameScreen.startedGame.addItem(item);
                 break;
             case ItemPickedUp message: // ItemPickedUp message
-                System.out.println("GOT PICKED UP MESSAGE!!");
                 if (message.playerId != null) {
                     item = gameScreen.startedGame.removeItem(message.itemId);
                     gameScreen.startedGame.getAlivePlayers().get(message.playerId).pickUpItem(item);
