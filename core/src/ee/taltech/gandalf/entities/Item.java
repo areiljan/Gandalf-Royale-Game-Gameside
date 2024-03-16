@@ -5,7 +5,6 @@ import ee.taltech.gandalf.components.SpellTypes;
 
 public class Item {
 
-    private boolean isDropped;
     private final SpellTypes type;
     private final Integer id;
     private Float xPosition;
@@ -18,10 +17,8 @@ public class Item {
      *
      * @param id item's ID
      * @param type item's type
-     * @param isDropped boolean that shows if item is dropped aka on the ground
      */
-    public Item(Integer id, SpellTypes type, boolean isDropped) {
-        this.isDropped = isDropped;
+    public Item(Integer id, SpellTypes type) {
         this.type = type;
         this.id = id;
         this.texture = setTextureBasedOnType();
@@ -32,26 +29,15 @@ public class Item {
      *
      * @param id item's ID
      * @param type item's type
-     * @param isDropped boolean that shows if item is dropped aka on the ground
      * @param xPosition item's x coordinate
      * @param yPosition item's y coordinate
      */
-    public Item(Integer id, SpellTypes type, boolean isDropped, Float xPosition, Float yPosition) {
-        this.isDropped = isDropped;
+    public Item(Integer id, SpellTypes type, Float xPosition, Float yPosition) {
         this.type = type;
         this.id = id;
         this.texture = setTextureBasedOnType();
         this.xPosition = xPosition;
         this.yPosition = yPosition;
-    }
-
-    /**
-     * Get if the item is dropped or not.
-     *
-     * @return isDropped
-     */
-    public boolean isDropped() {
-        return isDropped;
     }
 
     /**
@@ -97,15 +83,6 @@ public class Item {
      */
     public Float getYPosition() {
         return yPosition;
-    }
-
-    /**
-     * Set if the item is dropped or not.
-     *
-     * @param dropped new value for isDropped
-     */
-    public void setDropped(boolean dropped) {
-        isDropped = dropped;
     }
 
     /**

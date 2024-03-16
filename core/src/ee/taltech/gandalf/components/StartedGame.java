@@ -177,15 +177,6 @@ public class StartedGame {
     }
 
     /**
-     * Update started game.
-     *
-     * @param delta time
-     */
-    public void update(float delta) {
-        clientCharacter.updatePosition(); // Update the player position prediction for smoother response.
-    }
-
-    /**
      * Kill player.
      *
      * @param id player who is killed
@@ -198,5 +189,24 @@ public class StartedGame {
         if (Objects.equals(id, clientId)) {
             game.screenController.getGameScreen().disableClientPlayerCharacter();
         }
+    }
+
+    public void addItem(Item item) {
+        items.put(item.getId(), item);
+    }
+
+    public Item removeItem(Integer itemId) {
+        Item removedItem = items.get(itemId);
+        items.remove(itemId);
+        return removedItem;
+    }
+
+    /**
+     * Update started game.
+     *
+     * @param delta time
+     */
+    public void update(float delta) {
+        clientCharacter.updatePosition(); // Update the player position prediction for smoother response.
     }
 }

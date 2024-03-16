@@ -5,6 +5,8 @@ import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
 import ee.taltech.gandalf.network.messages.game.MouseClicks;
 
+import java.util.Objects;
+
 public class PlayerCharacter {
 
     public static final Integer WIDTH = 55;
@@ -23,9 +25,6 @@ public class PlayerCharacter {
     public boolean mouseLeftClick;
     public Integer health;
     public double mana;
-    private Item inventorySlot1;
-    private Item inventorySlot2;
-    private Item inventorySlot3;
 
     private Item[] inventory;
     private Integer selectedSlot;
@@ -43,7 +42,6 @@ public class PlayerCharacter {
         health = 100;
         mana = 100;
         inventory = new Item[3];
-        inventory[0] = new Item(1, SpellTypes.FIREBALL, false);
         selectedSlot = 0; // By default, player's first inventory slot is selected
     }
 
@@ -142,10 +140,18 @@ public class PlayerCharacter {
     /**
      * Drop item.
      *
-     * @param slot slot that the item was dropped from
+     * @param droppedItemsId ID of the item that is dropped
+     * @return droppedItem
      */
-    public void dropItem(Integer slot) {
-        inventory[slot] = null;
+    public Item dropItem(Integer droppedItemsId) {
+        for (int i = 0; i < 3; i++) {
+            if (Objects.equals(inventory[i].getId(), droppedItemsId)) {
+                Item droppedItem = inventory[i];
+                inventory[i] = null;
+                return droppedItem;
+            }
+        }
+        return null;
     }
 
     /**
