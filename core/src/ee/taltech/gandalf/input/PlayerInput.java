@@ -53,24 +53,26 @@ public class PlayerInput implements InputProcessor {
                 key = new KeyPress(KeyPress.Action.RIGHT, true);
                 break;
             case Input.Keys.F:
+                // Only if empty slot is selected
                 if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) == null) {
                     key = new KeyPress(KeyPress.Action.INTERACT, true);
                 }
                 break;
             case Input.Keys.R:
                 Integer droppedItemID;
+                // Only if empty slot in not selected
                 if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
                     droppedItemID = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId();
                     key = new KeyPress(KeyPress.Action.DROP, true, droppedItemID);
                 }
                 break;
-            case Input.Keys.NUM_1:
+            case Input.Keys.NUM_1: // Set selected slot with keyboard
                 playerCharacter.setSelectedSlot(0);
                 break;
-            case Input.Keys.NUM_2:
+            case Input.Keys.NUM_2: // Set selected slot with keyboard
                 playerCharacter.setSelectedSlot(1);
                 break;
-            case Input.Keys.NUM_3:
+            case Input.Keys.NUM_3: // Set selected slot with keyboard
                 playerCharacter.setSelectedSlot(2);
                 break;
             default:

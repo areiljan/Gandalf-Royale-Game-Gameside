@@ -1,7 +1,6 @@
 package ee.taltech.gandalf.entities;
 
 import com.badlogic.gdx.physics.box2d.*;
-import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
 import ee.taltech.gandalf.network.messages.game.MouseClicks;
 
@@ -42,10 +41,13 @@ public class PlayerCharacter {
         this.playerID = playerID;
         health = 100;
         mana = 100;
+
         inventory = new ArrayList<>();
+        // Add empty items to inventory slots
         inventory.add(0, null);
         inventory.add(1, null);
         inventory.add(2, null);
+
         selectedSlot = 0; // By default, player's first inventory slot is selected
     }
 
@@ -138,7 +140,10 @@ public class PlayerCharacter {
      * @param item picked up item
      */
     public void pickUpItem(Item item) {
-        inventory.add(selectedSlot, item);
+        if (inventory.get(selectedSlot) == null) { // Pick up item when selected slot is empty
+            inventory.remove((int) selectedSlot); // Remove null from the spot
+            inventory.add(selectedSlot, item); // Add item to the spot
+        }
     }
 
     /**
@@ -149,14 +154,14 @@ public class PlayerCharacter {
      */
     public Item dropItem(Integer droppedItemsId) {
         for (Item item : inventory) {
-            if (!Objects.equals(item, null) && Objects.equals(item.getId(), droppedItemsId)) {
-                int itemsIndex = inventory.indexOf(item);
-                inventory.remove(item);
-                inventory.add(itemsIndex, null);
+            if (!Objects.equals(item, null) && Objects.equals(item.getId(), droppedItemsId)) { // Find correct item
+                int itemsIndex = inventory.indexOf(item); // Get items index
+                inventory.remove(item); // Remove item from inventory
+                inventory.add(itemsIndex, null); // Put null in the empty spot
                 return item;
             }
         }
-        return null;
+        return null; // Should never get to this point
     }
 
     /**

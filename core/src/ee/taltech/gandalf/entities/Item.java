@@ -112,6 +112,7 @@ public class Item {
     private Texture setTextureBasedOnType() {
         Texture itemsTexture = null;
         if (type == SpellTypes.FIREBALL) {
+            // Get texture from game screen because then OpenGL does not give error
             itemsTexture = GameScreen.getFireBallBookTexture();
         }
         return itemsTexture;

@@ -6,7 +6,6 @@ public class ItemDropped {
 
     public Integer playerId;
     public Integer itemId;
-
     public SpellTypes type;
     public float xPosition;
     public float yPosition;

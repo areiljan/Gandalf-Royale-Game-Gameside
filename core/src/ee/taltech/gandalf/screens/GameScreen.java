@@ -177,6 +177,13 @@ public class GameScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
     }
 
+    /**
+     * Get fireball book texture.
+     * THIS METHOD IS TEMPORARY SOLUTION
+     * LATER THERE SHOULD BE A FUNCTION THAT GIVES TEXTURE BASED ON THE TYPE OF THE ITEM
+     *
+     * @return fireballBook
+     */
     public static Texture getFireBallBookTexture() {
         return fireballBook;
     }

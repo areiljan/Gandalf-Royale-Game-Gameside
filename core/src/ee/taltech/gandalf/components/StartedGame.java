@@ -191,10 +191,21 @@ public class StartedGame {
         }
     }
 
+    /**
+     * Add item to world aka add dropped item on the ground.
+     *
+     * @param item item that is added
+     */
     public void addItem(Item item) {
         items.put(item.getId(), item);
     }
 
+    /**
+     * Remove item from the world aka pick up item form the ground.
+     *
+     * @param itemId item's id that is removed
+     * @return removed item
+     */
     public Item removeItem(Integer itemId) {
         Item removedItem = items.get(itemId);
         items.remove(itemId);

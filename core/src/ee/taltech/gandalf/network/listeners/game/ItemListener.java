@@ -12,6 +12,11 @@ public class ItemListener extends Listener {
 
     ScreenController screenController;
 
+    /**
+     * Construct ItemListener.
+     *
+     * @param screenController for accessing game screen
+     */
     public ItemListener(ScreenController screenController) {
         this.screenController = screenController;
     }
@@ -28,20 +33,23 @@ public class ItemListener extends Listener {
         Item item;
         switch (incomingData) {
             case ItemDropped message: // ItemDropped message
-                System.out.println("LISTENER got ItemDropped message, playerId: " + message.playerId);
-                if (message.playerId != null) {
+                if (message.playerId != null) { // If player id is not null aka player dropped the item
                     item = gameScreen.startedGame.getAlivePlayers().get(message.playerId).dropItem(message.itemId);
-                } else {
+                    System.out.println("ITEM_LISTENER ITEM_DROPPED_MESSAGE itemID: " + message.itemId + " playerID: " + message.playerId + " item: " + item);
+                    // Update items position to players current position
+                    item.setXPosition(message.xPosition);
+                    item.setYPosition(message.yPosition);
+                } else { // If player id is null aka game dropped the item
                     item = new Item(message.itemId, message.type, message.xPosition, message.yPosition);
                 }
 
-                gameScreen.startedGame.addItem(item);
+                gameScreen.startedGame.addItem(item); // Add item to world
                 break;
             case ItemPickedUp message: // ItemPickedUp message
-                if (message.playerId != null) {
+                if (message.playerId != null) { // If player id is not null aka player picked item up
                     item = gameScreen.startedGame.removeItem(message.itemId);
                     gameScreen.startedGame.getAlivePlayers().get(message.playerId).pickUpItem(item);
-                } else {
+                } else { // If player id is null aka game removed item from the ground
                     gameScreen.startedGame.removeItem(message.itemId);
                 }
                 break;
