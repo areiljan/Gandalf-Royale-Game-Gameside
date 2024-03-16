@@ -1,6 +1,7 @@
 package ee.taltech.gandalf.entities;
 
 import com.badlogic.gdx.physics.box2d.*;
+import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
 import ee.taltech.gandalf.network.messages.game.MouseClicks;
 
@@ -25,6 +26,8 @@ public class PlayerCharacter {
     private Item inventorySlot1;
     private Item inventorySlot2;
     private Item inventorySlot3;
+
+    private Item[] inventory;
     private Integer selectedSlot;
 
     /**
@@ -39,10 +42,9 @@ public class PlayerCharacter {
         this.playerID = playerID;
         health = 100;
         mana = 100;
-        inventorySlot1 = null;
-        inventorySlot2 = null;
-        inventorySlot3 = null;
-        selectedSlot = 1; // By default, player's first inventory slot is selected
+        inventory = new Item[3];
+        inventory[0] = new Item(1, SpellTypes.FIREBALL, false);
+        selectedSlot = 0; // By default, player's first inventory slot is selected
     }
 
     /**
@@ -102,30 +104,12 @@ public class PlayerCharacter {
     }
 
     /**
-     * Get player's first inventory slot.
+     * Get player's inventory.
      *
-     * @return inventorySlot1
+     * @return inventory
      */
-    public Item getInventorySlot1() {
-        return inventorySlot1;
-    }
-
-    /**
-     * Get player's second inventory slot.
-     *
-     * @return inventorySlot2
-     */
-    public Item getInventorySlot2() {
-        return inventorySlot2;
-    }
-
-    /**
-     * Get player's third inventory slot.
-     *
-     * @return inventorySlot3
-     */
-    public Item getInventorySlot3() {
-        return inventorySlot3;
+    public Item[] getInventory() {
+        return inventory;
     }
 
     /**
@@ -138,30 +122,12 @@ public class PlayerCharacter {
     }
 
     /**
-     * Set item into player's first inventory slot.
+     * Put item into player's inventory.
      *
-     * @param item item that will be in the first slot
+     * @param item new item
      */
-    public void setInventorySlot1(Item item) {
-        this.inventorySlot1 = item;
-    }
-
-    /**
-     * Set item into player's second inventory slot.
-     *
-     * @param item item that will be in the second slot
-     */
-    public void setInventorySlot2(Item item) {
-        this.inventorySlot2 = item;
-    }
-
-    /**
-     * Set item into player's third inventory slot.
-     *
-     * @param item item thaw will be in the third slot
-     */
-    public void setInventorySlot3(Item item) {
-        this.inventorySlot3 = item;
+    public void putItemIntoInventory(Item item) {
+        inventory[selectedSlot] = item;
     }
 
     /**

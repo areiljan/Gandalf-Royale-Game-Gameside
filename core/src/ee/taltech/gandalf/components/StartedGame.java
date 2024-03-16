@@ -39,7 +39,6 @@ public class StartedGame {
         clientCharacter.createHitBox(world);
         spells = new HashMap<>();
         items = new HashMap<>();
-        items.put(1, new Item(1, SpellTypes.FIREBALL, true, 0, 0));
     }
 
     /**

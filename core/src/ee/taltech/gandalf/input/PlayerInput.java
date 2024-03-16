@@ -57,13 +57,13 @@ public class PlayerInput implements InputProcessor {
                 key = new KeyPress(KeyPress.Action.INTERACT, true);
                 break;
             case Input.Keys.NUM_1:
-                playerCharacter.setSelectedSlot(1);
+                playerCharacter.setSelectedSlot(0);
                 break;
             case Input.Keys.NUM_2:
-                playerCharacter.setSelectedSlot(2);
+                playerCharacter.setSelectedSlot(1);
                 break;
             case Input.Keys.NUM_3:
-                playerCharacter.setSelectedSlot(3);
+                playerCharacter.setSelectedSlot(2);
                 break;
             default:
                 break;
@@ -233,14 +233,12 @@ public class PlayerInput implements InputProcessor {
      */
     @Override
     public boolean scrolled(float amountX, float amountY) {
-        if (amountY < 0) { // Scrolling up
-            if (playerCharacter.getSelectedSlot() != 3) {
-                playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() + 1);
-            }
-        } else if (amountY > 0) { // Scrolling down
-            if (playerCharacter.getSelectedSlot() != 1) {
-                playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() -1);
-            }
+        if (amountY > 0 && playerCharacter.getSelectedSlot() != 2) { // Scrolling down
+            playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() + 1);
+
+        } else if (amountY < 0 && playerCharacter.getSelectedSlot() != 0) { // Scrolling up
+            playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() - 1);
+
         }
         return true;
     }

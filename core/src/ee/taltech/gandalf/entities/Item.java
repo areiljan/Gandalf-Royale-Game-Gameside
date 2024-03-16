@@ -1,5 +1,6 @@
 package ee.taltech.gandalf.entities;
 
+import com.badlogic.gdx.graphics.Texture;
 import ee.taltech.gandalf.components.SpellTypes;
 
 public class Item {
@@ -9,6 +10,8 @@ public class Item {
     private final Integer id;
     private Integer xPosition;
     private Integer yPosition;
+
+    private Texture texture;
 
     /**
      * Construct Item that is in the inventory and does not need coordinates.
@@ -21,6 +24,7 @@ public class Item {
         this.isDropped = isDropped;
         this.type = type;
         this.id = id;
+        this.texture = setTextureBasedOnType();
     }
 
     /**
@@ -36,6 +40,7 @@ public class Item {
         this.isDropped = isDropped;
         this.type = type;
         this.id = id;
+        this.texture = setTextureBasedOnType();
         this.xPosition = xPosition;
         this.yPosition = yPosition;
     }
@@ -65,6 +70,15 @@ public class Item {
      */
     public Integer getId() {
         return id;
+    }
+
+    /**
+     * Get items texture.
+     *
+     * @return texture
+     */
+    public Texture getTexture() {
+        return texture;
     }
 
     /**
@@ -110,5 +124,17 @@ public class Item {
      */
     public void setYPosition(Integer yPosition) {
         this.yPosition = yPosition;
+    }
+
+    /**
+     * Set items texture based on what type of item it is.
+     *
+     * @return texture
+     */
+    private Texture setTextureBasedOnType() {
+        if (type == SpellTypes.FIREBALL) {
+            return new Texture("fireball_book.png");
+        }
+        return null;
     }
 }

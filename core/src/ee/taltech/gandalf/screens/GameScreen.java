@@ -25,6 +25,7 @@ import ee.taltech.gandalf.input.PlayerInput;
 import ee.taltech.gandalf.entities.Spell;
 import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.components.Lobby;
+import ee.taltech.gandalf.scenes.Hud;
 
 import java.util.Map;
 
@@ -37,6 +38,7 @@ public class GameScreen extends ScreenAdapter {
     private final OrthogonalTiledMapRenderer renderer;
     private final ExtendViewport viewport;
     public final OrthographicCamera camera;
+    private final Hud hud;
     public final StartedGame startedGame;
     private final Map<Integer, PlayerCharacter> alivePlayers;
     private final PlayerCharacter clientCharacter;
@@ -80,6 +82,8 @@ public class GameScreen extends ScreenAdapter {
         clientCharacter = startedGame.getClientCharacter();
         spells = startedGame.getSpells();
         items = startedGame.getItems();
+
+        hud = new Hud(camera, clientCharacter);
 
         shapeRenderer = new ShapeRenderer();
         debugRenderer = new Box2DDebugRenderer();
@@ -220,6 +224,8 @@ public class GameScreen extends ScreenAdapter {
         }
         drawItems();
 
+        hud.draw();
+
         debugRenderer.render(world, camera.combined);
     }
 
@@ -232,6 +238,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
+        hud.resize(width, height);
     }
 
     /**
@@ -243,5 +250,6 @@ public class GameScreen extends ScreenAdapter {
         img.dispose();
         world.dispose();
         debugRenderer.dispose();
+        hud.dispose();
     }
 }
