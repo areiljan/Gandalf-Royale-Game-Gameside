@@ -7,8 +7,8 @@ public class Item {
 
     private final SpellTypes type;
     private final Integer id;
-    private Float xPosition;
-    private Float yPosition;
+    private float xPosition;
+    private float yPosition;
 
     private Texture texture;
 
@@ -32,7 +32,7 @@ public class Item {
      * @param xPosition item's x coordinate
      * @param yPosition item's y coordinate
      */
-    public Item(Integer id, SpellTypes type, Float xPosition, Float yPosition) {
+    public Item(Integer id, SpellTypes type, float xPosition, float yPosition) {
         this.type = type;
         this.id = id;
         this.texture = setTextureBasedOnType();
@@ -72,7 +72,7 @@ public class Item {
      *
      * @return xPosition
      */
-    public Float getXPosition() {
+    public float getXPosition() {
         return xPosition;
     }
 
@@ -81,7 +81,7 @@ public class Item {
      *
      * @return yPosition
      */
-    public Float getYPosition() {
+    public float getYPosition() {
         return yPosition;
     }
 
@@ -90,7 +90,7 @@ public class Item {
      *
      * @param xPosition new x coordinate
      */
-    public void setXPosition(Float xPosition) {
+    public void setXPosition(float xPosition) {
         this.xPosition = xPosition;
     }
 
@@ -99,7 +99,7 @@ public class Item {
      *
      * @param yPosition new y coordinate
      */
-    public void setYPosition(Float yPosition) {
+    public void setYPosition(float yPosition) {
         this.yPosition = yPosition;
     }
 

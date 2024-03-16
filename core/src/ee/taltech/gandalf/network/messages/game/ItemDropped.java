@@ -8,8 +8,8 @@ public class ItemDropped {
     public Integer itemId;
 
     public SpellTypes type;
-    public Float xPosition;
-    public Float yPosition;
+    public float xPosition;
+    public float yPosition;
 
     /**
      * Empty constructor for Kryonet.

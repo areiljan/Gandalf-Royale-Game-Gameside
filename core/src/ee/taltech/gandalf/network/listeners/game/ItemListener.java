@@ -30,6 +30,7 @@ public class ItemListener extends Listener {
         Item item;
         switch (incomingData) {
             case ItemDropped message: // ItemDropped message
+                System.out.println("GOT DROPPED MESSAGE!!");
                 if (message.playerId != null) {
                     item = gameScreen.startedGame.getAlivePlayers().get(message.playerId).dropItem(message.itemId);
                 } else {
@@ -38,6 +39,7 @@ public class ItemListener extends Listener {
                 gameScreen.startedGame.addItem(item);
                 break;
             case ItemPickedUp message: // ItemPickedUp message
+                System.out.println("GOT PICKED UP MESSAGE!!");
                 if (message.playerId != null) {
                     item = gameScreen.startedGame.removeItem(message.itemId);
                     gameScreen.startedGame.getAlivePlayers().get(message.playerId).pickUpItem(item);
