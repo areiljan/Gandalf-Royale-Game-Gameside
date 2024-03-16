@@ -33,13 +33,10 @@ public class ItemListener extends Listener {
         Item item;
         switch (incomingData) {
             case ItemDropped message: // ItemDropped message
-                if (message.playerId != null) { // If player id is not null aka player dropped the item
-                    if (message.playerId == connection.getID()) {
-                        item = gameScreen.startedGame.getAlivePlayers().get(message.playerId).dropItem(message.itemId);
-                    } else {
-                        item = new Item(message.itemId, message.type);
-                    }
-                    System.out.println("ITEM_LISTENER ITEM_DROPPED_MESSAGE itemID: " + message.itemId + " playerID: " + message.playerId + " item: " + item);
+                    // If player id is not null aka player dropped the item and this is clients player
+                if (message.playerId != null && message.playerId == connection.getID()) {
+                    item = gameScreen.startedGame.getAlivePlayers().get(message.playerId).dropItem(message.itemId);
+
                     // Update items position to players current position
                     item.setXPosition(message.xPosition);
                     item.setYPosition(message.yPosition);
@@ -50,12 +47,10 @@ public class ItemListener extends Listener {
                 gameScreen.startedGame.addItem(item); // Add item to world
                 break;
             case ItemPickedUp message: // ItemPickedUp message
-                if (message.playerId != null) { // If player id is not null aka player picked item up
+                // If player id is not null aka player picked item up and this is clients player
+                if (message.playerId != null && message.playerId == connection.getID()) {
                     item = gameScreen.startedGame.removeItem(message.itemId);
-                    if (message.playerId == connection.getID()) {
-                        gameScreen.startedGame.getAlivePlayers().get(message.playerId).pickUpItem(item);
-                    }
-                    System.out.println("ITEM_LISTENER ITEM_PICKED_UP_MESSAGE itemID: " + message.itemId + " playerID: " + message.playerId + " player's selectedslot " + gameScreen.startedGame.getAlivePlayers().get(message.playerId).getSelectedSlot());
+                    gameScreen.startedGame.getAlivePlayers().get(message.playerId).pickUpItem(item);
                 } else { // If player id is null aka game removed item from the ground
                     gameScreen.startedGame.removeItem(message.itemId);
                 }
