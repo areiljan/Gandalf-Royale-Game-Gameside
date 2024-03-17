@@ -4,6 +4,10 @@ import com.badlogic.gdx.physics.box2d.*;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
 import ee.taltech.gandalf.network.messages.game.MouseClicks;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class PlayerCharacter {
 
     public static final Integer WIDTH = 55;
@@ -22,6 +26,8 @@ public class PlayerCharacter {
     public boolean mouseLeftClick;
     public Integer health;
     public double mana;
+    private List<Item> inventory;
+    private Integer selectedSlot;
 
     /**
      * Construct PlayerCharacter.
@@ -35,6 +41,14 @@ public class PlayerCharacter {
         this.playerID = playerID;
         health = 100;
         mana = 100;
+
+        inventory = new ArrayList<>();
+        // Add empty items to inventory slots
+        inventory.add(0, null);
+        inventory.add(1, null);
+        inventory.add(2, null);
+
+        selectedSlot = 0; // By default, player's first inventory slot is selected
     }
 
     /**
@@ -94,6 +108,63 @@ public class PlayerCharacter {
     }
 
     /**
+     * Get player's inventory.
+     *
+     * @return inventory
+     */
+    public List<Item> getInventory() {
+        return inventory;
+    }
+
+    /**
+     * Get player's selected slot.
+     *
+      * @return selectedSlot
+     */
+    public Integer getSelectedSlot() {
+        return selectedSlot;
+    }
+
+    /**
+     * Set player's selected slot.
+     *
+     * @param selectedSlot new selected slot
+     */
+    public void setSelectedSlot(Integer selectedSlot) {
+        this.selectedSlot = selectedSlot;
+    }
+
+    /**
+     * Pick up item from the ground.
+     *
+     * @param item picked up item
+     */
+    public void pickUpItem(Item item) {
+        if (inventory.get(selectedSlot) == null) { // Pick up item when selected slot is empty
+            inventory.remove((int) selectedSlot); // Remove null from the spot
+            inventory.add(selectedSlot, item); // Add item to the spot
+        }
+    }
+
+    /**
+     * Drop item.
+     *
+     * @param droppedItemsId ID of the item that is dropped
+     * @return droppedItem
+     */
+    public Item dropItem(Integer droppedItemsId) {
+        for (Item item : inventory) {
+            if (!Objects.equals(item, null) && Objects.equals(item.getId(), droppedItemsId)) { // Find correct item
+                int itemsIndex = inventory.indexOf(item); // Get items index
+                inventory.remove(item); // Remove item from inventory
+                inventory.add(itemsIndex, null); // Put null in the empty spot
+                return item;
+            }
+        }
+        return null; // Should never get to this point
+    }
+
+    /**
      * Update player's position.
      */
     public void updatePosition() {
@@ -123,7 +194,7 @@ public class PlayerCharacter {
     }
 
     /**
-     * Moving only in one direction
+     * Moving only in one direction.
      *
      * @param distance how much player is moving
      */
@@ -159,17 +230,17 @@ public class PlayerCharacter {
      * @param keyPress incoming keypress
      */
     public void setMovement(KeyPress keyPress) {
-        // Set a direction where player should be headed.
-        if (keyPress.direction == KeyPress.Direction.LEFT) {
+        // Set a action where player should be headed.
+        if (keyPress.action == KeyPress.Action.LEFT) {
             this.moveLeft = keyPress.pressed;
         }
-        if (keyPress.direction == KeyPress.Direction.RIGHT) {
+        if (keyPress.action == KeyPress.Action.RIGHT) {
             this.moveRight = keyPress.pressed;
         }
-        if (keyPress.direction == KeyPress.Direction.UP) {
+        if (keyPress.action == KeyPress.Action.UP) {
             this.moveUp = keyPress.pressed;
         }
-        if (keyPress.direction == KeyPress.Direction.DOWN) {
+        if (keyPress.action == KeyPress.Action.DOWN) {
             this.moveDown = keyPress.pressed;
         }
     }

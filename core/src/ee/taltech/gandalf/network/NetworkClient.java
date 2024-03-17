@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
+import ee.taltech.gandalf.network.listeners.game.ItemListener;
 import ee.taltech.gandalf.screens.ScreenController;
 import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.network.listeners.game.SpellListener;
@@ -29,6 +30,7 @@ public class NetworkClient {
     PlayerPositionListener playerPositionListener;
     SpellListener fireballPositionListener;
     HealthAndManaListener healthAndManaListener;
+    ItemListener itemListener;
 
 
     /**
@@ -66,12 +68,14 @@ public class NetworkClient {
         kryo.register(KeyPress.class);
         kryo.register(SpellTypes.class);
         kryo.register(MouseClicks.class);
-        kryo.register(KeyPress.Direction.class);
+        kryo.register(KeyPress.Action.class);
         kryo.register(Position.class);
         kryo.register(SpellPosition.class);
         kryo.register(UpdateHealth.class);
         kryo.register(UpdateMana.class);
-        kryo.addDefaultSerializer(KeyPress.Direction.class, DefaultSerializers.EnumSerializer.class);
+        kryo.register(ItemPickedUp.class);
+        kryo.register(ItemDropped.class);
+        kryo.addDefaultSerializer(KeyPress.Action.class, DefaultSerializers.EnumSerializer.class);
         kryo.addDefaultSerializer(SpellTypes.class, DefaultSerializers.EnumSerializer.class);
     }
 
@@ -134,17 +138,23 @@ public class NetworkClient {
      * Add Game listeners.
      */
     public void addGameListeners() {
+        // Create listeners
         playerPositionListener = new PlayerPositionListener(screenController);
         fireballPositionListener = new SpellListener(screenController);
         healthAndManaListener = new HealthAndManaListener(screenController);
+        itemListener = new ItemListener(screenController);
 
+        // Add to listeners list so they can be removed later
         listeners.add(playerPositionListener);
         listeners.add(fireballPositionListener);
         listeners.add(healthAndManaListener);
+        listeners.add(itemListener);
 
+        // Add listener to client so that messages can be listened to
         client.addListener(playerPositionListener);
         client.addListener(fireballPositionListener);
         client.addListener(healthAndManaListener);
+        client.addListener(itemListener);
         // Add here more game listeners
     }
 

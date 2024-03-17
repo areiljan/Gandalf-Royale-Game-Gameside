@@ -18,7 +18,6 @@ public class PlayerInput implements InputProcessor {
     private PlayerCharacter playerCharacter;
     private KeyPress key;
     private MouseClicks mouse;
-    private boolean leftMouseDown;
     private boolean faceLeft;
 
     /**
@@ -42,16 +41,39 @@ public class PlayerInput implements InputProcessor {
     public boolean keyDown(int keycode) {
         switch (keycode) {
             case Input.Keys.W:
-                key = new KeyPress(KeyPress.Direction.UP, true);
+                key = new KeyPress(KeyPress.Action.UP, true);
                 break;
             case Input.Keys.A:
-                key = new KeyPress(KeyPress.Direction.LEFT, true);
+                key = new KeyPress(KeyPress.Action.LEFT, true);
                 break;
             case Input.Keys.S:
-                key = new KeyPress(KeyPress.Direction.DOWN, true);
+                key = new KeyPress(KeyPress.Action.DOWN, true);
                 break;
             case Input.Keys.D:
-                key = new KeyPress(KeyPress.Direction.RIGHT, true);
+                key = new KeyPress(KeyPress.Action.RIGHT, true);
+                break;
+            case Input.Keys.F:
+                // Only if empty slot is selected
+                if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) == null) {
+                    key = new KeyPress(KeyPress.Action.INTERACT, true);
+                }
+                break;
+            case Input.Keys.R:
+                Integer droppedItemID;
+                // Only if empty slot in not selected
+                if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
+                    droppedItemID = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId();
+                    key = new KeyPress(KeyPress.Action.DROP, true, droppedItemID);
+                }
+                break;
+            case Input.Keys.NUM_1: // Set selected slot with keyboard
+                playerCharacter.setSelectedSlot(0);
+                break;
+            case Input.Keys.NUM_2: // Set selected slot with keyboard
+                playerCharacter.setSelectedSlot(1);
+                break;
+            case Input.Keys.NUM_3: // Set selected slot with keyboard
+                playerCharacter.setSelectedSlot(2);
                 break;
             default:
                 break;
@@ -76,16 +98,16 @@ public class PlayerInput implements InputProcessor {
     public boolean keyUp(int keycode) {
         switch (keycode) {
             case Input.Keys.W:
-                key = new KeyPress(KeyPress.Direction.UP, false);
+                key = new KeyPress(KeyPress.Action.UP, false);
                 break;
             case Input.Keys.S:
-                key = new KeyPress(KeyPress.Direction.DOWN, false);
+                key = new KeyPress(KeyPress.Action.DOWN, false);
                 break;
             case Input.Keys.A:
-                key = new KeyPress(KeyPress.Direction.LEFT, false);
+                key = new KeyPress(KeyPress.Action.LEFT, false);
                 break;
             case Input.Keys.D:
-                key = new KeyPress(KeyPress.Direction.RIGHT, false);
+                key = new KeyPress(KeyPress.Action.RIGHT, false);
                 break;
             default:
                 break;
@@ -133,10 +155,15 @@ public class PlayerInput implements InputProcessor {
             // Subtract the character's position from the mouse position to get the relative position
             Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
 
-            leftMouseDown = true;
-            mouse = new MouseClicks(SpellTypes.FIREBALL, true,
+            SpellTypes type;
+            if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
+                type = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getType();
+            } else {
+                type = SpellTypes.NOTHING;
+            }
+
+            mouse = new MouseClicks(type, true,
                     relativeMousePosition.x, relativeMousePosition.y);
-            leftMouseDown = false;
             game.nc.sendUDP(mouse);
         }
         return false;
@@ -176,7 +203,7 @@ public class PlayerInput implements InputProcessor {
         // Subtract the character's position from the mouse position to get the relative position
         Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
 
-        mouse = new MouseClicks(SpellTypes.NOTHING, leftMouseDown,
+        mouse = new MouseClicks(SpellTypes.NOTHING, false,
                 relativeMousePosition.x, relativeMousePosition.y);
         game.nc.sendUDP(mouse);
         return false;
@@ -210,15 +237,21 @@ public class PlayerInput implements InputProcessor {
     }
 
     /**
-     * IGNORED.
+     * Change selected inventory slot with scrolling.
      *
-     * @param v ignored
-     * @param v1 ignored
-     * @return false
+     * @param amountX ignored
+     * @param amountY positive if scrolled up, negative if scrolled down
+     * @return true
      */
     @Override
-    public boolean scrolled(float v, float v1) {
-        return false;
-    }
+    public boolean scrolled(float amountX, float amountY) {
+        if (amountY > 0 && playerCharacter.getSelectedSlot() != 2) { // Scrolling down
+            playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() + 1);
 
+        } else if (amountY < 0 && playerCharacter.getSelectedSlot() != 0) { // Scrolling up
+            playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() - 1);
+
+        }
+        return true;
+    }
 }

@@ -2,6 +2,7 @@ package ee.taltech.gandalf.components;
 
 import com.badlogic.gdx.physics.box2d.*;
 import ee.taltech.gandalf.GandalfRoyale;
+import ee.taltech.gandalf.entities.Item;
 import ee.taltech.gandalf.entities.Spell;
 import ee.taltech.gandalf.network.messages.game.Position;
 import ee.taltech.gandalf.entities.PlayerCharacter;
@@ -20,6 +21,7 @@ public class StartedGame {
     private final Integer clientId;
     private final PlayerCharacter clientCharacter;
     private final Map<Integer, Spell> spells;
+    private final Map<Integer, Item> items;
 
     /**
      * Construct StartGame.
@@ -36,6 +38,7 @@ public class StartedGame {
         clientCharacter = alivePlayers.get(game.nc.clientId);
         clientCharacter.createHitBox(world);
         spells = new HashMap<>();
+        items = new HashMap<>();
     }
 
     /**
@@ -65,8 +68,22 @@ public class StartedGame {
         return clientCharacter;
     }
 
+    /**
+     * Get cast spells in the world.
+     *
+     * @return spells
+     */
     public Map<Integer, Spell> getSpells() {
         return spells;
+    }
+
+    /**
+     * Get items that are dropped in the world.
+     *
+     * @return items
+     */
+    public Map<Integer, Item> getItems() {
+        return items;
     }
 
     /**
@@ -160,15 +177,6 @@ public class StartedGame {
     }
 
     /**
-     * Update started game.
-     *
-     * @param delta time
-     */
-    public void update(float delta) {
-        clientCharacter.updatePosition(); // Update the player position prediction for smoother response.
-    }
-
-    /**
      * Kill player.
      *
      * @param id player who is killed
@@ -181,5 +189,35 @@ public class StartedGame {
         if (Objects.equals(id, clientId)) {
             game.screenController.getGameScreen().disableClientPlayerCharacter();
         }
+    }
+
+    /**
+     * Add item to world aka add dropped item on the ground.
+     *
+     * @param item item that is added
+     */
+    public void addItem(Item item) {
+        items.put(item.getId(), item);
+    }
+
+    /**
+     * Remove item from the world aka pick up item form the ground.
+     *
+     * @param itemId item's id that is removed
+     * @return removed item
+     */
+    public Item removeItem(Integer itemId) {
+        Item removedItem = items.get(itemId);
+        items.remove(itemId);
+        return removedItem;
+    }
+
+    /**
+     * Update started game.
+     *
+     * @param delta time
+     */
+    public void update(float delta) {
+        clientCharacter.updatePosition(); // Update the player position prediction for smoother response.
     }
 }

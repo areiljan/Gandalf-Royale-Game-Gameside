@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
+import ee.taltech.gandalf.entities.Item;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
 import ee.taltech.gandalf.components.StartedGame;
 import ee.taltech.gandalf.network.NetworkClient;
@@ -24,6 +25,7 @@ import ee.taltech.gandalf.input.PlayerInput;
 import ee.taltech.gandalf.entities.Spell;
 import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.components.Lobby;
+import ee.taltech.gandalf.scenes.Hud;
 
 import java.util.Map;
 
@@ -36,14 +38,17 @@ public class GameScreen extends ScreenAdapter {
     private final OrthogonalTiledMapRenderer renderer;
     private final ExtendViewport viewport;
     public final OrthographicCamera camera;
-    Texture img;
+    private final Hud hud;
     public final StartedGame startedGame;
     private final Map<Integer, PlayerCharacter> alivePlayers;
     private final PlayerCharacter clientCharacter;
     private final Map<Integer, Spell> spells;
+    private final Map<Integer, Item> items;
     private final TmxMapLoader mapLoader;
     private final TiledMap map;
-    Texture fireballImg;
+    private Texture img;
+    private Texture fireballImg;
+    private static Texture fireballBook;
     MouseClicks mouseClicks;
 
     private final ShapeRenderer shapeRenderer;
@@ -76,6 +81,9 @@ public class GameScreen extends ScreenAdapter {
         alivePlayers = startedGame.getAlivePlayers();
         clientCharacter = startedGame.getClientCharacter();
         spells = startedGame.getSpells();
+        items = startedGame.getItems();
+
+        hud = new Hud(camera, clientCharacter);
 
         shapeRenderer = new ShapeRenderer();
         debugRenderer = new Box2DDebugRenderer();
@@ -148,10 +156,36 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * Draw items that are on the ground.
+     */
+    private void drawItems() {
+        for (Item item : items.values()) {
+            if (item.getType() == SpellTypes.FIREBALL) {
+                game.batch.begin();
+                game.batch.draw(fireballBook, item.getXPosition() - (float) fireballBook.getWidth() / 3,
+                        item.getYPosition() - (float) fireballBook.getHeight() / 3,
+                        fireballBook.getWidth(), fireballBook.getHeight());
+                game.batch.end();
+            }
+        }
+    }
+
+    /**
      * Disable players movement aka don't listen to input.
      */
     public void disableClientPlayerCharacter() {
         Gdx.input.setInputProcessor(null);
+    }
+
+    /**
+     * Get fireball book texture.
+     * THIS METHOD IS TEMPORARY SOLUTION
+     * LATER THERE SHOULD BE A FUNCTION THAT GIVES TEXTURE BASED ON THE TYPE OF THE ITEM
+     *
+     * @return fireballBook
+     */
+    public static Texture getFireBallBookTexture() {
+        return fireballBook;
     }
 
     /**
@@ -161,6 +195,7 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         img = new Texture("wizard.png");
         fireballImg = new Texture("fireball.png");
+        fireballBook = new Texture("fireball_book.png");
         Gdx.input.setInputProcessor(new PlayerInput(game, clientCharacter));
     }
 
@@ -198,6 +233,9 @@ public class GameScreen extends ScreenAdapter {
         if (!spells.isEmpty()) {
             drawSpells(); // Draw spells.
         }
+        drawItems();
+
+        hud.draw();
 
         debugRenderer.render(world, camera.combined);
     }
@@ -211,6 +249,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
+        hud.resize(width, height);
     }
 
     /**
@@ -222,5 +261,6 @@ public class GameScreen extends ScreenAdapter {
         img.dispose();
         world.dispose();
         debugRenderer.dispose();
+        hud.dispose();
     }
 }
