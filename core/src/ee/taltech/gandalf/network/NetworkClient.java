@@ -11,7 +11,7 @@ import ee.taltech.gandalf.network.listeners.game.SpellListener;
 import ee.taltech.gandalf.network.listeners.game.HealthAndManaListener;
 import ee.taltech.gandalf.network.listeners.lobby.LobbyListener;
 import ee.taltech.gandalf.network.listeners.lobby.LobbyRoomListener;
-import ee.taltech.gandalf.network.listeners.game.PlayerPositionListener;
+import ee.taltech.gandalf.network.listeners.game.PlayerListener;
 import ee.taltech.gandalf.network.messages.game.*;
 import ee.taltech.gandalf.network.messages.lobby.*;
 
@@ -27,7 +27,7 @@ public class NetworkClient {
     List<Listener> listeners;
     LobbyListener lobbyListener;
     LobbyRoomListener lobbyRoomListener;
-    PlayerPositionListener playerPositionListener;
+    PlayerListener playerListener;
     SpellListener fireballPositionListener;
     HealthAndManaListener healthAndManaListener;
     ItemListener itemListener;
@@ -59,6 +59,7 @@ public class NetworkClient {
         Kryo kryo = client.getKryo();
         kryo.register(java.util.ArrayList.class);
         kryo.register(Position.class);
+        kryo.register(ActionTaken.class);
         kryo.register(Join.class);
         kryo.register(Leave.class);
         kryo.register(LobbyCreation.class);
@@ -139,19 +140,19 @@ public class NetworkClient {
      */
     public void addGameListeners() {
         // Create listeners
-        playerPositionListener = new PlayerPositionListener(screenController);
+        playerListener = new PlayerListener(screenController);
         fireballPositionListener = new SpellListener(screenController);
         healthAndManaListener = new HealthAndManaListener(screenController);
         itemListener = new ItemListener(screenController);
 
         // Add to listeners list so they can be removed later
-        listeners.add(playerPositionListener);
+        listeners.add(playerListener);
         listeners.add(fireballPositionListener);
         listeners.add(healthAndManaListener);
         listeners.add(itemListener);
 
         // Add listener to client so that messages can be listened to
-        client.addListener(playerPositionListener);
+        client.addListener(playerListener);
         client.addListener(fireballPositionListener);
         client.addListener(healthAndManaListener);
         client.addListener(itemListener);

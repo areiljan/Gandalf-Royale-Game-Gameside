@@ -9,11 +9,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import ee.taltech.gandalf.network.NetworkClient;
 import ee.taltech.gandalf.screens.ScreenController;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
-import ee.taltech.network.NetworkClient;
-import ee.taltech.screen.ScreenController;
 
 public class GandalfRoyale extends Game {
     public SpriteBatch batch;

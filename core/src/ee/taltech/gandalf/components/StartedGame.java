@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class StartedGame {
-
     // Threshold for the server to override the position difference
     private static final Integer OVERWRITE_THRESHOLD = 5;
     private final GandalfRoyale game;
@@ -147,6 +146,7 @@ public class StartedGame {
             clientCharacter.setPosition(position.xPosition, position.yPosition);
         }
     }
+
 
     /**
      * Method to move enemy players.

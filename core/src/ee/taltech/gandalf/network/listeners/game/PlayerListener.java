@@ -2,20 +2,24 @@ package ee.taltech.gandalf.network.listeners.game;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import ee.taltech.gandalf.entities.PlayerCharacter;
+import ee.taltech.gandalf.network.messages.game.ActionTaken;
 import ee.taltech.gandalf.network.messages.game.Position;
 import ee.taltech.gandalf.screens.ScreenController;
 import ee.taltech.gandalf.screens.GameScreen;
 
-public class PlayerPositionListener extends Listener {
+import java.util.Map;
+
+public class PlayerListener extends Listener {
 
     ScreenController screenController;
 
     /**
-     * Construct PlayerPositionListener.
+     * Construct PlayerListener.
      *
      * @param screenController game screen controller
      */
-    public PlayerPositionListener(ScreenController screenController) {
+    public PlayerListener(ScreenController screenController) {
         this.screenController = screenController;
     }
 
@@ -37,6 +41,10 @@ public class PlayerPositionListener extends Listener {
                     gameScreen.startedGame.movePlayer(position);
                 }
                 break;
+            case ActionTaken actionTaken:
+                PlayerCharacter player = gameScreen.startedGame.getAlivePlayers().get(actionTaken.userID);
+                player.updateAction(actionTaken);
+                player.updatePlayerDirection();
             default: // If something else comes through
                 break;
         }
