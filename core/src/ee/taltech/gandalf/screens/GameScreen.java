@@ -5,7 +5,6 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -54,6 +53,7 @@ public class GameScreen extends ScreenAdapter {
     private static Texture wizard;
     private float elapsedTime;
     MouseClicks mouseClicks;
+    private int deathAnimationCalls = 0;
 
     private final ShapeRenderer shapeRenderer;
 
@@ -99,7 +99,7 @@ public class GameScreen extends ScreenAdapter {
     /**
      * Set all textures.
      */
-    private void setTextures() {
+    private static void setTextures() {
         fireballImg = new Texture("fireball.png");
         fireballBook = new Texture("fireball_book.png");
     }
@@ -120,22 +120,31 @@ public class GameScreen extends ScreenAdapter {
     private void drawPlayers() {
         for (PlayerCharacter player : alivePlayers.values()) {
             elapsedTime += Gdx.graphics.getDeltaTime();
-            if (player.isMoving()) {
-                currentFrame = (TextureRegion) player.movementAnimation().getKeyFrame(elapsedTime, true);
+            if (player.health() == 0) {
+                if (deathAnimationCalls >= 5) {
+                    currentFrame = (TextureRegion) player.deathAnimation().getKeyFrames()[player.deathAnimation().getKeyFrames().length - 1];
+                } else {
+                    // Play the death animation
+                    currentFrame = (TextureRegion) player.deathAnimation().getKeyFrame(elapsedTime, true);
+                    deathAnimationCalls++;
+                }
             } else if (player.action()) {
                 currentFrame = (TextureRegion) player.actionAnimation().getKeyFrame(elapsedTime, true);
+            } else if (player.isMoving()) {
+                currentFrame = (TextureRegion) player.movementAnimation().getKeyFrame(elapsedTime, true);
             } else {
                 currentFrame = (TextureRegion) player.idleAnimation().getKeyFrame(elapsedTime, true);
             }
+
+
             game.batch.begin();
             // Set the image to 3 times smaller picture and flip it, if player is moving left.
             if (player.lookRight()) {
-                game.batch.draw(currentFrame, player.xPosition - 140, player.yPosition - 120, 300, 300);
+                game.batch.draw(currentFrame, player.xPosition - 125, player.yPosition - 120, 300, 300);
             } else {
-                game.batch.draw(currentFrame, player.xPosition - 160, player.yPosition - 120, 300, 300);
+                game.batch.draw(currentFrame, player.xPosition - 165, player.yPosition - 120, 300, 300);
             }
             game.batch.end();
-
             // Draw health and mana bar
             drawBars(player);
         }
@@ -153,23 +162,23 @@ public class GameScreen extends ScreenAdapter {
 
         // Draw missing health bar
         shapeRenderer.setColor(Color.FIREBRICK);
-        shapeRenderer.rect(player.xPosition, player.yPosition + (float) 100 / 3 + 10,
+        shapeRenderer.rect(player.xPosition - 100, player.yPosition + 120,
                 (float) 100 * 2, 5);
 
         // Draw health bar
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(player.xPosition, player.yPosition + (float) 100 / 3 + 10,
-                (float) player.health * 2, 5);
+        shapeRenderer.rect(player.xPosition - 100, player.yPosition + 120,
+                (float) player.health() * 2, 5);
 
         // Draw missing mana bar
         shapeRenderer.setColor(Color.NAVY);
-        shapeRenderer.rect(player.xPosition, player.yPosition + (float) 100 / 3,
+        shapeRenderer.rect(player.xPosition - 100, player.yPosition + (float) 110,
                 (float) 100 * 2, 5);
 
         // Draw mana bar
         shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.rect(player.xPosition, player.yPosition + (float) 100 / 3,
-                (float) player.mana * 2, 5);
+        shapeRenderer.rect(player.xPosition - 100, player.yPosition + (float) 110,
+                (float) player.mana() * 2, 5);
 
         // Stop rendering shapes
         shapeRenderer.end();

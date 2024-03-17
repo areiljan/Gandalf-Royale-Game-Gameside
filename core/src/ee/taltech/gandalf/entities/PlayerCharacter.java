@@ -6,34 +6,27 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import ee.taltech.gandalf.network.messages.game.ActionTaken;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
-import ee.taltech.gandalf.network.messages.game.MouseClicks;
 import ee.taltech.gandalf.screens.GameScreen;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static ee.taltech.gandalf.screens.GameScreen.TextureType.WIZARD;
-
 public class PlayerCharacter {
-    public static final Integer WIDTH = 55;
-    public static final Integer HEIGHT = 70;
+    public static final Integer WIDTH = 40;
+    public static final Integer HEIGHT = 80;
     private final Texture characterTexture;
     private int previousY;
     private int previousX;
     private boolean lookRight;
-    private Animation idleAnimation;
-    private Animation deathAnimation;
-    private Animation actionAnimation;
-    private Animation movementAnimation;
-    private Animation flippedIdleAnimation;
-    private Animation flippedMovementAnimation;
-    private Animation flippedDeathAnimation;
-    private Animation flippedActionAnimation;
-    private TextureRegion[] actionFrames;
-    private TextureRegion[] deathFrames;
-    private TextureRegion[] movementFrames;
-    private TextureRegion[] idleFrames;
+    private Animation<TextureRegion> idleAnimation;
+    private Animation<TextureRegion> deathAnimation;
+    private Animation<TextureRegion> actionAnimation;
+    private Animation<TextureRegion> movementAnimation;
+    private Animation<TextureRegion> flippedIdleAnimation;
+    private Animation<TextureRegion> flippedMovementAnimation;
+    private Animation<TextureRegion> flippedDeathAnimation;
+    private Animation<TextureRegion> flippedActionAnimation;
 
     public boolean action() {
         return action;
@@ -51,13 +44,20 @@ public class PlayerCharacter {
     boolean moveUp;
     public int mouseXPosition;
     public int mouseYPosition;
-    public boolean mouseLeftClick;
-    public Integer health;
-    public double mana;
+
+    public Integer health() {
+        return health;
+    }
+
+    public double mana() {
+        return mana;
+    }
+
+    private Integer health;
+    private double mana;
     private List<Item> inventory;
     private Integer selectedSlot;
     Texture spriteSheet;
-
 
     /**
      * Getter for the characterTexture
@@ -96,7 +96,11 @@ public class PlayerCharacter {
         selectedSlot = 0; // By default, player's first inventory slot is selected
     }
 
-    public Animation idleAnimation() {
+    /**
+     * idleAnimation getter.
+     * @return idleAnimation.
+     */
+    public Animation<TextureRegion> idleAnimation() {
         if (lookRight) {
             return idleAnimation;
         } else {
@@ -104,7 +108,12 @@ public class PlayerCharacter {
         }
     }
 
-    public Animation deathAnimation() {
+    /**
+     * deathAnimation getter.
+     * @return deathAnimation.
+     * @return
+     */
+    public Animation<TextureRegion> deathAnimation() {
         if (lookRight) {
             return deathAnimation;
         } else {
@@ -112,7 +121,11 @@ public class PlayerCharacter {
         }
     }
 
-    public Animation actionAnimation() {
+    /**
+     * actionAnimation getter.
+     * @return actionAnimation.
+     */
+    public Animation<TextureRegion> actionAnimation() {
         if (lookRight) {
             return actionAnimation;
         } else {
@@ -120,7 +133,11 @@ public class PlayerCharacter {
         }
     }
 
-    public Animation movementAnimation() {
+    /**
+     * movementAnimation getter.
+     * @return - movementAnimation.
+     */
+    public Animation<TextureRegion> movementAnimation() {
         if (lookRight) {
             return movementAnimation;
         } else {
@@ -128,6 +145,10 @@ public class PlayerCharacter {
         }
     }
 
+    /**
+     * Create animations for the selected character.
+     * Initialized upon character creation.
+     */
     private void createAnimations() {
         // Define frames in the spritesheet
         TextureRegion[][] frames = TextureRegion.split(characterTexture, 64, 64);
@@ -140,43 +161,47 @@ public class PlayerCharacter {
                 animationFrames[index++] = frames[i][j];
             }
         }
-        idleFrames = new TextureRegion[6];
-        movementFrames = new TextureRegion[6];
-        deathFrames = new TextureRegion[6];
-        actionFrames = new TextureRegion[6];
+
+
+        TextureRegion[] idleFrames = new TextureRegion[6];
+        TextureRegion[] movementFrames = new TextureRegion[6];
+        TextureRegion[] deathFrames = new TextureRegion[6];
+        TextureRegion[] actionFrames = new TextureRegion[6];
         TextureRegion[] flippedIdleFrames = new TextureRegion[idleFrames.length];
         TextureRegion[] flippedMovementFrames = new TextureRegion[movementFrames.length];
         TextureRegion[] flippedDeathFrames = new TextureRegion[deathFrames.length];
         TextureRegion[] flippedActionFrames = new TextureRegion[actionFrames.length];
+        // Make the big animationFrames array into different animations.
         System.arraycopy(animationFrames, 0, idleFrames, 0, 6);
         System.arraycopy(animationFrames, 6, movementFrames, 0, 6);
         System.arraycopy(animationFrames, 12, deathFrames, 0, 6);
         System.arraycopy(animationFrames, 18, actionFrames, 0, 6);
 
+
+        // Flip the frames for each animation
         for (int i = 0; i < idleFrames.length; i++) {
             // Flip frames for idle animation
             flippedIdleFrames[i] = new TextureRegion(idleFrames[i]);
             flippedIdleFrames[i].flip(true, false);
         }
-
         for (int i = 0; i < movementFrames.length; i++) {
             // Flip frames for movement animation
             flippedMovementFrames[i] = new TextureRegion(movementFrames[i]);
             flippedMovementFrames[i].flip(true, false);
         }
-
         for (int i = 0; i < deathFrames.length; i++) {
             // Flip frames for death animation
             flippedDeathFrames[i] = new TextureRegion(deathFrames[i]);
             flippedDeathFrames[i].flip(true, false);
         }
-
         for (int i = 0; i < actionFrames.length; i++) {
             // Flip frames for action animation
             flippedActionFrames[i] = new TextureRegion(actionFrames[i]);
             flippedActionFrames[i].flip(true, false);
         }
 
+
+        // Make an animation out of each array of frames.
         idleAnimation = new Animation<>(0.2F, idleFrames);
         movementAnimation = new Animation<>(0.2F, movementFrames);
         deathAnimation = new Animation<>(0.2F, deathFrames);
@@ -217,7 +242,7 @@ public class PlayerCharacter {
      * Know which direction a player is moving.
      */
     public void updatePlayerDirection() {
-        if (mouseXPosition > 100) {
+        if (mouseXPosition > 0) {
             lookRight = true;
         } else {
             lookRight = false;
@@ -363,7 +388,7 @@ public class PlayerCharacter {
             oneDirectionMovement(distance);
         }
         // Set the position of the Box2D body to match the player's coordinates
-        body.setTransform( (float) xPosition + 91, (float) yPosition + 70, body.getAngle());
+        body.setTransform( (float) xPosition + 5, (float) yPosition + 25, body.getAngle());
     }
 
     /**
@@ -372,7 +397,6 @@ public class PlayerCharacter {
     public void updateAction(ActionTaken actionTaken) {
         // updateAction is sent every frame.
         this.action = actionTaken.action;
-        System.out.println("PLAYERCHARACTER UPDATE_ACTION id:" + actionTaken.userID + " x: " + actionTaken.mouseX + " y: " + actionTaken.mouseY);
         this.mouseXPosition = actionTaken.mouseX;
         this.mouseYPosition = actionTaken.mouseY;
     }
