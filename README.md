@@ -30,11 +30,14 @@ Until we do not have server, client has to run both server and clinet side on th
 If you have started sever first and after that client then you shoud have working game instance on your screen.
 Have fun :P
 
-### How to play
+### How to play and game controlls
 
 Please note: This game is still under development, so you might encounter some bugs.
 
-1. Start your adventure: Click the "Play" button on the main screen.
-2. Host a game: Click the "Create Game" button in the top right corner. Choose a catchy name for your lobby, and others will see it appear in the lobby list.
-3. Ready, set, play!: You can start the game with at least 2 players.
-4. Fire away!: Click the left mouse button to shoot fireballs.
+1. Start your adventure - Click the "Play" button on the main screen.
+2. Host a game - Click the "Create Game" button in the top right corner. Choose a catchy name for your lobby, and others will see it appear in the lobby list.
+3. Ready, set, play! - You can start the game with at least 2 players.
+4. Change inventory slots - Inventory slots can be changed with scroll wheel or '1', '2', '3' buttons. Highlighted slot is currently selected.
+5. Pick up items - Items can be picked up with 'F' button when player stands on the item.
+6. Fire away! - Click the left mouse button when an item is selected and then you can shoot spells.
+7. Drop items - Items can be dropped with 'R' button when item is in the currently selected slot.
