@@ -5,6 +5,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -47,13 +48,17 @@ public class GameScreen extends ScreenAdapter {
     private final TmxMapLoader mapLoader;
     private final TiledMap map;
     private Texture img;
-    private Texture fireballImg;
+    private static Texture fireballImg;
     private static Texture fireballBook;
+    private static Texture wizard;
+    private float elapsedTime;
     MouseClicks mouseClicks;
+    private int deathAnimationCalls = 0;
 
     private final ShapeRenderer shapeRenderer;
 
     private Box2DDebugRenderer debugRenderer; // For debugging
+    private TextureRegion currentFrame;
 
     /**
      * Construct GameScreen.
@@ -67,6 +72,8 @@ public class GameScreen extends ScreenAdapter {
 
         this.game = game;
         this.nc = game.nc;
+
+        setTextures();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
@@ -90,17 +97,54 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * Set all textures.
+     */
+    private static void setTextures() {
+        fireballImg = new Texture("fireball.png");
+        fireballBook = new Texture("fireball_book.png");
+    }
+
+    /**
+     * Set the specific wizards texture.
+     */
+    public static Texture getWizardTexture(int userID) {
+        // Choose one of the spritesheets for the character
+        String filename = "wizardTexture" + userID % 10 + ".png";
+        return new Texture(filename);
+    }
+
+
+    /**
      * Draw all player character to screen.
      */
     private void drawPlayers() {
         for (PlayerCharacter player : alivePlayers.values()) {
+            elapsedTime += Gdx.graphics.getDeltaTime();
+            if (player.health() == 0) {
+                if (deathAnimationCalls >= 5) {
+                    currentFrame = (TextureRegion) player.deathAnimation().getKeyFrames()[player.deathAnimation().getKeyFrames().length - 1];
+                } else {
+                    // Play the death animation
+                    currentFrame = (TextureRegion) player.deathAnimation().getKeyFrame(elapsedTime, true);
+                    deathAnimationCalls++;
+                }
+            } else if (player.action()) {
+                currentFrame = (TextureRegion) player.actionAnimation().getKeyFrame(elapsedTime, true);
+            } else if (player.isMoving()) {
+                currentFrame = (TextureRegion) player.movementAnimation().getKeyFrame(elapsedTime, true);
+            } else {
+                currentFrame = (TextureRegion) player.idleAnimation().getKeyFrame(elapsedTime, true);
+            }
+
+
             game.batch.begin();
             // Set the image to 3 times smaller picture and flip it, if player is moving left.
-            game.batch.draw(img, player.xPosition, player.yPosition,
-                    (float) img.getWidth() / 3, (float) img.getHeight() / 3, 0, 0,
-                    img.getWidth(), img.getHeight(), player.moveLeft, false);
+            if (player.lookRight()) {
+                game.batch.draw(currentFrame, player.xPosition - 125, player.yPosition - 120, 300, 300);
+            } else {
+                game.batch.draw(currentFrame, player.xPosition - 165, player.yPosition - 120, 300, 300);
+            }
             game.batch.end();
-
             // Draw health and mana bar
             drawBars(player);
         }
@@ -118,23 +162,23 @@ public class GameScreen extends ScreenAdapter {
 
         // Draw missing health bar
         shapeRenderer.setColor(Color.FIREBRICK);
-        shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3 + 10,
+        shapeRenderer.rect(player.xPosition - 100, player.yPosition + 120,
                 (float) 100 * 2, 5);
 
         // Draw health bar
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3 + 10,
-                (float) player.health * 2, 5);
+        shapeRenderer.rect(player.xPosition - 100, player.yPosition + 120,
+                (float) player.health() * 2, 5);
 
         // Draw missing mana bar
         shapeRenderer.setColor(Color.NAVY);
-        shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3,
+        shapeRenderer.rect(player.xPosition - 100, player.yPosition + (float) 110,
                 (float) 100 * 2, 5);
 
         // Draw mana bar
         shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.rect(player.xPosition, player.yPosition + (float) img.getHeight() / 3,
-                (float) player.mana * 2, 5);
+        shapeRenderer.rect(player.xPosition - 100, player.yPosition + (float) 110,
+                (float) player.mana() * 2, 5);
 
         // Stop rendering shapes
         shapeRenderer.end();
@@ -178,14 +222,28 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
-     * Get fireball book texture.
-     * THIS METHOD IS TEMPORARY SOLUTION
-     * LATER THERE SHOULD BE A FUNCTION THAT GIVES TEXTURE BASED ON THE TYPE OF THE ITEM
-     *
+     * Texture types
+     */
+    public enum TextureType {
+        FIREBALL_BOOK, FIREBALL, WIZARD
+    }
+
+    /**
+     * Get any texture.
+     * Give the appropriate type upon calling this method to get the right texture.
      * @return fireballBook
      */
-    public static Texture getFireBallBookTexture() {
-        return fireballBook;
+    public static Texture getTexture(TextureType textureType) {
+        switch (textureType) {
+            case FIREBALL_BOOK:
+                return fireballBook;
+            case FIREBALL:
+                return fireballImg;
+            case WIZARD:
+                return wizard;
+            default:
+                return new Texture("wizard.png");
+        }
     }
 
     /**
@@ -193,9 +251,6 @@ public class GameScreen extends ScreenAdapter {
      */
     @Override
     public void show() {
-        img = new Texture("wizard.png");
-        fireballImg = new Texture("fireball.png");
-        fireballBook = new Texture("fireball_book.png");
         Gdx.input.setInputProcessor(new PlayerInput(game, clientCharacter));
     }
 
@@ -210,9 +265,6 @@ public class GameScreen extends ScreenAdapter {
         world.step(delta, 6, 2);
         startedGame.update(delta);
 
-        if(mouseClicks != null) {
-            clientCharacter.setMouseHover(mouseClicks);
-        }
         // Update camera position to follow player
         camera.position.x = clientCharacter.xPosition;
         camera.position.y = clientCharacter.yPosition;
