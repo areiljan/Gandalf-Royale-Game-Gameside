@@ -27,6 +27,7 @@ import ee.taltech.gandalf.entities.Spell;
 import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.components.Lobby;
 import ee.taltech.gandalf.scenes.Hud;
+import ee.taltech.gandalf.world.WorldCollision;
 
 import java.util.Map;
 
@@ -81,8 +82,10 @@ public class GameScreen extends ScreenAdapter {
         viewport.apply();
 
         this.mapLoader = new TmxMapLoader();
-        this.map = mapLoader.load("gameart2d-desert.tmx");
+        this.map = mapLoader.load("Gandalf_Royale.tmx");
         this.renderer = new OrthogonalTiledMapRenderer(map);
+
+        new WorldCollision(world, map);
 
         startedGame = new StartedGame(game, lobby, world);
         alivePlayers = startedGame.getAlivePlayers();
@@ -278,8 +281,10 @@ public class GameScreen extends ScreenAdapter {
 
         // Render game objects
         game.batch.begin();
+        camera.zoom = 2f; // To render 2X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
+        camera.zoom = 1f; // Reset the camera back to its original state.
         game.batch.end();
 
         drawPlayers(); // Draw client character.

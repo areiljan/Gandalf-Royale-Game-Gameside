@@ -259,6 +259,7 @@ public class PlayerCharacter {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(xPosition, yPosition);
+        bodyDef.fixedRotation = true;
         Body hitBoxBody = world.createBody(bodyDef);
 
         // Create a fixture defining the hit box shape
