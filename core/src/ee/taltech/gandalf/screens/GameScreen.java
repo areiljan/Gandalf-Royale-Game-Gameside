@@ -106,6 +106,7 @@ public class GameScreen extends ScreenAdapter {
 
     /**
      * Set the specific wizards texture.
+     * Useful because different wizards have different textures.
      */
     public static Texture getWizardTexture(int userID) {
         // Choose one of the spritesheets for the character
