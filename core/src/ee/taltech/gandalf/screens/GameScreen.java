@@ -49,7 +49,7 @@ public class GameScreen extends ScreenAdapter {
     private final TmxMapLoader mapLoader;
     private final TiledMap map;
     private Texture img;
-    private static Texture fireballImg;
+    private static Texture fireballTexture;
     private static Texture fireballBook;
     private static Texture wizard;
     private float elapsedTime;
@@ -78,7 +78,7 @@ public class GameScreen extends ScreenAdapter {
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
-        viewport = new ExtendViewport(500, 500, camera);
+        viewport = new ExtendViewport(150, 150, camera);
         viewport.apply();
 
         this.mapLoader = new TmxMapLoader();
@@ -103,8 +103,8 @@ public class GameScreen extends ScreenAdapter {
      * Set all textures.
      */
     private static void setTextures() {
-        fireballImg = new Texture("fireball.png");
         fireballBook = new Texture("fireball_book.png");
+        fireballTexture = new Texture("spell1_Fireball.png");
     }
 
     /**
@@ -117,7 +117,6 @@ public class GameScreen extends ScreenAdapter {
         return new Texture(filename);
     }
 
-
     /**
      * Draw all player character to screen.
      */
@@ -126,27 +125,27 @@ public class GameScreen extends ScreenAdapter {
             elapsedTime += Gdx.graphics.getDeltaTime();
             if (player.health() == 0) {
                 if (deathAnimationCalls >= 5) {
-                    currentFrame = (TextureRegion) player.deathAnimation().getKeyFrames()[player.deathAnimation().getKeyFrames().length - 1];
+                    currentFrame = player.deathAnimation().getKeyFrames()[player.deathAnimation().getKeyFrames().length - 1];
                 } else {
                     // Play the death animation
-                    currentFrame = (TextureRegion) player.deathAnimation().getKeyFrame(elapsedTime, true);
+                    currentFrame = player.deathAnimation().getKeyFrame(elapsedTime, true);
                     deathAnimationCalls++;
                 }
             } else if (player.action()) {
-                currentFrame = (TextureRegion) player.actionAnimation().getKeyFrame(elapsedTime, true);
+                currentFrame = player.actionAnimation().getKeyFrame(elapsedTime, true);
             } else if (player.isMoving()) {
-                currentFrame = (TextureRegion) player.movementAnimation().getKeyFrame(elapsedTime, true);
+                currentFrame = player.movementAnimation().getKeyFrame(elapsedTime, true);
             } else {
-                currentFrame = (TextureRegion) player.idleAnimation().getKeyFrame(elapsedTime, true);
+                currentFrame = player.idleAnimation().getKeyFrame(elapsedTime, true);
             }
 
 
             game.batch.begin();
             // Set the image to 3 times smaller picture and flip it, if player is moving left.
             if (player.lookRight()) {
-                game.batch.draw(currentFrame, player.xPosition - 125, player.yPosition - 120, 300, 300);
+                game.batch.draw(currentFrame, player.xPosition - 100, player.yPosition - 50, 100, 100);
             } else {
-                game.batch.draw(currentFrame, player.xPosition - 165, player.yPosition - 120, 300, 300);
+                game.batch.draw(currentFrame, player.xPosition, player.yPosition - 50, 100, 100);
             }
             game.batch.end();
             // Draw health and mana bar
@@ -165,7 +164,7 @@ public class GameScreen extends ScreenAdapter {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         // Draw missing health bar
-        shapeRenderer.setColor(Color.FIREBRICK);
+        shapeRenderer.setColor(Color.BLACK);
         shapeRenderer.rect(player.xPosition - 100, player.yPosition + 120,
                 (float) 100 * 2, 5);
 
@@ -175,7 +174,7 @@ public class GameScreen extends ScreenAdapter {
                 (float) player.health() * 2, 5);
 
         // Draw missing mana bar
-        shapeRenderer.setColor(Color.NAVY);
+        shapeRenderer.setColor(Color.BLACK);
         shapeRenderer.rect(player.xPosition - 100, player.yPosition + (float) 110,
                 (float) 100 * 2, 5);
 
@@ -193,11 +192,19 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawSpells() {
         for (Spell spell : spells.values()) {
-            if (spell.getType() ==  SpellTypes.FIREBALL) {
+            if ((spell.getType() == SpellTypes.FIREBALL) && (spell.rotation().isPresent())) {
                 game.batch.begin();
-                game.batch.draw(fireballImg, (float) spell.getXPosition() - (float) fireballImg.getWidth() / 6,
-                        (float) spell.getYPosition() - (float) fireballImg.getHeight() / 3,
-                        (float) fireballImg.getWidth() / 3, (float) fireballImg.getHeight() / 3);
+                TextureRegion currentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
+                game.batch.draw(currentFrame,
+                        (float) spell.getXPosition(),
+                        (float) spell.getYPosition(),
+                        0,
+                        0,
+                        32,
+                        17,
+                        1,
+                        1,
+                        spell.rotation().get());
                 game.batch.end();
             }
         }
@@ -242,7 +249,7 @@ public class GameScreen extends ScreenAdapter {
             case FIREBALL_BOOK:
                 return fireballBook;
             case FIREBALL:
-                return fireballImg;
+                return fireballTexture;
             case WIZARD:
                 return wizard;
             default:
@@ -284,7 +291,7 @@ public class GameScreen extends ScreenAdapter {
         camera.zoom = 2f; // To render 2X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
-        camera.zoom = 1f; // Reset the camera back to its original state.
+        camera.zoom = 0.5f; // Reset the camera back to its original state.
         game.batch.end();
 
         drawPlayers(); // Draw client character.

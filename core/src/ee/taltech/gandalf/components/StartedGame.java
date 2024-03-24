@@ -10,6 +10,7 @@ import ee.taltech.gandalf.entities.PlayerCharacter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class StartedGame {
     // Threshold for the server to override the position difference
@@ -19,7 +20,7 @@ public class StartedGame {
     private final Map<Integer, PlayerCharacter> deadPlayers;
     private final Integer clientId;
     private final PlayerCharacter clientCharacter;
-    private final Map<Integer, Spell> spells;
+    private Map<Integer, Spell> spells;
     private final Map<Integer, Item> items;
 
     /**
@@ -177,11 +178,18 @@ public class StartedGame {
     }
 
     /**
+     * Get rid of the spell.
+     */
+    public void removeSpell(Integer id) {
+        spells.remove(id);
+    }
+
+    /**
      * Kill player.
      *
      * @param id player who is killed
      */
-    private void killPlayer(Integer id) {
+    public void killPlayer(Integer id) {
         PlayerCharacter player = alivePlayers.get(id);
         deadPlayers.put(id, player);
 

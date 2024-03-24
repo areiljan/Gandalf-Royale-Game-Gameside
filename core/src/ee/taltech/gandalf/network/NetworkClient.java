@@ -72,7 +72,9 @@ public class NetworkClient {
         kryo.register(KeyPress.Action.class);
         kryo.register(Position.class);
         kryo.register(SpellPosition.class);
+        kryo.register(SpellDispel.class);
         kryo.register(UpdateHealth.class);
+        kryo.register(KilledPlayer.class);
         kryo.register(UpdateMana.class);
         kryo.register(ItemPickedUp.class);
         kryo.register(ItemDropped.class);

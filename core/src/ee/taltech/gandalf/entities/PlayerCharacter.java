@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class PlayerCharacter {
-    public static final Integer WIDTH = 40;
-    public static final Integer HEIGHT = 80;
+    public static final Integer WIDTH = 20;
+    public static final Integer HEIGHT = 40;
     private final Texture characterTexture;
     private int previousY;
     private int previousX;
