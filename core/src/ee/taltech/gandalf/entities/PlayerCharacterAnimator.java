@@ -9,6 +9,7 @@ import ee.taltech.gandalf.screens.GameScreen;
 public class PlayerCharacterAnimator {
     private final Texture characterTexture;
     private final PlayerCharacter playerCharacter;
+    public int actionTimes;
     private int actionAnimationCalls;
     private int deathAnimationCalls;
     private int previousY;
@@ -53,6 +54,7 @@ public class PlayerCharacterAnimator {
         this.characterTexture = GameScreen.getWizardTexture(playerID);
         this.deathAnimationCalls = 0;
         this.actionAnimationCalls = 0;
+        this.actionTimes = 0;
         createAnimations();
     }
 
@@ -173,11 +175,11 @@ public class PlayerCharacterAnimator {
         idleAnimation = new Animation<>(0.2F, idleFrames);
         movementAnimation = new Animation<>(0.2F, movementFrames);
         deathAnimation = new Animation<>(0.2F, deathFrames);
-        actionAnimation = new Animation<>(0.2F, actionFrames);
+        flippedDeathAnimation = new Animation<>(0.2f, flippedDeathFrames);
+        actionAnimation = new Animation<>(0.1F, actionFrames);
+        flippedActionAnimation = new Animation<>(0.1f, flippedActionFrames);
         flippedIdleAnimation = new Animation<>(0.2f, flippedIdleFrames);
         flippedMovementAnimation = new Animation<>(0.2f, flippedMovementFrames);
-        flippedDeathAnimation = new Animation<>(0.2f, flippedDeathFrames);
-        flippedActionAnimation = new Animation<>(0.2f, flippedActionFrames);
     }
 
     /**
@@ -210,6 +212,11 @@ public class PlayerCharacterAnimator {
      * Update player's action.
      */
     public void updateAction(ActionTaken actionTaken) {
+        if (actionTaken.action) {
+            actionAnimationCalls++;
+        } else if (actionAnimationCalls > 20 && !actionTaken.action) {
+            actionAnimationCalls = 0;
+        }
         // updateAction is sent every frame.
         this.mouseXPosition = actionTaken.mouseX;
         this.mouseYPosition = actionTaken.mouseY;

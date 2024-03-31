@@ -55,8 +55,8 @@ public class GameScreen extends ScreenAdapter {
     private static Texture fireballBook;
     private static Texture wizard;
     private float elapsedTime;
+    private float animationTime;
     MouseClicks mouseClicks;
-
     private final ShapeRenderer shapeRenderer;
 
     private Box2DDebugRenderer debugRenderer; // For debugging
@@ -126,21 +126,22 @@ public class GameScreen extends ScreenAdapter {
         for (PlayerCharacter player : gamePlayers.values()) {
             PlayerCharacterAnimator playerAnimator = player.getPlayerAnimator();
             elapsedTime += Gdx.graphics.getDeltaTime();
+            animationTime += Gdx.graphics.getDeltaTime(); // Increment animationTime
+
             if (deadPlayers.containsValue(player)) {
                 if (playerAnimator.getDeathAnimationCalls() >= 5) {
                     currentFrame = playerAnimator.deathAnimation().getKeyFrames()[playerAnimator.deathAnimation().getKeyFrames().length - 1];
                 } else {
                     // Play the death animation
-                    currentFrame = playerAnimator.deathAnimation().getKeyFrame(elapsedTime, true);
+                    currentFrame = playerAnimator.deathAnimation().getKeyFrame(animationTime, true); // Use animationTime
                     playerAnimator.deathAnimationCallsIncrement();
                 }
-            } else if (playerAnimator.getActionAnimationCalls() > 0 && playerAnimator.getActionAnimationCalls() < 6) {
-                currentFrame = playerAnimator.actionAnimation().getKeyFrame(elapsedTime, true);
-                playerAnimator.actionAnimationCallsIncrement();
+            } else if (playerAnimator.getActionAnimationCalls() > 0 && playerAnimator.getActionAnimationCalls() < 18) {
+                currentFrame = playerAnimator.actionAnimation().getKeyFrame(animationTime, true); // Use animationTime
             } else if (playerAnimator.isMoving()) {
-                currentFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true);
+                currentFrame = playerAnimator.movementAnimation().getKeyFrame(animationTime, true); // Use animationTime
             } else {
-                currentFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true);
+                currentFrame = playerAnimator.idleAnimation().getKeyFrame(animationTime, true); // Use animationTime
             }
 
             game.batch.begin();
