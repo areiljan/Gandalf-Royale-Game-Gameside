@@ -18,7 +18,7 @@ public class PlayerInput implements InputProcessor {
     private PlayerCharacter playerCharacter;
     private KeyPress key;
     private MouseClicks mouse;
-    private boolean faceLeft;
+    private boolean mouseClick;
 
     /**
      * Construct PlayerInput.
@@ -204,10 +204,13 @@ public class PlayerInput implements InputProcessor {
         // Subtract the character's position from the mouse position to get the relative position
         Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
 
-        mouse = new MouseClicks(SpellTypes.NOTHING, false,
-                relativeMousePosition.x, relativeMousePosition.y + 80);
-        // The mouse Y positions should be at the characters head.
-        game.nc.sendUDP(mouse);
+        // Check if the left mouse button is not pressed
+        if (!Gdx.input.isButtonPressed(Buttons.LEFT)) {
+            mouse = new MouseClicks(SpellTypes.NOTHING, false,
+                    relativeMousePosition.x, relativeMousePosition.y + 80);
+            // The mouse Y positions should be at the characters head.
+            game.nc.sendUDP(mouse);
+        }
         return false;
     }
 

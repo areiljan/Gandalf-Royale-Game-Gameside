@@ -45,7 +45,9 @@ public class PlayerListener extends Listener {
             case ActionTaken actionTaken:
                 PlayerCharacter player = gameScreen.startedGame.getGamePlayers().get(actionTaken.userID);
                 player.getPlayerAnimator().updateAction(actionTaken);
-                player.getPlayerAnimator().updatePlayerDirection();
+                if (actionTaken.userID == connection.getID() && actionTaken.action) {
+                    player.getPlayerAnimator().actionAnimationCallsIncrement();
+                }
                 break;
             case KilledPlayer killedPlayer:
                 if (killedPlayer.id == connection.getID()) {

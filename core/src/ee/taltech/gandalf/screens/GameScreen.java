@@ -134,8 +134,9 @@ public class GameScreen extends ScreenAdapter {
                     currentFrame = playerAnimator.deathAnimation().getKeyFrame(elapsedTime, true);
                     playerAnimator.deathAnimationCallsIncrement();
                 }
-            } else if (playerAnimator.getActionAnimationCalls() > 0) {
+            } else if (playerAnimator.getActionAnimationCalls() > 0 && playerAnimator.getActionAnimationCalls() < 6) {
                 currentFrame = playerAnimator.actionAnimation().getKeyFrame(elapsedTime, true);
+                playerAnimator.actionAnimationCallsIncrement();
             } else if (playerAnimator.isMoving()) {
                 currentFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true);
             } else {

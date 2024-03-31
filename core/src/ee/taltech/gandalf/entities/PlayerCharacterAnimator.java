@@ -24,14 +24,17 @@ public class PlayerCharacterAnimator {
     private Animation<TextureRegion> flippedActionAnimation;
     public int mouseXPosition;
     public int mouseYPosition;
-    public boolean action() {
-        return action;
-    }
-    private boolean action;
     Texture spriteSheet;
 
     public int getActionAnimationCalls() {
         return actionAnimationCalls;
+    }
+    public void setActionAnimationCallsZero() {
+        actionAnimationCalls = 0;
+    }
+
+    public void actionAnimationCallsIncrement() {
+        actionAnimationCalls++;
     }
 
     public int getDeathAnimationCalls() {
@@ -44,7 +47,6 @@ public class PlayerCharacterAnimator {
 
     public PlayerCharacterAnimator(PlayerCharacter playerCharacter, Integer playerID) {
         this.playerCharacter = playerCharacter;
-        this.action = false;
         this.lookRight = true;
         this.previousX = 0;
         this.previousY = 0;
@@ -205,29 +207,17 @@ public class PlayerCharacterAnimator {
     }
 
     /**
-     * Know which direction a player is moving.
+     * Update player's action.
      */
-    public void updatePlayerDirection() {
+    public void updateAction(ActionTaken actionTaken) {
+        // updateAction is sent every frame.
+        this.mouseXPosition = actionTaken.mouseX;
+        this.mouseYPosition = actionTaken.mouseY;
         if (mouseXPosition > 0) {
             lookRight = true;
         } else {
             lookRight = false;
         }
-    }
-
-    /**
-     * Update player's action.
-     */
-    public void updateAction(ActionTaken actionTaken) {
-        // updateAction is sent every frame.
-        if (actionTaken.action) {
-            actionAnimationCalls++;
-        }
-        if (actionAnimationCalls > 6) {
-            actionAnimationCalls = 0;
-        }
-        this.mouseXPosition = actionTaken.mouseX;
-        this.mouseYPosition = actionTaken.mouseY;
     }
 
     /**
