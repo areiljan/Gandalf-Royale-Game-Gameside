@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.gandalf.entities.Item;
+import ee.taltech.gandalf.entities.PlayerCharacterAnimator;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
 import ee.taltech.gandalf.components.StartedGame;
 import ee.taltech.gandalf.network.NetworkClient;
@@ -122,30 +123,31 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawPlayers() {
         for (PlayerCharacter player : alivePlayers.values()) {
+            PlayerCharacterAnimator playerAnimator = player.getPlayerAnimator();
             elapsedTime += Gdx.graphics.getDeltaTime();
             if (player.health() == 0) {
                 if (deathAnimationCalls >= 5) {
-                    currentFrame = player.deathAnimation().getKeyFrames()[player.deathAnimation().getKeyFrames().length - 1];
+                    currentFrame = playerAnimator.deathAnimation().getKeyFrames()[playerAnimator.deathAnimation().getKeyFrames().length - 1];
                 } else {
                     // Play the death animation
-                    currentFrame = player.deathAnimation().getKeyFrame(elapsedTime, true);
+                    currentFrame = playerAnimator.deathAnimation().getKeyFrame(elapsedTime, true);
                     deathAnimationCalls++;
                 }
-            } else if (player.action()) {
-                currentFrame = player.actionAnimation().getKeyFrame(elapsedTime, true);
-            } else if (player.isMoving()) {
-                currentFrame = player.movementAnimation().getKeyFrame(elapsedTime, true);
+            } else if (playerAnimator.action()) {
+                currentFrame = playerAnimator.actionAnimation().getKeyFrame(elapsedTime, true);
+            } else if (playerAnimator.isMoving()) {
+                currentFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true);
             } else {
-                currentFrame = player.idleAnimation().getKeyFrame(elapsedTime, true);
+                currentFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true);
             }
 
 
             game.batch.begin();
             // Set the image to 3 times smaller picture and flip it, if player is moving left.
-            if (player.lookRight()) {
-                game.batch.draw(currentFrame, player.xPosition - 100, player.yPosition - 50, 100, 100);
+            if (playerAnimator.lookRight()) {
+                game.batch.draw(currentFrame, player.xPosition - 30, player.yPosition - 15, 80, 80);
             } else {
-                game.batch.draw(currentFrame, player.xPosition, player.yPosition - 50, 100, 100);
+                game.batch.draw(currentFrame, player.xPosition - 40, player.yPosition - 15, 80, 80);
             }
             game.batch.end();
             // Draw health and mana bar
@@ -165,23 +167,23 @@ public class GameScreen extends ScreenAdapter {
 
         // Draw missing health bar
         shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect(player.xPosition - 100, player.yPosition + 120,
-                (float) 100 * 2, 5);
+        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 60,
+                (float) 100, 2);
 
         // Draw health bar
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(player.xPosition - 100, player.yPosition + 120,
-                (float) player.health() * 2, 5);
+        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 60,
+                (float) player.health(), 2);
 
         // Draw missing mana bar
         shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect(player.xPosition - 100, player.yPosition + (float) 110,
-                (float) 100 * 2, 5);
+        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 55,
+                (float) 100, 2);
 
         // Draw mana bar
         shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.rect(player.xPosition - 100, player.yPosition + (float) 110,
-                (float) player.mana() * 2, 5);
+        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 55,
+                (float) player.mana(), 2);
 
         // Stop rendering shapes
         shapeRenderer.end();
@@ -288,10 +290,10 @@ public class GameScreen extends ScreenAdapter {
 
         // Render game objects
         game.batch.begin();
-        camera.zoom = 2f; // To render 2X bigger area than seen.
+        camera.zoom = 0.7f; // To render 2X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
-        camera.zoom = 0.5f; // Reset the camera back to its original state.
+        camera.zoom = 0.35f; // Reset the camera back to its original state.
         game.batch.end();
 
         drawPlayers(); // Draw client character.

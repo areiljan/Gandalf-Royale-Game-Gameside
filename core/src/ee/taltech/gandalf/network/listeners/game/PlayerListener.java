@@ -43,8 +43,8 @@ public class PlayerListener extends Listener {
                 break;
             case ActionTaken actionTaken:
                 PlayerCharacter player = gameScreen.startedGame.getAlivePlayers().get(actionTaken.userID);
-                player.updateAction(actionTaken);
-                player.updatePlayerDirection();
+                player.getPlayerAnimator().updateAction(actionTaken);
+                player.getPlayerAnimator().updatePlayerDirection();
             default: // If something else comes through
                 break;
         }
