@@ -43,7 +43,8 @@ public class GameScreen extends ScreenAdapter {
     public final OrthographicCamera camera;
     private final Hud hud;
     public final StartedGame startedGame;
-    private final Map<Integer, PlayerCharacter> alivePlayers;
+    private final Map<Integer, PlayerCharacter> gamePlayers;
+    private final Map<Integer, PlayerCharacter> deadPlayers;
     private final PlayerCharacter clientCharacter;
     private final Map<Integer, Spell> spells;
     private final Map<Integer, Item> items;
@@ -55,7 +56,6 @@ public class GameScreen extends ScreenAdapter {
     private static Texture wizard;
     private float elapsedTime;
     MouseClicks mouseClicks;
-    private int deathAnimationCalls = 0;
 
     private final ShapeRenderer shapeRenderer;
 
@@ -89,7 +89,8 @@ public class GameScreen extends ScreenAdapter {
         new WorldCollision(world, map);
 
         startedGame = new StartedGame(game, lobby, world);
-        alivePlayers = startedGame.getAlivePlayers();
+        gamePlayers = startedGame.getGamePlayers();
+        deadPlayers = startedGame.getDeadPlayers();
         clientCharacter = startedGame.getClientCharacter();
         spells = startedGame.getSpells();
         items = startedGame.getItems();
@@ -122,25 +123,24 @@ public class GameScreen extends ScreenAdapter {
      * Draw all player character to screen.
      */
     private void drawPlayers() {
-        for (PlayerCharacter player : alivePlayers.values()) {
+        for (PlayerCharacter player : gamePlayers.values()) {
             PlayerCharacterAnimator playerAnimator = player.getPlayerAnimator();
             elapsedTime += Gdx.graphics.getDeltaTime();
-            if (player.health() == 0) {
-                if (deathAnimationCalls >= 5) {
+            if (deadPlayers.containsValue(player)) {
+                if (playerAnimator.getDeathAnimationCalls() >= 5) {
                     currentFrame = playerAnimator.deathAnimation().getKeyFrames()[playerAnimator.deathAnimation().getKeyFrames().length - 1];
                 } else {
                     // Play the death animation
                     currentFrame = playerAnimator.deathAnimation().getKeyFrame(elapsedTime, true);
-                    deathAnimationCalls++;
+                    playerAnimator.deathAnimationCallsIncrement();
                 }
-            } else if (playerAnimator.action()) {
+            } else if (playerAnimator.getActionAnimationCalls() > 0) {
                 currentFrame = playerAnimator.actionAnimation().getKeyFrame(elapsedTime, true);
             } else if (playerAnimator.isMoving()) {
                 currentFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true);
             } else {
                 currentFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true);
             }
-
 
             game.batch.begin();
             // Set the image to 3 times smaller picture and flip it, if player is moving left.
@@ -199,7 +199,7 @@ public class GameScreen extends ScreenAdapter {
                 TextureRegion currentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
                 game.batch.draw(currentFrame,
                         (float) spell.getXPosition(),
-                        (float) spell.getYPosition(),
+                        (float) spell.getYPosition() - 32,
                         0,
                         0,
                         32,
@@ -290,7 +290,7 @@ public class GameScreen extends ScreenAdapter {
 
         // Render game objects
         game.batch.begin();
-        camera.zoom = 0.7f; // To render 2X bigger area than seen.
+        camera.zoom = 1.05f; // To render 3X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
         camera.zoom = 0.35f; // Reset the camera back to its original state.

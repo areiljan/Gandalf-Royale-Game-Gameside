@@ -9,6 +9,8 @@ import ee.taltech.gandalf.screens.GameScreen;
 public class PlayerCharacterAnimator {
     private final Texture characterTexture;
     private final PlayerCharacter playerCharacter;
+    private int actionAnimationCalls;
+    private int deathAnimationCalls;
     private int previousY;
     private int previousX;
     private boolean lookRight;
@@ -28,6 +30,18 @@ public class PlayerCharacterAnimator {
     private boolean action;
     Texture spriteSheet;
 
+    public int getActionAnimationCalls() {
+        return actionAnimationCalls;
+    }
+
+    public int getDeathAnimationCalls() {
+        return deathAnimationCalls;
+    }
+
+    public void deathAnimationCallsIncrement() {
+        deathAnimationCalls++;
+    }
+
     public PlayerCharacterAnimator(PlayerCharacter playerCharacter, Integer playerID) {
         this.playerCharacter = playerCharacter;
         this.action = false;
@@ -35,6 +49,8 @@ public class PlayerCharacterAnimator {
         this.previousX = 0;
         this.previousY = 0;
         this.characterTexture = GameScreen.getWizardTexture(playerID);
+        this.deathAnimationCalls = 0;
+        this.actionAnimationCalls = 0;
         createAnimations();
     }
 
@@ -204,7 +220,12 @@ public class PlayerCharacterAnimator {
      */
     public void updateAction(ActionTaken actionTaken) {
         // updateAction is sent every frame.
-        this.action = actionTaken.action;
+        if (actionTaken.action) {
+            actionAnimationCalls++;
+        }
+        if (actionAnimationCalls > 6) {
+            actionAnimationCalls = 0;
+        }
         this.mouseXPosition = actionTaken.mouseX;
         this.mouseYPosition = actionTaken.mouseY;
     }

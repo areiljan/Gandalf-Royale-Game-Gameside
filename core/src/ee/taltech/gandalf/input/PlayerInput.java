@@ -163,7 +163,8 @@ public class PlayerInput implements InputProcessor {
             }
 
             mouse = new MouseClicks(type, true,
-                    relativeMousePosition.x, relativeMousePosition.y);
+                    relativeMousePosition.x, relativeMousePosition.y + 80);
+            // The mouse Y positions should be at the characters head.
             game.nc.sendUDP(mouse);
         }
         return false;
@@ -204,7 +205,8 @@ public class PlayerInput implements InputProcessor {
         Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
 
         mouse = new MouseClicks(SpellTypes.NOTHING, false,
-                relativeMousePosition.x, relativeMousePosition.y);
+                relativeMousePosition.x, relativeMousePosition.y + 80);
+        // The mouse Y positions should be at the characters head.
         game.nc.sendUDP(mouse);
         return false;
     }

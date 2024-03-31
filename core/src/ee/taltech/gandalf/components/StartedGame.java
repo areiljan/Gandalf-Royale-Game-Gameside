@@ -10,13 +10,12 @@ import ee.taltech.gandalf.entities.PlayerCharacter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class StartedGame {
     // Threshold for the server to override the position difference
     private static final Integer OVERWRITE_THRESHOLD = 5;
     private final GandalfRoyale game;
-    private final Map<Integer, PlayerCharacter> alivePlayers;
+    private final Map<Integer, PlayerCharacter> gamePlayers;
     private final Map<Integer, PlayerCharacter> deadPlayers;
     private final Integer clientId;
     private final PlayerCharacter clientCharacter;
@@ -32,10 +31,10 @@ public class StartedGame {
     public StartedGame(GandalfRoyale game, Lobby lobby, World world) {
         this.game = game;
 
-        alivePlayers = createAlivePlayersMap(lobby);
+        gamePlayers = createAlivePlayersMap(lobby);
         deadPlayers = new HashMap<>();
         clientId = game.nc.clientId;
-        clientCharacter = alivePlayers.get(game.nc.clientId);
+        clientCharacter = gamePlayers.get(game.nc.clientId);
         clientCharacter.createHitBox(world);
         spells = new HashMap<>();
         items = new HashMap<>();
@@ -46,8 +45,8 @@ public class StartedGame {
      *
      * @return alivePlayers
      */
-    public Map<Integer, PlayerCharacter> getAlivePlayers() {
-        return alivePlayers;
+    public Map<Integer, PlayerCharacter> getGamePlayers() {
+        return gamePlayers;
     }
 
     /**
@@ -107,7 +106,7 @@ public class StartedGame {
      * @param id ID of player that is removed
      */
     public void removePlayerFromAlivePlayers(Integer id) {
-        alivePlayers.remove(id);
+        gamePlayers.remove(id);
     }
 
 
@@ -118,7 +117,7 @@ public class StartedGame {
      * @param health player's new health
      */
     public void updatePlayersHealth(Integer id, Integer health) {
-        alivePlayers.get(id).setHealth(health);
+        gamePlayers.get(id).setHealth(health);
         if (health == 0) {
             killPlayer(id);
         }
@@ -131,7 +130,7 @@ public class StartedGame {
      * @param mana player's new mana
      */
     public void updatePlayersMana(Integer id, double mana) {
-        alivePlayers.get(id).setMana(mana);
+        gamePlayers.get(id).setMana(mana);
     }
 
     /**
@@ -155,7 +154,7 @@ public class StartedGame {
      * @param position Message from server, that contains playerID, X, Y coordinates.
      */
     public void movePlayer(Position position) {
-        PlayerCharacter enemyPlayer = alivePlayers.get(position.userID);
+        PlayerCharacter enemyPlayer = gamePlayers.get(position.userID);
         enemyPlayer.setPosition(position.xPosition, position.yPosition);
     }
 
@@ -190,7 +189,7 @@ public class StartedGame {
      * @param id player who is killed
      */
     public void killPlayer(Integer id) {
-        PlayerCharacter player = alivePlayers.get(id);
+        PlayerCharacter player = gamePlayers.get(id);
         deadPlayers.put(id, player);
 
         // Don't read players input if they are dead
