@@ -187,9 +187,8 @@ public class PlayerCharacter {
      */
     public void updatePosition() {
         // updatePosition is activated every TPS.
-
         // One key press distance that a character travels.
-        int distance = 4;
+        int distance = 3;
         // Diagonal movement correction formula.
         int diagonal = (int) (distance / Math.sqrt(2));
         if (moveLeft && moveUp) {

@@ -31,13 +31,8 @@ import ee.taltech.gandalf.scenes.Hud;
 import ee.taltech.gandalf.world.WorldCollision;
 
 import java.util.Map;
-
-import static ee.taltech.gandalf.entities.PlayerCharacterAnimator.AnimationStates.*;
-
 public class GameScreen extends ScreenAdapter {
-
     private final World world;
-    private final CollisionHandler collisionHandler;
     GandalfRoyale game;
     NetworkClient nc;
     private final OrthogonalTiledMapRenderer renderer;
@@ -46,7 +41,6 @@ public class GameScreen extends ScreenAdapter {
     private final Hud hud;
     public final StartedGame startedGame;
     private final Map<Integer, PlayerCharacter> gamePlayers;
-    private final Map<Integer, PlayerCharacter> deadPlayers;
     private final PlayerCharacter clientCharacter;
     private final Map<Integer, Spell> spells;
     private final Map<Integer, Item> items;
@@ -71,7 +65,6 @@ public class GameScreen extends ScreenAdapter {
      */
     public GameScreen(GandalfRoyale game, Lobby lobby) {
         world = new World(new Vector2(0, 0), true); // Create a new Box2D world
-        collisionHandler = new CollisionHandler();
         world.setContactListener(new CollisionHandler());
 
         this.game = game;
@@ -92,7 +85,6 @@ public class GameScreen extends ScreenAdapter {
 
         startedGame = new StartedGame(game, lobby, world);
         gamePlayers = startedGame.getGamePlayers();
-        deadPlayers = startedGame.getDeadPlayers();
         clientCharacter = startedGame.getClientCharacter();
         spells = startedGame.getSpells();
         items = startedGame.getItems();
@@ -101,6 +93,10 @@ public class GameScreen extends ScreenAdapter {
 
         shapeRenderer = new ShapeRenderer();
         debugRenderer = new Box2DDebugRenderer();
+    }
+
+    public World getWorld() {
+        return world;
     }
 
     /**
@@ -125,9 +121,12 @@ public class GameScreen extends ScreenAdapter {
      * Draw all player character to screen.
      */
     private void drawPlayers() {
+        elapsedTime += Gdx.graphics.getDeltaTime();
         for (PlayerCharacter player : gamePlayers.values()) {
-            elapsedTime += Gdx.graphics.getDeltaTime();
+            // elapsedTime is never reset and used for looping animations.
+            // use animationTime and reset it to play an animation once
             PlayerCharacterAnimator playerAnimator = player.getPlayerAnimator();
+
 
             // Movement and idle setters.
             if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE ||
@@ -151,6 +150,7 @@ public class GameScreen extends ScreenAdapter {
             } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE) {
                 currentFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
             }
+
 
             game.batch.begin();
             // Set the image to 3 times smaller picture and flip it, if player is moving left.
@@ -231,7 +231,7 @@ public class GameScreen extends ScreenAdapter {
                 game.batch.begin();
                 game.batch.draw(fireballBook, item.getXPosition() - (float) fireballBook.getWidth() / 3,
                         item.getYPosition() - (float) fireballBook.getHeight() / 3,
-                        fireballBook.getWidth(), fireballBook.getHeight());
+                        30, 30);
                 game.batch.end();
             }
         }

@@ -25,7 +25,6 @@ public class Item {
         this.type = type;
         this.id = id;
         this.texture = setTextureBasedOnType();
-        this.body = null;
     }
 
     /**

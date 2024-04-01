@@ -31,7 +31,6 @@ public class StartedGame {
      */
     public StartedGame(GandalfRoyale game, Lobby lobby, World world) {
         this.game = game;
-
         gamePlayers = createAlivePlayersMap(lobby);
         deadPlayers = new HashMap<>();
         clientId = game.nc.clientId;
@@ -194,9 +193,7 @@ public class StartedGame {
         deadPlayers.put(id, player);
         player.setHealth(0);
         player.setMana(0);
-        if (player.getPlayerAnimator().getState() != PlayerCharacterAnimator.AnimationStates.DEAD) {
-            player.getPlayerAnimator().setState(PlayerCharacterAnimator.AnimationStates.DEATH);
-        }
+        player.getPlayerAnimator().setState(PlayerCharacterAnimator.AnimationStates.DEATH);
 
         // Don't read players input if they are dead
         if (Objects.equals(id, clientId)) {

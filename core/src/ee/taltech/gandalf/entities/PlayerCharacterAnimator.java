@@ -14,11 +14,8 @@ public class PlayerCharacterAnimator {
     public AnimationStates getState() {
         return state;
     }
-
     private AnimationStates state;
     public int actionTimes;
-    private int actionAnimationCalls;
-    private int deathAnimationCalls;
     private int previousY;
     private int previousX;
     private boolean lookRight;
@@ -33,41 +30,19 @@ public class PlayerCharacterAnimator {
     public int mouseXPosition;
     public int mouseYPosition;
     Texture spriteSheet;
-
-    public int getActionAnimationCalls() {
-        return actionAnimationCalls;
-    }
-    public void setActionAnimationCallsZero() {
-        actionAnimationCalls = 0;
-    }
-
-    public void actionAnimationCallsIncrement() {
-        actionAnimationCalls++;
-    }
-
-    public int getDeathAnimationCalls() {
-        return deathAnimationCalls;
-    }
-
-    public void deathAnimationCallsIncrement() {
-        deathAnimationCalls++;
-    }
-
     public PlayerCharacterAnimator(PlayerCharacter playerCharacter, Integer playerID) {
         this.playerCharacter = playerCharacter;
         this.lookRight = true;
         this.previousX = 0;
         this.previousY = 0;
         this.characterTexture = GameScreen.getWizardTexture(playerID);
-        this.deathAnimationCalls = 0;
-        this.actionAnimationCalls = 0;
         this.actionTimes = 0;
         this.state = AnimationStates.IDLE;
         this.previousAction = false;
         createAnimations();
     }
     public enum AnimationStates {
-        IDLE, ACTION, MOVEMENT, DEATH, DEAD, ACTIONFINISHED
+        IDLE, ACTION, MOVEMENT, DEATH
     }
 
     /**
@@ -167,8 +142,6 @@ public class PlayerCharacterAnimator {
                 animationFrames[index++] = frames[i][j];
             }
         }
-
-
         TextureRegion[] idleFrames = new TextureRegion[6];
         TextureRegion[] movementFrames = new TextureRegion[6];
         TextureRegion[] deathFrames = new TextureRegion[6];
@@ -208,14 +181,14 @@ public class PlayerCharacterAnimator {
 
 
         // Make an animation out of each array of frames.
-        idleAnimation = new Animation<>(0.2F, idleFrames);
-        movementAnimation = new Animation<>(0.2F, movementFrames);
+        idleAnimation = new Animation<>(0.1F, idleFrames);
+        movementAnimation = new Animation<>(0.1F, movementFrames);
         deathAnimation = new Animation<>(0.3F, deathFrames);
         flippedDeathAnimation = new Animation<>(0.3f, flippedDeathFrames);
         actionAnimation = new Animation<>(0.1F, actionFrames);
         flippedActionAnimation = new Animation<>(0.1f, flippedActionFrames);
-        flippedIdleAnimation = new Animation<>(0.2f, flippedIdleFrames);
-        flippedMovementAnimation = new Animation<>(0.2f, flippedMovementFrames);
+        flippedIdleAnimation = new Animation<>(0.1f, flippedIdleFrames);
+        flippedMovementAnimation = new Animation<>(0.1f, flippedMovementFrames);
     }
 
     /**

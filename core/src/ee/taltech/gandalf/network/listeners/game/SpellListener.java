@@ -34,7 +34,6 @@ public class SpellListener extends Listener {
                         spellPosition.xPosition, spellPosition.yPosition, spellPosition.id, spellPosition.type);
                 break;
             case SpellDispel spellDispel:
-                System.out.println("Hello, SpellDispel.");
                 gameScreen.startedGame.removeSpell(spellDispel.id);
                 break;
             default: // Ignore if something else comes through
