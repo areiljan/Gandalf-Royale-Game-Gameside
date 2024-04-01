@@ -2,6 +2,7 @@ package ee.taltech.gandalf.network.listeners.game;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import ee.taltech.gandalf.network.messages.game.KilledPlayer;
 import ee.taltech.gandalf.network.messages.game.UpdateHealth;
 import ee.taltech.gandalf.network.messages.game.UpdateMana;
 import ee.taltech.gandalf.screens.ScreenController;
@@ -36,7 +37,11 @@ public class HealthAndManaListener extends Listener {
             case UpdateMana message: // UpdateMana message
                 gameScreen.startedGame.updatePlayersMana(message.playerId, message.mana);
                 break;
-            default: // Something else
+            case KilledPlayer message: // KilledPlayer message
+                gameScreen.startedGame.killPlayer(message.id);
+
+                break;
+            default:
                 break;
         }
     }

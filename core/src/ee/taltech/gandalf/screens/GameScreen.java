@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.gandalf.entities.Item;
+import ee.taltech.gandalf.entities.PlayerCharacterAnimator;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
 import ee.taltech.gandalf.components.StartedGame;
 import ee.taltech.gandalf.network.NetworkClient;
@@ -30,11 +31,8 @@ import ee.taltech.gandalf.scenes.Hud;
 import ee.taltech.gandalf.world.WorldCollision;
 
 import java.util.Map;
-
 public class GameScreen extends ScreenAdapter {
-
     private final World world;
-    private final CollisionHandler collisionHandler;
     GandalfRoyale game;
     NetworkClient nc;
     private final OrthogonalTiledMapRenderer renderer;
@@ -42,20 +40,19 @@ public class GameScreen extends ScreenAdapter {
     public final OrthographicCamera camera;
     private final Hud hud;
     public final StartedGame startedGame;
-    private final Map<Integer, PlayerCharacter> alivePlayers;
+    private final Map<Integer, PlayerCharacter> gamePlayers;
     private final PlayerCharacter clientCharacter;
     private final Map<Integer, Spell> spells;
     private final Map<Integer, Item> items;
     private final TmxMapLoader mapLoader;
     private final TiledMap map;
     private Texture img;
-    private static Texture fireballImg;
+    private static Texture fireballTexture;
     private static Texture fireballBook;
     private static Texture wizard;
     private float elapsedTime;
+    private float animationTime;
     MouseClicks mouseClicks;
-    private int deathAnimationCalls = 0;
-
     private final ShapeRenderer shapeRenderer;
 
     private Box2DDebugRenderer debugRenderer; // For debugging
@@ -68,7 +65,6 @@ public class GameScreen extends ScreenAdapter {
      */
     public GameScreen(GandalfRoyale game, Lobby lobby) {
         world = new World(new Vector2(0, 0), true); // Create a new Box2D world
-        collisionHandler = new CollisionHandler();
         world.setContactListener(new CollisionHandler());
 
         this.game = game;
@@ -78,7 +74,7 @@ public class GameScreen extends ScreenAdapter {
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
-        viewport = new ExtendViewport(500, 500, camera);
+        viewport = new ExtendViewport(150, 150, camera);
         viewport.apply();
 
         this.mapLoader = new TmxMapLoader();
@@ -88,7 +84,7 @@ public class GameScreen extends ScreenAdapter {
         new WorldCollision(world, map);
 
         startedGame = new StartedGame(game, lobby, world);
-        alivePlayers = startedGame.getAlivePlayers();
+        gamePlayers = startedGame.getGamePlayers();
         clientCharacter = startedGame.getClientCharacter();
         spells = startedGame.getSpells();
         items = startedGame.getItems();
@@ -99,16 +95,21 @@ public class GameScreen extends ScreenAdapter {
         debugRenderer = new Box2DDebugRenderer();
     }
 
+    public World getWorld() {
+        return world;
+    }
+
     /**
      * Set all textures.
      */
     private static void setTextures() {
-        fireballImg = new Texture("fireball.png");
         fireballBook = new Texture("fireball_book.png");
+        fireballTexture = new Texture("spell1_Fireball.png");
     }
 
     /**
      * Set the specific wizards texture.
+     * Useful because different wizards have different textures.
      */
     public static Texture getWizardTexture(int userID) {
         // Choose one of the spritesheets for the character
@@ -116,36 +117,47 @@ public class GameScreen extends ScreenAdapter {
         return new Texture(filename);
     }
 
-
     /**
      * Draw all player character to screen.
      */
     private void drawPlayers() {
-        for (PlayerCharacter player : alivePlayers.values()) {
-            elapsedTime += Gdx.graphics.getDeltaTime();
-            if (player.health() == 0) {
-                if (deathAnimationCalls >= 5) {
-                    currentFrame = (TextureRegion) player.deathAnimation().getKeyFrames()[player.deathAnimation().getKeyFrames().length - 1];
-                } else {
-                    // Play the death animation
-                    currentFrame = (TextureRegion) player.deathAnimation().getKeyFrame(elapsedTime, true);
-                    deathAnimationCalls++;
+        elapsedTime += Gdx.graphics.getDeltaTime();
+        for (PlayerCharacter player : gamePlayers.values()) {
+            // elapsedTime is never reset and used for looping animations.
+            // use animationTime and reset it to play an animation once
+            PlayerCharacterAnimator playerAnimator = player.getPlayerAnimator();
+
+
+            // Movement and idle setters.
+            if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE ||
+            playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
+                playerAnimator.setState();
+            }
+
+            // All state handling. Choosing the frame to display this tick.
+            if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.DEATH) {
+                currentFrame = playerAnimator.deathAnimation().getKeyFrame(4 * 0.3f, false);
+            } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.ACTION) {
+                // Increment animationTime
+                animationTime += Gdx.graphics.getDeltaTime();
+                currentFrame = playerAnimator.actionAnimation().getKeyFrame(animationTime);
+                if (playerAnimator.actionAnimation().isAnimationFinished(animationTime)) {
+                    playerAnimator.setState(PlayerCharacterAnimator.AnimationStates.IDLE);
+                    animationTime = 0;
                 }
-            } else if (player.action()) {
-                currentFrame = (TextureRegion) player.actionAnimation().getKeyFrame(elapsedTime, true);
-            } else if (player.isMoving()) {
-                currentFrame = (TextureRegion) player.movementAnimation().getKeyFrame(elapsedTime, true);
-            } else {
-                currentFrame = (TextureRegion) player.idleAnimation().getKeyFrame(elapsedTime, true);
+            } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
+                currentFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
+            } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE) {
+                currentFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
             }
 
 
             game.batch.begin();
             // Set the image to 3 times smaller picture and flip it, if player is moving left.
-            if (player.lookRight()) {
-                game.batch.draw(currentFrame, player.xPosition - 125, player.yPosition - 120, 300, 300);
+            if (playerAnimator.lookRight()) {
+                game.batch.draw(currentFrame, player.xPosition - 30, player.yPosition - 15, 80, 80);
             } else {
-                game.batch.draw(currentFrame, player.xPosition - 165, player.yPosition - 120, 300, 300);
+                game.batch.draw(currentFrame, player.xPosition - 40, player.yPosition - 15, 80, 80);
             }
             game.batch.end();
             // Draw health and mana bar
@@ -164,24 +176,24 @@ public class GameScreen extends ScreenAdapter {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         // Draw missing health bar
-        shapeRenderer.setColor(Color.FIREBRICK);
-        shapeRenderer.rect(player.xPosition - 100, player.yPosition + 120,
-                (float) 100 * 2, 5);
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 60,
+                (float) 100, 2);
 
         // Draw health bar
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(player.xPosition - 100, player.yPosition + 120,
-                (float) player.health() * 2, 5);
+        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 60,
+                (float) player.health(), 2);
 
         // Draw missing mana bar
-        shapeRenderer.setColor(Color.NAVY);
-        shapeRenderer.rect(player.xPosition - 100, player.yPosition + (float) 110,
-                (float) 100 * 2, 5);
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 55,
+                (float) 100, 2);
 
         // Draw mana bar
         shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.rect(player.xPosition - 100, player.yPosition + (float) 110,
-                (float) player.mana() * 2, 5);
+        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 55,
+                (float) player.mana(), 2);
 
         // Stop rendering shapes
         shapeRenderer.end();
@@ -192,11 +204,19 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawSpells() {
         for (Spell spell : spells.values()) {
-            if (spell.getType() ==  SpellTypes.FIREBALL) {
+            if ((spell.getType() == SpellTypes.FIREBALL) && (spell.rotation().isPresent())) {
                 game.batch.begin();
-                game.batch.draw(fireballImg, (float) spell.getXPosition() - (float) fireballImg.getWidth() / 6,
-                        (float) spell.getYPosition() - (float) fireballImg.getHeight() / 3,
-                        (float) fireballImg.getWidth() / 3, (float) fireballImg.getHeight() / 3);
+                TextureRegion currentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
+                game.batch.draw(currentFrame,
+                        (float) spell.getXPosition(),
+                        (float) spell.getYPosition() - 32,
+                        0,
+                        0,
+                        32,
+                        17,
+                        1,
+                        1,
+                        spell.rotation().get());
                 game.batch.end();
             }
         }
@@ -211,7 +231,7 @@ public class GameScreen extends ScreenAdapter {
                 game.batch.begin();
                 game.batch.draw(fireballBook, item.getXPosition() - (float) fireballBook.getWidth() / 3,
                         item.getYPosition() - (float) fireballBook.getHeight() / 3,
-                        fireballBook.getWidth(), fireballBook.getHeight());
+                        30, 30);
                 game.batch.end();
             }
         }
@@ -241,7 +261,7 @@ public class GameScreen extends ScreenAdapter {
             case FIREBALL_BOOK:
                 return fireballBook;
             case FIREBALL:
-                return fireballImg;
+                return fireballTexture;
             case WIZARD:
                 return wizard;
             default:
@@ -280,10 +300,10 @@ public class GameScreen extends ScreenAdapter {
 
         // Render game objects
         game.batch.begin();
-        camera.zoom = 2f; // To render 2X bigger area than seen.
+        camera.zoom = 1.05f; // To render 3X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
-        camera.zoom = 1f; // Reset the camera back to its original state.
+        camera.zoom = 0.35f; // Reset the camera back to its original state.
         game.batch.end();
 
         drawPlayers(); // Draw client character.

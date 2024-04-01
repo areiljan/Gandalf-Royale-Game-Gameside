@@ -2,6 +2,7 @@ package ee.taltech.gandalf.network.listeners.game;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import ee.taltech.gandalf.network.messages.game.SpellDispel;
 import ee.taltech.gandalf.network.messages.game.SpellPosition;
 import ee.taltech.gandalf.screens.ScreenController;
 import ee.taltech.gandalf.screens.GameScreen;
@@ -31,6 +32,9 @@ public class SpellListener extends Listener {
             case SpellPosition spellPosition: // spellPosition message
                 gameScreen.startedGame.updateSpellPositions(spellPosition.senderPlayerID,
                         spellPosition.xPosition, spellPosition.yPosition, spellPosition.id, spellPosition.type);
+                break;
+            case SpellDispel spellDispel:
+                gameScreen.startedGame.removeSpell(spellDispel.id);
                 break;
             default: // Ignore if something else comes through
                 break;

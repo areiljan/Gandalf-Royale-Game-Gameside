@@ -1,6 +1,7 @@
 package ee.taltech.gandalf.entities;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.physics.box2d.*;
 import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.screens.GameScreen;
 
@@ -12,6 +13,7 @@ public class Item {
     private float yPosition;
 
     private Texture texture;
+    private Body body;
 
     /**
      * Construct Item that is in the inventory and does not need coordinates.

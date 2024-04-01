@@ -55,6 +55,10 @@ public class WorldCollision {
 
     }
 
+    /**
+     * Loop through tiles.
+     * @param tileLayer - to loop through.
+     */
     public void loopThroughTiles(TiledMapTileLayer tileLayer) {
         for (int y = 0; y < tileLayer.getHeight(); y++) {
             for (int x = 0; x < tileLayer.getWidth(); x++) {

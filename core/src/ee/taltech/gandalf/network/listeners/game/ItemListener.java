@@ -35,7 +35,7 @@ public class ItemListener extends Listener {
             case ItemDropped message: // ItemDropped message
                     // If player id is not null aka player dropped the item and this is clients player
                 if (message.playerId != null && message.playerId == connection.getID()) {
-                    item = gameScreen.startedGame.getAlivePlayers().get(message.playerId).dropItem(message.itemId);
+                    item = gameScreen.startedGame.getGamePlayers().get(message.playerId).dropItem(message.itemId);
 
                     // Update items position to players current position
                     item.setXPosition(message.xPosition);
@@ -50,7 +50,7 @@ public class ItemListener extends Listener {
                 // If player id is not null aka player picked item up and this is clients player
                 if (message.playerId != null && message.playerId == connection.getID()) {
                     item = gameScreen.startedGame.removeItem(message.itemId);
-                    gameScreen.startedGame.getAlivePlayers().get(message.playerId).pickUpItem(item);
+                    gameScreen.startedGame.getGamePlayers().get(message.playerId).pickUpItem(item);
                 } else { // If player id is null aka game removed item from the ground
                     gameScreen.startedGame.removeItem(message.itemId);
                 }
