@@ -40,6 +40,10 @@ public class Spell {
         CreateAnimations();
     }
 
+    /**
+     * Getter for the fireballAnimations.
+     * @return
+     */
     public Animation<TextureRegion> getFireballAnimation() {
         return fireballAnimation;
     }
@@ -62,6 +66,9 @@ public class Spell {
         return Optional.empty();
     }
 
+    /**
+     * Create animations for the fireball.
+     */
     private void CreateAnimations() {
         Texture fireballTexture = GameScreen.getTexture(GameScreen.TextureType.FIREBALL);
         // Define frames in the spritesheet
