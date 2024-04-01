@@ -49,9 +49,7 @@ public class PlayerListener extends Listener {
                 }
                 break;
             case KilledPlayer killedPlayer:
-                if (killedPlayer.id == connection.getID()) {
-                    gameScreen.startedGame.killPlayer(killedPlayer.id);
-                }
+                gameScreen.startedGame.killPlayer(killedPlayer.id);
                 break;
             default: // If something else comes through
                 break;

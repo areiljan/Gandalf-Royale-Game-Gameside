@@ -9,6 +9,13 @@ import ee.taltech.gandalf.screens.GameScreen;
 public class PlayerCharacterAnimator {
     private final Texture characterTexture;
     private final PlayerCharacter playerCharacter;
+    private boolean previousAction;
+
+    public AnimationStates getState() {
+        return state;
+    }
+
+    private AnimationStates state;
     public int actionTimes;
     private int actionAnimationCalls;
     private int deathAnimationCalls;
@@ -55,8 +62,37 @@ public class PlayerCharacterAnimator {
         this.deathAnimationCalls = 0;
         this.actionAnimationCalls = 0;
         this.actionTimes = 0;
+        this.state = AnimationStates.IDLE;
+        this.previousAction = false;
         createAnimations();
     }
+    public enum AnimationStates {
+        IDLE, ACTION, MOVEMENT, DEATH, DEAD, ACTIONFINISHED
+    }
+
+    /**
+     * Change animator state based on character action.
+     */
+    public void setState(AnimationStates animationState) {
+        state = animationState;
+    }
+
+    /**
+     * Change animator state based on character action.
+     */
+    public void setState() {
+        if (previousX != playerCharacter.xPosition || previousY != playerCharacter.yPosition) {
+            previousX = playerCharacter.xPosition;
+            previousY = playerCharacter.yPosition;
+            state = AnimationStates.MOVEMENT;
+        } else {
+            previousX = playerCharacter.xPosition;
+            previousY = playerCharacter.yPosition;
+            state = AnimationStates.IDLE;
+        }
+    }
+
+
 
     /**
      * Getter for the characterTexture
@@ -174,8 +210,8 @@ public class PlayerCharacterAnimator {
         // Make an animation out of each array of frames.
         idleAnimation = new Animation<>(0.2F, idleFrames);
         movementAnimation = new Animation<>(0.2F, movementFrames);
-        deathAnimation = new Animation<>(0.2F, deathFrames);
-        flippedDeathAnimation = new Animation<>(0.2f, flippedDeathFrames);
+        deathAnimation = new Animation<>(0.3F, deathFrames);
+        flippedDeathAnimation = new Animation<>(0.3f, flippedDeathFrames);
         actionAnimation = new Animation<>(0.1F, actionFrames);
         flippedActionAnimation = new Animation<>(0.1f, flippedActionFrames);
         flippedIdleAnimation = new Animation<>(0.2f, flippedIdleFrames);
@@ -192,31 +228,19 @@ public class PlayerCharacterAnimator {
     }
 
     /**
-     * Are the coordinates changing.
-     *
-     * @return - true if they are.
-     */
-    public boolean isMoving() {
-        if (previousX != playerCharacter.xPosition || previousY != playerCharacter.yPosition) {
-            previousX = playerCharacter.xPosition;
-            previousY = playerCharacter.yPosition;
-            return true;
-        } else {
-            previousX = playerCharacter.xPosition;
-            previousY = playerCharacter.yPosition;
-            return false;
-        }
-    }
-
-    /**
      * Update player's action.
      */
     public void updateAction(ActionTaken actionTaken) {
         if (actionTaken.action) {
-            actionAnimationCalls++;
-        } else if (actionAnimationCalls > 20 && !actionTaken.action) {
-            actionAnimationCalls = 0;
+            if (!previousAction) {
+                setState(AnimationStates.ACTION);
+            }
+            previousAction = true;
+        } else {
+            previousAction = false;
         }
+
+
         // updateAction is sent every frame.
         this.mouseXPosition = actionTaken.mouseX;
         this.mouseYPosition = actionTaken.mouseY;

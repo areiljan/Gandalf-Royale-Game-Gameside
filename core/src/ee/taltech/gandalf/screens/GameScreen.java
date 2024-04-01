@@ -32,6 +32,8 @@ import ee.taltech.gandalf.world.WorldCollision;
 
 import java.util.Map;
 
+import static ee.taltech.gandalf.entities.PlayerCharacterAnimator.AnimationStates.*;
+
 public class GameScreen extends ScreenAdapter {
 
     private final World world;
@@ -124,24 +126,30 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawPlayers() {
         for (PlayerCharacter player : gamePlayers.values()) {
-            PlayerCharacterAnimator playerAnimator = player.getPlayerAnimator();
             elapsedTime += Gdx.graphics.getDeltaTime();
-            animationTime += Gdx.graphics.getDeltaTime(); // Increment animationTime
+            PlayerCharacterAnimator playerAnimator = player.getPlayerAnimator();
 
-            if (deadPlayers.containsValue(player)) {
-                if (playerAnimator.getDeathAnimationCalls() >= 5) {
-                    currentFrame = playerAnimator.deathAnimation().getKeyFrames()[playerAnimator.deathAnimation().getKeyFrames().length - 1];
-                } else {
-                    // Play the death animation
-                    currentFrame = playerAnimator.deathAnimation().getKeyFrame(animationTime, true); // Use animationTime
-                    playerAnimator.deathAnimationCallsIncrement();
+            // Movement and idle setters.
+            if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE ||
+            playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
+                playerAnimator.setState();
+            }
+
+            // All state handling. Choosing the frame to display this tick.
+            if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.DEATH) {
+                currentFrame = playerAnimator.deathAnimation().getKeyFrame(4 * 0.3f, false);
+            } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.ACTION) {
+                // Increment animationTime
+                animationTime += Gdx.graphics.getDeltaTime();
+                currentFrame = playerAnimator.actionAnimation().getKeyFrame(animationTime);
+                if (playerAnimator.actionAnimation().isAnimationFinished(animationTime)) {
+                    playerAnimator.setState(PlayerCharacterAnimator.AnimationStates.IDLE);
+                    animationTime = 0;
                 }
-            } else if (playerAnimator.getActionAnimationCalls() > 0 && playerAnimator.getActionAnimationCalls() < 18) {
-                currentFrame = playerAnimator.actionAnimation().getKeyFrame(animationTime, true); // Use animationTime
-            } else if (playerAnimator.isMoving()) {
-                currentFrame = playerAnimator.movementAnimation().getKeyFrame(animationTime, true); // Use animationTime
-            } else {
-                currentFrame = playerAnimator.idleAnimation().getKeyFrame(animationTime, true); // Use animationTime
+            } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
+                currentFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
+            } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE) {
+                currentFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
             }
 
             game.batch.begin();

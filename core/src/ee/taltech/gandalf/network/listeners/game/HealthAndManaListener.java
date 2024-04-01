@@ -39,6 +39,7 @@ public class HealthAndManaListener extends Listener {
                 break;
             case KilledPlayer message: // KilledPlayer message
                 gameScreen.startedGame.killPlayer(message.id);
+
                 break;
             default:
                 break;

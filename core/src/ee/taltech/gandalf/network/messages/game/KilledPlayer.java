@@ -5,10 +5,9 @@ public class KilledPlayer {
 
     /**
      * Construct KilledPlayer message.
-     * This will get rid of a spell.
-     * @param id - playerId.
+     * This will kill the player for the client.
      */
-    public KilledPlayer (int id) {
+    public KilledPlayer () {
         // KilledPlayer
     }
 }

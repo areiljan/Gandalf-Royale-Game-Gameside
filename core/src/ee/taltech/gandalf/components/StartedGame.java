@@ -3,6 +3,7 @@ package ee.taltech.gandalf.components;
 import com.badlogic.gdx.physics.box2d.*;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.gandalf.entities.Item;
+import ee.taltech.gandalf.entities.PlayerCharacterAnimator;
 import ee.taltech.gandalf.entities.Spell;
 import ee.taltech.gandalf.network.messages.game.Position;
 import ee.taltech.gandalf.entities.PlayerCharacter;
@@ -191,6 +192,11 @@ public class StartedGame {
     public void killPlayer(Integer id) {
         PlayerCharacter player = gamePlayers.get(id);
         deadPlayers.put(id, player);
+        player.setHealth(0);
+        player.setMana(0);
+        if (player.getPlayerAnimator().getState() != PlayerCharacterAnimator.AnimationStates.DEAD) {
+            player.getPlayerAnimator().setState(PlayerCharacterAnimator.AnimationStates.DEATH);
+        }
 
         // Don't read players input if they are dead
         if (Objects.equals(id, clientId)) {
