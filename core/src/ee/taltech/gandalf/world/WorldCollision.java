@@ -181,7 +181,7 @@ public class WorldCollision {
         } else {
             // Use ChainShape for complex shapes (more than 8 vertices)
             ChainShape chainShape = new ChainShape();
-            chainShape.createChain(vertices);
+            chainShape.createLoop(vertices);
             body.createFixture(chainShape, 0.0f);
             chainShape.dispose(); // Dispose of the shape after use
         }
