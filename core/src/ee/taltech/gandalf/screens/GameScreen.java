@@ -16,15 +16,12 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
-import ee.taltech.gandalf.entities.Item;
-import ee.taltech.gandalf.entities.PlayerCharacterAnimator;
+import ee.taltech.gandalf.entities.*;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
 import ee.taltech.gandalf.components.StartedGame;
 import ee.taltech.gandalf.network.NetworkClient;
 import ee.taltech.gandalf.network.messages.game.MouseClicks;
-import ee.taltech.gandalf.entities.PlayerCharacter;
 import ee.taltech.gandalf.input.PlayerInput;
-import ee.taltech.gandalf.entities.Spell;
 import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.components.Lobby;
 import ee.taltech.gandalf.scenes.Hud;
@@ -57,6 +54,7 @@ public class GameScreen extends ScreenAdapter {
 
     private Box2DDebugRenderer debugRenderer; // For debugging
     private TextureRegion currentFrame;
+    private PlayZone playZone;
 
     /**
      * Construct GameScreen.
@@ -88,6 +86,7 @@ public class GameScreen extends ScreenAdapter {
         clientCharacter = startedGame.getClientCharacter();
         spells = startedGame.getSpells();
         items = startedGame.getItems();
+        playZone = startedGame.getPlayZone();
 
         hud = new Hud(camera, clientCharacter);
 
@@ -197,6 +196,13 @@ public class GameScreen extends ScreenAdapter {
 
         // Stop rendering shapes
         shapeRenderer.end();
+    }
+
+    /**
+     * Draw PlayZone.
+     */
+    private void drawPlayZone() {
+
     }
 
     /**

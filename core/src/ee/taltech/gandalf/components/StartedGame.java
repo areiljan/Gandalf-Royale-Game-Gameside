@@ -2,11 +2,8 @@ package ee.taltech.gandalf.components;
 
 import com.badlogic.gdx.physics.box2d.*;
 import ee.taltech.gandalf.GandalfRoyale;
-import ee.taltech.gandalf.entities.Item;
-import ee.taltech.gandalf.entities.PlayerCharacterAnimator;
-import ee.taltech.gandalf.entities.Spell;
+import ee.taltech.gandalf.entities.*;
 import ee.taltech.gandalf.network.messages.game.Position;
-import ee.taltech.gandalf.entities.PlayerCharacter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +19,7 @@ public class StartedGame {
     private final PlayerCharacter clientCharacter;
     private Map<Integer, Spell> spells;
     private final Map<Integer, Item> items;
+    private final PlayZone playZone;
 
     /**
      * Construct StartGame.
@@ -38,6 +36,14 @@ public class StartedGame {
         clientCharacter.createHitBox(world);
         spells = new HashMap<>();
         items = new HashMap<>();
+        this.playZone = new PlayZone();
+    }
+
+    /**
+     * Get the PlayZone.
+     */
+    public PlayZone getPlayZone() {
+        return playZone;
     }
 
     /**

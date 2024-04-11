@@ -66,6 +66,7 @@ public class NetworkClient {
         kryo.register(LobbyDismantle.class);
         kryo.register(GetLobbies.class);
         kryo.register(StartGame.class);
+        kryo.register(PlayZoneUpdate.class);
         kryo.register(KeyPress.class);
         kryo.register(SpellTypes.class);
         kryo.register(MouseClicks.class);
