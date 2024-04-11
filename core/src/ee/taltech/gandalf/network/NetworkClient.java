@@ -4,14 +4,11 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
-import ee.taltech.gandalf.network.listeners.game.ItemListener;
+import ee.taltech.gandalf.network.listeners.game.*;
 import ee.taltech.gandalf.screens.ScreenController;
 import ee.taltech.gandalf.components.SpellTypes;
-import ee.taltech.gandalf.network.listeners.game.SpellListener;
-import ee.taltech.gandalf.network.listeners.game.HealthAndManaListener;
 import ee.taltech.gandalf.network.listeners.lobby.LobbyListener;
 import ee.taltech.gandalf.network.listeners.lobby.LobbyRoomListener;
-import ee.taltech.gandalf.network.listeners.game.PlayerListener;
 import ee.taltech.gandalf.network.messages.game.*;
 import ee.taltech.gandalf.network.messages.lobby.*;
 
@@ -31,6 +28,7 @@ public class NetworkClient {
     SpellListener fireballPositionListener;
     HealthAndManaListener healthAndManaListener;
     ItemListener itemListener;
+    PlayZoneListener playZoneListener;
 
 
     /**
@@ -147,18 +145,21 @@ public class NetworkClient {
         fireballPositionListener = new SpellListener(screenController);
         healthAndManaListener = new HealthAndManaListener(screenController);
         itemListener = new ItemListener(screenController);
+        playZoneListener = new PlayZoneListener(screenController);
 
         // Add to listeners list so they can be removed later
         listeners.add(playerListener);
         listeners.add(fireballPositionListener);
         listeners.add(healthAndManaListener);
         listeners.add(itemListener);
+        listeners.add(playZoneListener);
 
         // Add listener to client so that messages can be listened to
         client.addListener(playerListener);
         client.addListener(fireballPositionListener);
         client.addListener(healthAndManaListener);
         client.addListener(itemListener);
+        client.addListener(playZoneListener);
         // Add here more game listeners
     }
 

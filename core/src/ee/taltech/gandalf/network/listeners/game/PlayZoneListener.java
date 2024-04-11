@@ -17,10 +17,18 @@ public class PlayZoneListener extends Listener {
         this.screenController = screenController;
     }
 
+    /**
+     * Received messages from server.
+     *
+     * @param connection server connection
+     * @param incomingData message from server
+     */
+    @Override
     public void received(Connection connection, Object incomingData) {
         GameScreen gameScreen = screenController.getGameScreen();
         switch (incomingData) {
-            case PlayZoneUpdate playZoneUpdate: // spellPosition message
+            case PlayZoneUpdate playZoneUpdate: // playZoneUpdate message
+                System.out.println("Zone Updated");
                 gameScreen.startedGame.getPlayZone().shrinkPlayZone(playZoneUpdate.radius);
                 break;
             default: // Ignore if something else comes through

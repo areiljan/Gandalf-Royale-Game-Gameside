@@ -2,6 +2,7 @@ package ee.taltech.gandalf.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -202,7 +203,31 @@ public class GameScreen extends ScreenAdapter {
      * Draw PlayZone.
      */
     private void drawPlayZone() {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // Begin drawing shapes
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        // Draw the red rectangle covering the entire screen
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(0, 0, 10000, 10000);
+
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        // Draw the green circle using the stencil buffer
+        shapeRenderer.setColor(Color.GREEN); // Change to your desired color
+        shapeRenderer.circle(5000, 5000, playZone.getRadius());
+        // Set the blending function for the circle
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        shapeRenderer.end();
+
+        // Draw the green circle filled
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.circle(5000, 5000, playZone.getRadius());
+        shapeRenderer.end();
     }
 
     /**
@@ -312,6 +337,7 @@ public class GameScreen extends ScreenAdapter {
         camera.zoom = 0.35f; // Reset the camera back to its original state.
         game.batch.end();
 
+        drawPlayZone();
         drawPlayers(); // Draw client character.
         if (!spells.isEmpty()) {
             drawSpells(); // Draw spells.
