@@ -1,19 +1,47 @@
 package ee.taltech.gandalf.entities;
 
 public class PlayZone {
-    private int radius;
-
-
+    private int timer;
+    private int stage;
     public PlayZone() {
-        this.radius = 5000;
+        this.timer = 0;
+        this.stage = 1;
     }
 
-    public int getRadius() {
-        return radius;
+    public void updateZone(int startTime) {
+        timer = startTime;
+        if (timer < 30) {
+            stage = 8;
+        }
+//        } else if (timer > 30 && timer < 80) {
+//            stage = 2;
+//        } else if (timer < 200) {
+//            stage = 3;
+//            // implement first zone
+//            // create body
+//        } else if (timer < 250) {
+//            stage = 4;
+//            // show second zone
+//        } else if (timer < 350) {
+//            stage = 5;
+//            // implement second zone
+//            // create body
+//        } else if (timer < 450) {
+//            stage = 6;
+//            // show third zone
+//        } else if (timer < 550) {
+//            stage = 7;
+//            // implement third zone
+//            // create body
+//            // final countdown
+//        } else if (timer < 800) {
+//            stage = 8;
+//            // the entire map turns red
+//            // create body
+//        }
     }
 
-    public void shrinkPlayZone(int radius) {
-        System.out.println("New radius is: " + radius);
-        this.radius = radius;
+    public int getStage() {
+        return stage;
     }
 }

@@ -2,11 +2,13 @@ package ee.taltech.gandalf.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -47,12 +49,12 @@ public class GameScreen extends ScreenAdapter {
     private Texture img;
     private static Texture fireballTexture;
     private static Texture fireballBook;
-    private static Texture wizard;
+    private static Texture playZoneTexture;
+    private static Texture expectedZoneTexture;
     private float elapsedTime;
     private float animationTime;
     MouseClicks mouseClicks;
     private final ShapeRenderer shapeRenderer;
-
     private Box2DDebugRenderer debugRenderer; // For debugging
     private TextureRegion currentFrame;
     private PlayZone playZone;
@@ -105,6 +107,8 @@ public class GameScreen extends ScreenAdapter {
     private static void setTextures() {
         fireballBook = new Texture("fireball_book.png");
         fireballTexture = new Texture("spell1_Fireball.png");
+        playZoneTexture = new Texture("safezone.png");
+        expectedZoneTexture = new Texture("expected_zone.png");
     }
 
     /**
@@ -114,7 +118,8 @@ public class GameScreen extends ScreenAdapter {
     public static Texture getWizardTexture(int userID) {
         // Choose one of the spritesheets for the character
         String filename = "wizardTexture" + userID % 10 + ".png";
-        return new Texture(filename);
+        FileHandle fileHandle = Gdx.files.internal("wizards/" + filename);
+        return new Texture(fileHandle);
     }
 
     /**
@@ -203,31 +208,23 @@ public class GameScreen extends ScreenAdapter {
      * Draw PlayZone.
      */
     private void drawPlayZone() {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        // Begin drawing shapes
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
-        // Draw the red rectangle covering the entire screen
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(0, 0, 10000, 10000);
-
-        shapeRenderer.end();
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        // Draw the green circle using the stencil buffer
-        shapeRenderer.setColor(Color.GREEN); // Change to your desired color
-        shapeRenderer.circle(5000, 5000, playZone.getRadius());
-        // Set the blending function for the circle
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        shapeRenderer.end();
-
-        // Draw the green circle filled
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.circle(5000, 5000, playZone.getRadius());
-        shapeRenderer.end();
+        int stage = playZone.getStage();
+        System.out.println(stage);
+        // first zone spawn range is X;Y (1/7) of zone size -+ 0
+        game.batch.begin();
+        if (stage > 1) {
+            game.batch.draw(expectedZoneTexture, -2000, -2000, 12000, 12000);
+        }
+        if (stage > 2) {
+            game.batch.draw(playZoneTexture, -2000, -2000, 12000, 12000);
+        }
+        if (stage > 3) {
+            game.batch.draw(expectedZoneTexture, -2000 + 500, -2000 + 500, 9000, 9000);
+        }
+        if (stage > 4) {
+            game.batch.draw(playZoneTexture, -2000 + 500, -2000 + 500, 9000, 9000);
+        }
+        game.batch.end();
     }
 
     /**
@@ -293,8 +290,6 @@ public class GameScreen extends ScreenAdapter {
                 return fireballBook;
             case FIREBALL:
                 return fireballTexture;
-            case WIZARD:
-                return wizard;
             default:
                 return new Texture("wizard.png");
         }
@@ -329,6 +324,7 @@ public class GameScreen extends ScreenAdapter {
         // Set camera projection matrix
         game.batch.setProjectionMatrix(camera.combined);
 
+        
         // Render game objects
         game.batch.begin();
         camera.zoom = 1.05f; // To render 3X bigger area than seen.
@@ -338,6 +334,7 @@ public class GameScreen extends ScreenAdapter {
         game.batch.end();
 
         drawPlayZone();
+        
         drawPlayers(); // Draw client character.
         if (!spells.isEmpty()) {
             drawSpells(); // Draw spells.

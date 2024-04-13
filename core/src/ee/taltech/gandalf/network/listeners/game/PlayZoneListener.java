@@ -29,7 +29,7 @@ public class PlayZoneListener extends Listener {
         switch (incomingData) {
             case PlayZoneUpdate playZoneUpdate: // playZoneUpdate message
                 System.out.println("Zone Updated");
-                gameScreen.startedGame.getPlayZone().shrinkPlayZone(playZoneUpdate.radius);
+                gameScreen.startedGame.getPlayZone().updateZone(playZoneUpdate.timer);
                 break;
             default: // Ignore if something else comes through
                 break;
