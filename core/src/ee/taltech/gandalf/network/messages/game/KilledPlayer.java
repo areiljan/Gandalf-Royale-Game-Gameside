@@ -8,6 +8,6 @@ public class KilledPlayer {
      * This will kill the player for the client.
      */
     public KilledPlayer () {
-        // KilledPlayer
+        // Empty constructor for server to fill.
     }
 }

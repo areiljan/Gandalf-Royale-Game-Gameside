@@ -1,10 +1,11 @@
 package ee.taltech.gandalf.entities;
 
+import ee.taltech.gandalf.components.ItemTypes;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import ee.taltech.gandalf.components.SpellTypes;
+import ee.taltech.gandalf.components.TextureType;
 import ee.taltech.gandalf.screens.GameScreen;
 
 import java.util.Optional;
@@ -18,7 +19,7 @@ public class Spell {
     private double yPosition;
     private final Integer id;
 
-    private final SpellTypes type;
+    private final ItemTypes type;
     private Animation<TextureRegion> fireballAnimation;
 
     /**
@@ -29,7 +30,7 @@ public class Spell {
      * @param yPosition y position
      * @param id spell IDb
      */
-    public Spell(Integer senderId, double xPosition, double yPosition, Integer id, SpellTypes type) {
+    public Spell(Integer senderId, double xPosition, double yPosition, Integer id, ItemTypes type) {
         this.senderId = senderId;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
@@ -55,7 +56,7 @@ public class Spell {
      * @return - rotation.
      */
     public Optional<Float> rotation() {
-        if (type == SpellTypes.FIREBALL && previousXPosition != 0 && previousYPosition != 0) {
+        if (type == ItemTypes.FIREBALL && previousXPosition != 0 && previousYPosition != 0) {
             double xDifference = previousXPosition - xPosition;
             double yDifference = previousYPosition - yPosition;
             float angle = (float) (Math.atan2(yDifference, xDifference) * 180 / MathUtils.PI);
@@ -70,7 +71,7 @@ public class Spell {
      * Create animations for the fireball.
      */
     private void CreateAnimations() {
-        Texture fireballTexture = GameScreen.getTexture(GameScreen.TextureType.FIREBALL);
+        Texture fireballTexture = GameScreen.getTexture(TextureType.FIREBALL);
         // Define frames in the spritesheet
         TextureRegion[][] frames = TextureRegion.split(fireballTexture, 32, 17);
 
@@ -126,7 +127,7 @@ public class Spell {
      *
      * @return type
      */
-    public SpellTypes getType() {
+    public ItemTypes getType() {
         return type;
     }
 

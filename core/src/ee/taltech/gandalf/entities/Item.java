@@ -1,13 +1,14 @@
 package ee.taltech.gandalf.entities;
 
 import com.badlogic.gdx.graphics.Texture;
+import ee.taltech.gandalf.components.ItemTypes;
 import com.badlogic.gdx.physics.box2d.*;
-import ee.taltech.gandalf.components.SpellTypes;
+import ee.taltech.gandalf.components.TextureType;
 import ee.taltech.gandalf.screens.GameScreen;
 
 public class Item {
 
-    private final SpellTypes type;
+    private final ItemTypes type;
     private final Integer id;
     private float xPosition;
     private float yPosition;
@@ -21,7 +22,7 @@ public class Item {
      * @param id item's ID
      * @param type item's type
      */
-    public Item(Integer id, SpellTypes type) {
+    public Item(Integer id, ItemTypes type) {
         this.type = type;
         this.id = id;
         this.texture = setTextureBasedOnType();
@@ -35,7 +36,7 @@ public class Item {
      * @param xPosition item's x coordinate
      * @param yPosition item's y coordinate
      */
-    public Item(Integer id, SpellTypes type, float xPosition, float yPosition) {
+    public Item(Integer id, ItemTypes type, float xPosition, float yPosition) {
         this.type = type;
         this.id = id;
         this.texture = setTextureBasedOnType();
@@ -48,7 +49,7 @@ public class Item {
      *
      * @return type
      */
-    public SpellTypes getType() {
+    public ItemTypes getType() {
         return type;
     }
 
@@ -113,9 +114,9 @@ public class Item {
      */
     private Texture setTextureBasedOnType() {
         Texture itemsTexture = null;
-        if (type == SpellTypes.FIREBALL) {
+        if (type == ItemTypes.FIREBALL) {
             // Get texture from game screen because then OpenGL does not give error
-            itemsTexture = GameScreen.getTexture(GameScreen.TextureType.FIREBALL_BOOK);
+            itemsTexture = GameScreen.getTexture(TextureType.FIREBALL_BOOK);
         }
         return itemsTexture;
     }
