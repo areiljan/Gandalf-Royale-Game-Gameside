@@ -56,6 +56,7 @@ public class NetworkClient {
         // Add sendable data structures.
         Kryo kryo = client.getKryo();
         kryo.register(java.util.ArrayList.class);
+        kryo.register(PlayZoneCoordinates.class);
         kryo.register(Position.class);
         kryo.register(ActionTaken.class);
         kryo.register(Join.class);

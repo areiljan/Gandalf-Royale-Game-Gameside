@@ -3,6 +3,7 @@ package ee.taltech.gandalf.scenes;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -21,6 +22,7 @@ public class Hud {
     private final Table root;
     private final Image[] inventorySlotImages;
     private final Image[] itemImages;
+    private Viewport viewport;
 
     /**
      * Construct hud for client's game.
@@ -29,7 +31,7 @@ public class Hud {
      * @param player client's player character
      */
     public Hud(Camera camera, PlayerCharacter player) {
-        Viewport viewport = new ScreenViewport(camera);
+        this.viewport = new ScreenViewport(camera);
         this.player = player;
 
         inventorySlotImages = new Image[3];
@@ -111,6 +113,8 @@ public class Hud {
         root.setPosition(player.xPosition - (float) Gdx.graphics.getWidth() / 2,
                 player.yPosition - (float) Gdx.graphics.getHeight() / 2);
 
+        viewport.apply();
+        stage.act();
         stage.draw();
     }
 

@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -89,10 +90,10 @@ public class GameScreen extends ScreenAdapter {
         clientCharacter = startedGame.getClientCharacter();
         spells = startedGame.getSpells();
         items = startedGame.getItems();
-        playZone = startedGame.getPlayZone();
 
         hud = new Hud(camera, clientCharacter);
 
+        this.playZone = null;
         shapeRenderer = new ShapeRenderer();
         debugRenderer = new Box2DDebugRenderer();
     }
@@ -209,20 +210,18 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawPlayZone() {
         int stage = playZone.getStage();
-        System.out.println(stage);
-        // first zone spawn range is X;Y (1/7) of zone size -+ 0
         game.batch.begin();
-        if (stage > 1) {
-            game.batch.draw(expectedZoneTexture, -2000, -2000, 12000, 12000);
+        if (stage == 1) {
+            game.batch.draw(expectedZoneTexture, playZone.firstPlayZoneX(), playZone.firstPlayZoneY(), 12000, 12000);
         }
-        if (stage > 2) {
-            game.batch.draw(playZoneTexture, -2000, -2000, 12000, 12000);
+        if (stage == 2) {
+            game.batch.draw(playZoneTexture, playZone.firstPlayZoneX(), playZone.firstPlayZoneY(), 12000, 12000);
         }
-        if (stage > 3) {
-            game.batch.draw(expectedZoneTexture, -2000 + 500, -2000 + 500, 9000, 9000);
+        if (stage == 3) {
+            game.batch.draw(expectedZoneTexture, playZone.secondPlayZoneX(), playZone.secondPlayZoneY(), 9000, 9000);
         }
-        if (stage > 4) {
-            game.batch.draw(playZoneTexture, -2000 + 500, -2000 + 500, 9000, 9000);
+        if (stage == 4) {
+            game.batch.draw(playZoneTexture, playZone.secondPlayZoneX(), playZone.secondPlayZoneY(), 9000, 9000);
         }
         game.batch.end();
     }
@@ -311,6 +310,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 0);
+        viewport.apply();
         world.step(delta, 6, 2);
         startedGame.update(delta);
 
@@ -333,14 +333,17 @@ public class GameScreen extends ScreenAdapter {
         camera.zoom = 0.35f; // Reset the camera back to its original state.
         game.batch.end();
 
-        drawPlayZone();
+        if (startedGame.getPlayZone() != null) {
+            drawPlayZone();
+        } else {
+            playZone = startedGame.getPlayZone();
+        }
         
         drawPlayers(); // Draw client character.
         if (!spells.isEmpty()) {
             drawSpells(); // Draw spells.
         }
         drawItems();
-
         hud.draw();
 
         debugRenderer.render(world, camera.combined);

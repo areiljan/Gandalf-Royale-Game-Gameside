@@ -19,7 +19,7 @@ public class StartedGame {
     private final PlayerCharacter clientCharacter;
     private Map<Integer, Spell> spells;
     private final Map<Integer, Item> items;
-    private final PlayZone playZone;
+    private PlayZone playZone;
 
     /**
      * Construct StartGame.
@@ -36,7 +36,16 @@ public class StartedGame {
         clientCharacter.createHitBox(world);
         spells = new HashMap<>();
         items = new HashMap<>();
-        this.playZone = new PlayZone();
+        this.playZone = null;
+    }
+
+    /**
+     * Initialize the PlayZone.
+     */
+    public void initializePlayZone(int firstPlayZoneX, int firstPlayZoneY,
+                                   int secondPlayZoneX, int secondPlayZoneY,
+                                   int thirdPlayZoneX, int thirdPlayZoneY) {
+        playZone = new PlayZone(0, 0, 0,0, 0, 0);
     }
 
     /**
