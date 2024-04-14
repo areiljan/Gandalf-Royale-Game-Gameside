@@ -10,15 +10,13 @@ public class PlayerCharacterAnimator {
     private final Texture characterTexture;
     private final PlayerCharacter playerCharacter;
     private boolean previousAction;
-
-    public AnimationStates getState() {
-        return state;
-    }
     private AnimationStates state;
+
     public int actionTimes;
     private int previousY;
     private int previousX;
     private boolean lookRight;
+
     private Animation<TextureRegion> idleAnimation;
     private Animation<TextureRegion> deathAnimation;
     private Animation<TextureRegion> actionAnimation;
@@ -27,9 +25,18 @@ public class PlayerCharacterAnimator {
     private Animation<TextureRegion> flippedMovementAnimation;
     private Animation<TextureRegion> flippedDeathAnimation;
     private Animation<TextureRegion> flippedActionAnimation;
+
     public int mouseXPosition;
     public int mouseYPosition;
+
     Texture spriteSheet;
+
+    /**
+     * Construct PlayerCharacterAnimator.
+     *
+     * @param playerCharacter player character that is animated
+     * @param playerID player's ID
+     */
     public PlayerCharacterAnimator(PlayerCharacter playerCharacter, Integer playerID) {
         this.playerCharacter = playerCharacter;
         this.lookRight = true;
@@ -41,8 +48,24 @@ public class PlayerCharacterAnimator {
         this.previousAction = false;
         createAnimations();
     }
+
+    /**
+     * Different states of animation.
+     */
     public enum AnimationStates {
-        IDLE, ACTION, MOVEMENT, DEATH
+        IDLE,
+        ACTION,
+        MOVEMENT,
+        DEATH
+    }
+
+    /**
+     * Get animations current state.
+     *
+     * @return state
+     */
+    public AnimationStates getState() {
+        return state;
     }
 
     /**
@@ -67,10 +90,9 @@ public class PlayerCharacterAnimator {
         }
     }
 
-
-
     /**
      * Getter for the characterTexture
+     *
      * @return texture
      */
     public Texture characterTexture() {
@@ -78,7 +100,8 @@ public class PlayerCharacterAnimator {
     }
 
     /**
-     * idleAnimation getter.
+     * IdleAnimation getter.
+     *
      * @return idleAnimation.
      */
     public Animation<TextureRegion> idleAnimation() {
@@ -90,7 +113,8 @@ public class PlayerCharacterAnimator {
     }
 
     /**
-     * deathAnimation getter.
+     * DeathAnimation getter.
+     *
      * @return deathAnimation.
      * @return
      */
@@ -103,7 +127,8 @@ public class PlayerCharacterAnimator {
     }
 
     /**
-     * actionAnimation getter.
+     * ActionAnimation getter.
+     *
      * @return actionAnimation.
      */
     public Animation<TextureRegion> actionAnimation() {
@@ -115,8 +140,9 @@ public class PlayerCharacterAnimator {
     }
 
     /**
-     * movementAnimation getter.
-     * @return - movementAnimation.
+     * MovementAnimation getter.
+     *
+     * @return movementAnimation.
      */
     public Animation<TextureRegion> movementAnimation() {
         if (lookRight) {

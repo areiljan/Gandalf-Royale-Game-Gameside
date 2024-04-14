@@ -1,12 +1,7 @@
 package ee.taltech.gandalf.entities;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
-import ee.taltech.gandalf.network.messages.game.ActionTaken;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
-import ee.taltech.gandalf.screens.GameScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +10,10 @@ import java.util.Objects;
 public class PlayerCharacter {
     public static final Integer WIDTH = 12;
     public static final Integer HEIGHT = 24;
+
     private final PlayerCharacterAnimator playerCharacterAnimator;
     private Body body;
+
     public int xPosition;
     public int yPosition;
     public int playerID;
@@ -25,14 +22,6 @@ public class PlayerCharacter {
     boolean moveRight;
     boolean moveDown;
     boolean moveUp;
-
-    public Integer health() {
-        return health;
-    }
-
-    public double mana() {
-        return mana;
-    }
 
     private Integer health;
     private double mana;
@@ -96,6 +85,24 @@ public class PlayerCharacter {
 
         hitBoxBody.setUserData(this);
         this.body = hitBoxBody;
+    }
+
+    /**
+     * Get player's health.
+     *
+     * @return health
+     */
+    public Integer getHealth() {
+        return health;
+    }
+
+    /**
+     * Get player's mana.
+     *
+     * @return mana
+     */
+    public double getMana() {
+        return mana;
     }
 
     /**

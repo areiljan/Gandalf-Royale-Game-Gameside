@@ -6,7 +6,7 @@ import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import ee.taltech.gandalf.GandalfRoyale;
-import ee.taltech.gandalf.components.SpellTypes;
+import ee.taltech.gandalf.components.ItemTypes;
 import ee.taltech.gandalf.entities.PlayerCharacter;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
 import ee.taltech.gandalf.network.messages.game.MouseClicks;
@@ -155,11 +155,11 @@ public class PlayerInput implements InputProcessor {
             // Subtract the character's position from the mouse position to get the relative position
             Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
 
-            SpellTypes type;
+            ItemTypes type;
             if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
                 type = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getType();
             } else {
-                type = SpellTypes.NOTHING;
+                type = ItemTypes.NOTHING;
             }
 
             mouse = new MouseClicks(type, true,
@@ -206,7 +206,7 @@ public class PlayerInput implements InputProcessor {
 
         // Check if the left mouse button is not pressed
         if (!Gdx.input.isButtonPressed(Buttons.LEFT)) {
-            mouse = new MouseClicks(SpellTypes.NOTHING, false,
+            mouse = new MouseClicks(ItemTypes.NOTHING, false,
                     relativeMousePosition.x, relativeMousePosition.y + 80);
             // The mouse Y positions should be at the characters head.
             game.nc.sendUDP(mouse);
