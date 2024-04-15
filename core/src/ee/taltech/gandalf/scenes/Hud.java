@@ -25,7 +25,6 @@ public class Hud {
     private Viewport viewport;
     private int currentTime;
 
-
     /**
      * Construct hud for client's game.
      *
@@ -60,7 +59,7 @@ public class Hud {
      */
     public Table createInventoryTable() {
         Table table = new Table();
-        table.top().left();
+        table.top().center();
         table.setFillParent(true);
 
         for (int i = 0; i < 3; i++) {
@@ -123,7 +122,7 @@ public class Hud {
 
         // Move the table so hud moves with player.
         root.setPosition(player.xPosition - (float) viewport.getScreenWidth(),
-                player.yPosition - (float) viewport.getScreenWidth() / 30);
+                player.yPosition);
 
         viewport.apply();
         stage.act();
@@ -137,7 +136,7 @@ public class Hud {
      * @param height window height
      */
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height);
+        stage.getViewport().update(width, height, true);
     }
 
     /**

@@ -3,17 +3,14 @@ package ee.taltech.gandalf.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -33,6 +30,8 @@ import ee.taltech.gandalf.world.WorldCollision;
 
 import java.util.Map;
 public class GameScreen extends ScreenAdapter {
+    private static Texture otherPlayZoneTexture;
+    private static Texture otherExpectedZoneTexture;
     private final World world;
     GandalfRoyale game;
     NetworkClient nc;
@@ -50,8 +49,8 @@ public class GameScreen extends ScreenAdapter {
     private Texture img;
     private static Texture fireballTexture;
     private static Texture fireballBook;
-    private static Texture playZoneTexture;
-    private static Texture expectedZoneTexture;
+    private static Texture firstPlayZoneTexture;
+    private static Texture firstExpectedZoneTexture;
     private float elapsedTime;
     private float animationTime;
     MouseClicks mouseClicks;
@@ -111,8 +110,10 @@ public class GameScreen extends ScreenAdapter {
     private static void setTextures() {
         fireballBook = new Texture("fireball_book.png");
         fireballTexture = new Texture("spell1_Fireball.png");
-        playZoneTexture = new Texture("safezone.png");
-        expectedZoneTexture = new Texture("expected_zone.png");
+        firstPlayZoneTexture = new Texture("safezone.png");
+        otherPlayZoneTexture = new Texture("newZone.png");
+        firstExpectedZoneTexture = new Texture("expected_zone.png");
+        otherExpectedZoneTexture = new Texture("newExpectedZone.png");
     }
 
     /**
@@ -214,20 +215,27 @@ public class GameScreen extends ScreenAdapter {
     private void drawPlayZone() {
         playZone = startedGame.getPlayZone();
         int stage = playZone.getStage();
-        System.out.println(stage);
         game.batch.begin();
         if (stage == 1) {
-            game.batch.draw(expectedZoneTexture, playZone.firstPlayZoneX(), playZone.firstPlayZoneY(), 12000, 12000);
+            game.batch.draw(firstExpectedZoneTexture, playZone.firstPlayZoneX() - 6000, playZone.firstPlayZoneY() - 6000, 12000, 12000);
         }
         if (stage >= 2) {
-            game.batch.draw(playZoneTexture, playZone.firstPlayZoneX(), playZone.firstPlayZoneY(), 12000, 12000);
+            game.batch.draw(firstPlayZoneTexture, playZone.firstPlayZoneX() - 6000, playZone.firstPlayZoneY() - 6000, 12000, 12000);
         }
-        if (stage == 3) {
-            game.batch.draw(expectedZoneTexture, playZone.secondPlayZoneX(), playZone.secondPlayZoneY(), 9000, 9000);
+        if (stage >= 3) {
+            game.batch.draw(otherExpectedZoneTexture, playZone.secondPlayZoneX() - 19200, playZone.secondPlayZoneY() - 19200, 38400, 38400);
         }
         if (stage >= 4) {
-            game.batch.draw(playZoneTexture, playZone.secondPlayZoneX(), playZone.secondPlayZoneY(), 9000, 9000);
+            // size is zone times 5
+            game.batch.draw(otherPlayZoneTexture, playZone.secondPlayZoneX() - 19200, playZone.secondPlayZoneY() - 19200, 38400, 38400);
         }
+        if (stage >= 5) {
+            game.batch.draw(otherExpectedZoneTexture, playZone.thirdPlayZoneX() - 7500, playZone.thirdPlayZoneY() - 7500, 15000, 15000);
+        }
+        if (stage >= 6) {
+            game.batch.draw(otherPlayZoneTexture, playZone.thirdPlayZoneX() - 7500, playZone.thirdPlayZoneY() - 7500, 15000, 15000);
+        }
+
         game.batch.end();
     }
 
@@ -332,17 +340,11 @@ public class GameScreen extends ScreenAdapter {
         
         // Render game objects
         game.batch.begin();
-        camera.zoom = 6f; // To render 3X bigger area than seen.
+        camera.zoom = 12f; // To render 4X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
-        camera.zoom = 2f; // Reset the camera back to its original state.
+        camera.zoom = 3f; // Reset the camera back to its original state.
         game.batch.end();
-
-        if (startedGame.getPlayZone() != null) {
-            drawPlayZone();
-        } else {
-            playZone = startedGame.getPlayZone();
-        }
         
         drawPlayers(); // Draw client character.
         if (!spells.isEmpty()) {
@@ -352,6 +354,12 @@ public class GameScreen extends ScreenAdapter {
         debugRenderer.render(world, camera.combined);
 
         drawItems();
+
+        if (startedGame.getPlayZone() != null) {
+            drawPlayZone();
+        } else {
+            playZone = startedGame.getPlayZone();
+        }
 
         hud.draw();
     }
@@ -364,7 +372,7 @@ public class GameScreen extends ScreenAdapter {
      */
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);
+        viewport.update(viewport.getScreenWidth(), viewport.getScreenHeight());
         hud.resize(width, height);
     }
 
