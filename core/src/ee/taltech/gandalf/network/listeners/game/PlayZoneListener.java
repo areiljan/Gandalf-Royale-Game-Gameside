@@ -29,6 +29,7 @@ public class PlayZoneListener extends Listener {
         GameScreen gameScreen = screenController.getGameScreen();
         switch (incomingData) {
             case PlayZoneCoordinates playZoneCoordinates:
+                System.out.println("Coordinates received");
                 gameScreen.startedGame.initializePlayZone(playZoneCoordinates.firstPlayZoneX,
                         playZoneCoordinates.firstPlayZoneY, playZoneCoordinates.secondPlayZoneX,
                         playZoneCoordinates.secondPlayZoneY, playZoneCoordinates.thirdPlayZoneX,

@@ -61,7 +61,7 @@ public class Hud {
             stack.add(inventorySlotImages[i]); // Put placeholder image into a stack
             stack.add(itemImages[i]); // Put placeholder image into a stack
 
-            table.add(stack).size(64, 64); // Put stack on table
+            table.add(stack).size(128, 128); // Put stack on table
         }
         return table;
     }
@@ -84,6 +84,7 @@ public class Hud {
             inventorySlotImage.setDrawable(new TextureRegionDrawable(new TextureRegion(inventoryTexture)));
 
             Image itemImage = itemImages[i]; // Get item image for that slot
+            
             itemImage.setDrawable(drawItem(i)); // Put correct texture to item image
         }
     }
@@ -110,8 +111,8 @@ public class Hud {
         drawInventory();
 
         // Move the table so hud moves with player.
-        root.setPosition(player.xPosition - (float) Gdx.graphics.getWidth() / 2,
-                player.yPosition - (float) Gdx.graphics.getHeight() / 2);
+        root.setPosition(player.xPosition - (float) viewport.getScreenWidth(),
+                player.yPosition - (float) viewport.getScreenWidth() / 30);
 
         viewport.apply();
         stage.act();

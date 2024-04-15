@@ -74,25 +74,25 @@ public class PlayZone {
 
     public void updateZone(int startTime) {
         timer = startTime;
-        if (timer < 30) {
+        if (timer < 20) {
             stage = 1;
-        } else if (timer > 30 && timer < 200) {
+        } else if (timer < 100) {
             stage = 2;
-        } else if (timer > 200) {
+        } else if (timer < 200) {
             stage = 3;
             // implement first zone
             // create body
-        } else if (timer > 300) {
+        } else if (timer < 300) {
             stage = 4;
             // show second zone
-        } else if (timer < 350) {
+        } else if (timer < 400) {
             stage = 5;
             // implement second zone
             // create body
-        } else if (timer < 450) {
+        } else if (timer < 500) {
             stage = 6;
             // show third zone
-        } else if (timer < 550) {
+        } else if (timer < 600) {
             stage = 7;
             // implement third zone
             // create body

@@ -14,6 +14,11 @@ public class GandalfRoyale extends Game {
     public SpriteBatch batch;
     public BitmapFont font;
     public NetworkClient nc;
+
+    public ScreenController screenController() {
+        return screenController;
+    }
+
     public ScreenController screenController;
 
     /**
@@ -42,4 +47,6 @@ public class GandalfRoyale extends Game {
         batch.dispose();
         font.dispose();
     }
+
+
 }

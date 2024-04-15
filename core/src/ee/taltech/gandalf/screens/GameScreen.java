@@ -93,7 +93,6 @@ public class GameScreen extends ScreenAdapter {
 
         hud = new Hud(camera, clientCharacter);
 
-        this.playZone = null;
         shapeRenderer = new ShapeRenderer();
         debugRenderer = new Box2DDebugRenderer();
     }
@@ -209,18 +208,20 @@ public class GameScreen extends ScreenAdapter {
      * Draw PlayZone.
      */
     private void drawPlayZone() {
+        playZone = startedGame.getPlayZone();
         int stage = playZone.getStage();
+        System.out.println(stage);
         game.batch.begin();
         if (stage == 1) {
             game.batch.draw(expectedZoneTexture, playZone.firstPlayZoneX(), playZone.firstPlayZoneY(), 12000, 12000);
         }
-        if (stage == 2) {
+        if (stage >= 2) {
             game.batch.draw(playZoneTexture, playZone.firstPlayZoneX(), playZone.firstPlayZoneY(), 12000, 12000);
         }
         if (stage == 3) {
             game.batch.draw(expectedZoneTexture, playZone.secondPlayZoneX(), playZone.secondPlayZoneY(), 9000, 9000);
         }
-        if (stage == 4) {
+        if (stage >= 4) {
             game.batch.draw(playZoneTexture, playZone.secondPlayZoneX(), playZone.secondPlayZoneY(), 9000, 9000);
         }
         game.batch.end();
@@ -327,10 +328,10 @@ public class GameScreen extends ScreenAdapter {
         
         // Render game objects
         game.batch.begin();
-        camera.zoom = 1.05f; // To render 3X bigger area than seen.
+        camera.zoom = 6f; // To render 3X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
-        camera.zoom = 0.35f; // Reset the camera back to its original state.
+        camera.zoom = 2f; // Reset the camera back to its original state.
         game.batch.end();
 
         if (startedGame.getPlayZone() != null) {
@@ -343,10 +344,12 @@ public class GameScreen extends ScreenAdapter {
         if (!spells.isEmpty()) {
             drawSpells(); // Draw spells.
         }
-        drawItems();
-        hud.draw();
 
         debugRenderer.render(world, camera.combined);
+
+        drawItems();
+
+        hud.draw();
     }
 
     /**
