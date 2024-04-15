@@ -60,6 +60,10 @@ public class GameScreen extends ScreenAdapter {
     private TextureRegion currentFrame;
     private PlayZone playZone;
 
+    public Hud getHud() {
+        return hud;
+    }
+
     /**
      * Construct GameScreen.
      *

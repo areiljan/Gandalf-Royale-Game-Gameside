@@ -36,8 +36,9 @@ public class PlayZoneListener extends Listener {
                         playZoneCoordinates.firstPlayZoneY);
                 break;
             case PlayZoneUpdate playZoneUpdate: // playZoneUpdate message
+                gameScreen.getHud().setCurrentTime(playZoneUpdate.timer);
                 if (gameScreen.startedGame.getPlayZone() != null) {
-                    gameScreen.startedGame.getPlayZone().updateZone(playZoneUpdate.timer);
+                    gameScreen.startedGame.getPlayZone().updateZone(playZoneUpdate.stage);
                 }
                 break;
             default: // Ignore if something else comes through

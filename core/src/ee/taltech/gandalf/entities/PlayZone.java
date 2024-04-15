@@ -72,36 +72,8 @@ public class PlayZone {
         return thirdPlayZoneY;
     }
 
-    public void updateZone(int startTime) {
-        timer = startTime;
-        if (timer < 20) {
-            stage = 1;
-        } else if (timer < 100) {
-            stage = 2;
-        } else if (timer < 200) {
-            stage = 3;
-            // implement first zone
-            // create body
-        } else if (timer < 300) {
-            stage = 4;
-            // show second zone
-        } else if (timer < 400) {
-            stage = 5;
-            // implement second zone
-            // create body
-        } else if (timer < 500) {
-            stage = 6;
-            // show third zone
-        } else if (timer < 600) {
-            stage = 7;
-            // implement third zone
-            // create body
-            // final countdown
-        } else if (timer < 800) {
-            stage = 8;
-            // the entire map turns red
-            // create body
-        }
+    public void updateZone(int stage) {
+        this.stage = stage;
     }
 
     public int getStage() {

@@ -23,6 +23,8 @@ public class Hud {
     private final Image[] inventorySlotImages;
     private final Image[] itemImages;
     private Viewport viewport;
+    private int currentTime;
+
 
     /**
      * Construct hud for client's game.
@@ -33,6 +35,7 @@ public class Hud {
     public Hud(Camera camera, PlayerCharacter player) {
         this.viewport = new ScreenViewport(camera);
         this.player = player;
+        this.currentTime = 0;
 
         inventorySlotImages = new Image[3];
         itemImages = new Image[3];
@@ -40,6 +43,14 @@ public class Hud {
         stage = new Stage(viewport);
         root = createInventoryTable();
         stage.addActor(root);
+    }
+
+    /**
+     * Set the current Time.
+     * @param currentTime - time right now.
+     */
+    public void setCurrentTime(int currentTime) {
+        this.currentTime = currentTime;
     }
 
     /**
