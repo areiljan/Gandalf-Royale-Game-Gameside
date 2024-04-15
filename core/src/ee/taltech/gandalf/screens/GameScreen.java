@@ -372,7 +372,7 @@ public class GameScreen extends ScreenAdapter {
      */
     @Override
     public void resize(int width, int height) {
-        viewport.update(viewport.getScreenWidth(), viewport.getScreenHeight());
+        viewport.update(width, height);
         hud.resize(width, height);
     }
 

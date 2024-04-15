@@ -42,6 +42,8 @@ public class Hud {
         stage = new Stage(viewport);
         root = createInventoryTable();
         stage.addActor(root);
+
+        viewport.setWorldSize(viewport.getWorldWidth() * 2, viewport.getWorldHeight() * 2);
     }
 
     /**
@@ -71,7 +73,7 @@ public class Hud {
             stack.add(inventorySlotImages[i]); // Put placeholder image into a stack
             stack.add(itemImages[i]); // Put placeholder image into a stack
 
-            table.add(stack).size(128, 128); // Put stack on table
+            table.add(stack).size(256, 256); // Put stack on table
         }
         return table;
     }
@@ -121,8 +123,8 @@ public class Hud {
         drawInventory();
 
         // Move the table so hud moves with player.
-        root.setPosition(player.xPosition - (float) viewport.getScreenWidth(),
-                player.yPosition);
+        root.setPosition(player.xPosition, // - (float) viewport.getScreenWidth() / 2,
+                player.yPosition); // - //(float) viewport.getScreenHeight() * 1.8f);
 
         viewport.apply();
         stage.act();
