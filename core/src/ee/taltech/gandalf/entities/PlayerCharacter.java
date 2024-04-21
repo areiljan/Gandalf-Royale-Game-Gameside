@@ -193,8 +193,20 @@ public class PlayerCharacter {
         return null; // Should never get to this point
     }
 
+    /**
+     * Add coin to player.
+     */
     public void addCoin() {
         coins++;
+    }
+
+    /**
+     * Get player's coins.
+     *
+     * @return coins
+     */
+    public Integer getCoins() {
+        return coins;
     }
 
     /**

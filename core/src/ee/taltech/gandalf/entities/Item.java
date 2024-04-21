@@ -13,7 +13,10 @@ public class Item {
     private float xPosition;
     private float yPosition;
 
-    private Texture texture;
+    private final Texture texture;
+    private float textureWidth;
+    private float textureHeight;
+
     private Body body;
 
     /**
@@ -72,6 +75,24 @@ public class Item {
     }
 
     /**
+     * Get texture width.
+     *
+     * @return float of texture width
+     */
+    public float getTextureWidth() {
+        return textureWidth;
+    }
+
+    /**
+     * Get texture height.
+     *
+     * @return float of texture height
+     */
+    public float getTextureHeight() {
+        return textureHeight;
+    }
+
+    /**
      * Get item's x coordinate.
      *
      * @return xPosition
@@ -117,8 +138,12 @@ public class Item {
         if (type == ItemTypes.FIREBALL) {
             // Get texture from game screen because then OpenGL does not give error
             itemsTexture = GameScreen.getTexture(TextureType.FIREBALL_BOOK);
+            textureHeight = (float) itemsTexture.getHeight() / 2.5f;
+            textureWidth = (float) itemsTexture.getWidth() / 2.5f;
         } else if (type == ItemTypes.COIN) {
             itemsTexture = GameScreen.getTexture(TextureType.COIN);
+            textureHeight = (float) itemsTexture.getHeight() / 2;
+            textureWidth = (float) itemsTexture.getWidth() / 2;
         }
         return itemsTexture;
     }
