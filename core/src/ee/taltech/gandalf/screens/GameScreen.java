@@ -55,6 +55,7 @@ public class GameScreen extends ScreenAdapter {
     private static Texture fireballTexture;
     private static Texture fireballBook;
     private static Texture pumpkin;
+    private static Texture coin;
 
     private static Integer pumpkinWidth;
     private static Integer pumpkinHeight;
@@ -106,6 +107,20 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * Set all textures.
+     */
+    private static void setTextures() {
+        fireballBook = new Texture("fireball_book.png");
+        fireballTexture = new Texture("spell1_Fireball.png");
+        coin = new Texture("coin.png");
+
+        // *------ PUMPKIN TEXTURE ------*
+        pumpkin = new Texture("pumpkin.png");
+        pumpkinWidth = pumpkin.getWidth() + 5;
+        pumpkinHeight = pumpkin.getHeight() + 5;
+    }
+
+    /**
      * Get any texture.
      * Give the appropriate type upon calling this method to get the right texture.
      * @return fireballBook
@@ -115,21 +130,9 @@ public class GameScreen extends ScreenAdapter {
             case FIREBALL_BOOK -> fireballBook;
             case FIREBALL -> fireballTexture;
             case PUMPKIN -> pumpkin;
+            case COIN -> coin;
             default -> new Texture("wizard.png");
         };
-    }
-
-    /**
-     * Set all textures.
-     */
-    private static void setTextures() {
-        fireballBook = new Texture("fireball_book.png");
-        fireballTexture = new Texture("spell1_Fireball.png");
-
-        // *------ PUMPKIN TEXTURE ------*
-        pumpkin = new Texture("pumpkin.png");
-        pumpkinWidth = pumpkin.getWidth() + 5;
-        pumpkinHeight = pumpkin.getHeight() + 5;
     }
 
     /**
@@ -256,13 +259,11 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawItems() {
         for (Item item : items.values()) {
-            if (item.getType() == ItemTypes.FIREBALL) {
-                game.batch.begin();
-                game.batch.draw(fireballBook, item.getXPosition() - (float) fireballBook.getWidth() / 3,
-                        item.getYPosition() - (float) fireballBook.getHeight() / 3,
-                        30, 30);
-                game.batch.end();
-            }
+            game.batch.begin();
+            game.batch.draw(item.getTexture(), item.getXPosition() - (float) item.getTexture().getWidth() / 3,
+                    item.getYPosition() - (float) item.getTexture().getHeight() / 3,
+                    30, 30);
+            game.batch.end();
         }
     }
 

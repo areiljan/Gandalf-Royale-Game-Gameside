@@ -6,5 +6,6 @@ package ee.taltech.gandalf.components;
 public enum TextureType {
     FIREBALL_BOOK,
     FIREBALL,
-    PUMPKIN
+    PUMPKIN,
+    COIN
 }

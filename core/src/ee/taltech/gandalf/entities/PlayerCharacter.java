@@ -25,6 +25,8 @@ public class PlayerCharacter {
 
     private Integer health;
     private double mana;
+    private Integer coins;
+
     private List<Item> inventory;
     private Integer selectedSlot;
 
@@ -39,8 +41,10 @@ public class PlayerCharacter {
         this.xPosition = 0;
         this.yPosition = 0;
         this.playerID = playerID;
+
         health = 100;
         mana = 100;
+        coins = 0;
 
         this.playerCharacterAnimator = new PlayerCharacterAnimator(this, playerID);
 
@@ -187,6 +191,10 @@ public class PlayerCharacter {
             }
         }
         return null; // Should never get to this point
+    }
+
+    public void addCoin() {
+        coins++;
     }
 
     /**

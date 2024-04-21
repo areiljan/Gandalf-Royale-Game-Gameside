@@ -117,6 +117,8 @@ public class Item {
         if (type == ItemTypes.FIREBALL) {
             // Get texture from game screen because then OpenGL does not give error
             itemsTexture = GameScreen.getTexture(TextureType.FIREBALL_BOOK);
+        } else if (type == ItemTypes.COIN) {
+            itemsTexture = GameScreen.getTexture(TextureType.COIN);
         }
         return itemsTexture;
     }

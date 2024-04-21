@@ -75,6 +75,7 @@ public class NetworkClient {
         kryo.register(KilledPlayer.class);
         kryo.register(UpdateMana.class);
         kryo.register(ItemPickedUp.class);
+        kryo.register(CoinPickedUp.class);
         kryo.register(ItemDropped.class);
         kryo.register(MobPosition.class);
         kryo.register(UpdateMobHealth.class);
@@ -88,7 +89,7 @@ public class NetworkClient {
     public void connect() {
         // Connect client with the server.
         try {
-            client.connect(5000, "193.40.255.34", 8080, 8081);
+            client.connect(5000, "localhost", 8080, 8081);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
