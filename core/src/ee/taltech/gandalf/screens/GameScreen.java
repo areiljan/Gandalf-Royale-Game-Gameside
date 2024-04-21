@@ -136,9 +136,9 @@ public class GameScreen extends ScreenAdapter {
         fireballBook = new Texture("fireball_book.png");
         fireballTexture = new Texture("spell1_Fireball.png");
         firstPlayZoneTexture = new Texture("safezone.png");
-        otherPlayZoneTexture = new Texture("newZone.png");
+        otherPlayZoneTexture = new Texture("hugeNewZone.png");
         firstExpectedZoneTexture = new Texture("expected_zone.png");
-        otherExpectedZoneTexture = new Texture("newExpectedZone.png");
+        otherExpectedZoneTexture = new Texture("huge_expected_zone.png");
 
         // *------ PUMPKIN TEXTURE ------*
         pumpkinTexture = new Texture("pumpkin.png");
@@ -251,21 +251,21 @@ public class GameScreen extends ScreenAdapter {
         if (stage == 1) {
             game.batch.draw(firstExpectedZoneTexture, playZone.firstPlayZoneX() - 6000, playZone.firstPlayZoneY() - 6000, 12000, 12000);
         }
-        if (stage >= 2) {
+        if (stage == 2 || stage == 3) {
             game.batch.draw(firstPlayZoneTexture, playZone.firstPlayZoneX() - 6000, playZone.firstPlayZoneY() - 6000, 12000, 12000);
         }
-        if (stage >= 3) {
+        if (stage == 3) {
             game.batch.draw(otherExpectedZoneTexture, playZone.secondPlayZoneX() - 19200, playZone.secondPlayZoneY() - 19200, 38400, 38400);
         }
-        if (stage >= 4) {
-            // size is zone times 5
+        if (stage == 4 || stage == 5) {
+            // size is map times 4
             game.batch.draw(otherPlayZoneTexture, playZone.secondPlayZoneX() - 19200, playZone.secondPlayZoneY() - 19200, 38400, 38400);
         }
-        if (stage >= 5) {
-            game.batch.draw(otherExpectedZoneTexture, playZone.thirdPlayZoneX() - 7500, playZone.thirdPlayZoneY() - 7500, 15000, 15000);
+        if (stage == 5) {
+            game.batch.draw(otherExpectedZoneTexture, playZone.thirdPlayZoneX() - 7500, playZone.thirdPlayZoneY() - 7700, 15000, 15000);
         }
         if (stage >= 6) {
-            game.batch.draw(otherPlayZoneTexture, playZone.thirdPlayZoneX() - 7500, playZone.thirdPlayZoneY() - 7500, 15000, 15000);
+            game.batch.draw(otherPlayZoneTexture, playZone.thirdPlayZoneX() - 7500, playZone.thirdPlayZoneY() - 7700, 15000, 15000);
         }
 
         game.batch.end();
