@@ -17,15 +17,12 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
-import ee.taltech.gandalf.entities.*;
 import ee.taltech.gandalf.components.TextureType;
 import ee.taltech.gandalf.entities.*;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
 import ee.taltech.gandalf.components.StartedGame;
 import ee.taltech.gandalf.network.NetworkClient;
-import ee.taltech.gandalf.network.messages.game.MouseClicks;
 import ee.taltech.gandalf.input.PlayerInput;
-import ee.taltech.gandalf.components.SpellTypes;
 import ee.taltech.gandalf.components.ItemTypes;
 import ee.taltech.gandalf.components.Lobby;
 import ee.taltech.gandalf.scenes.Hud;
@@ -60,7 +57,7 @@ public class GameScreen extends ScreenAdapter {
 
     private static Texture fireballTexture;
     private static Texture fireballBook;
-    private static Texture pumpkin;
+    private static Texture pumpkinTexture;
 
     private static Integer pumpkinWidth;
     private static Integer pumpkinHeight;
@@ -72,7 +69,6 @@ public class GameScreen extends ScreenAdapter {
     private final ShapeRenderer shapeRenderer;
 
     private final Box2DDebugRenderer debugRenderer; // For debugging
-    private Box2DDebugRenderer debugRenderer; // For debugging
     private TextureRegion currentFrame;
     private PlayZone playZone;
 
@@ -128,7 +124,7 @@ public class GameScreen extends ScreenAdapter {
         return switch (textureType) {
             case FIREBALL_BOOK -> fireballBook;
             case FIREBALL -> fireballTexture;
-            case PUMPKIN -> pumpkin;
+            case PUMPKIN -> pumpkinTexture;
             default -> new Texture("wizard.png");
         };
     }
@@ -145,9 +141,9 @@ public class GameScreen extends ScreenAdapter {
         otherExpectedZoneTexture = new Texture("newExpectedZone.png");
 
         // *------ PUMPKIN TEXTURE ------*
-        pumpkin = new Texture("pumpkin.png");
-        pumpkinWidth = pumpkin.getWidth() + 5;
-        pumpkinHeight = pumpkin.getHeight() + 5;
+        pumpkinTexture = new Texture("pumpkin.png");
+        pumpkinWidth = pumpkinTexture.getWidth() + 5;
+        pumpkinHeight = pumpkinTexture.getHeight() + 5;
     }
 
     /**
@@ -322,7 +318,7 @@ public class GameScreen extends ScreenAdapter {
         for (Mob mob : mobs.values()) {
             // *-------------- MOB ASSET --------------*
             game.batch.begin();
-            game.batch.draw(pumpkin,
+            game.batch.draw(pumpkinTexture,
                     mob.getXPosition() - (float) pumpkinWidth / 2,
                     mob.getYPosition() - (float) pumpkinHeight / 2,
                     pumpkinWidth, pumpkinHeight);
@@ -355,29 +351,6 @@ public class GameScreen extends ScreenAdapter {
      */
     public void disableClientPlayerCharacter() {
         Gdx.input.setInputProcessor(null);
-    }
-
-    /**
-     * Texture types
-     */
-    public enum TextureType {
-        FIREBALL_BOOK, FIREBALL, WIZARD
-    }
-
-    /**
-     * Get any texture.
-     * Give the appropriate type upon calling this method to get the right texture.
-     * @return fireballBook
-     */
-    public static Texture getTexture(TextureType textureType) {
-        switch (textureType) {
-            case FIREBALL_BOOK:
-                return fireballBook;
-            case FIREBALL:
-                return fireballTexture;
-            default:
-                return new Texture("wizard.png");
-        }
     }
 
     /**
