@@ -1,12 +1,12 @@
 package ee.taltech.gandalf.network.messages.game;
 
-import ee.taltech.gandalf.components.SpellTypes;
+import ee.taltech.gandalf.components.ItemTypes;
 
 public class ItemPickedUp {
 
     public Integer playerId;
     public Integer itemId;
-    public SpellTypes type;
+    public ItemTypes type;
 
     /**
      * Empty constructor for Kryonet.

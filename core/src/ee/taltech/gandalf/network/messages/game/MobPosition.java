@@ -1,19 +1,15 @@
 package ee.taltech.gandalf.network.messages.game;
 
-import ee.taltech.gandalf.components.ItemTypes;
+public class MobPosition {
 
-public class ItemDropped {
-
-    public Integer playerId;
-    public Integer itemId;
-    public ItemTypes type;
+    public Integer mobId;
     public float xPosition;
     public float yPosition;
 
     /**
      * Empty constructor for Kryonet.
      */
-    public ItemDropped() {
+    public MobPosition() {
         // Empty constructor for server to fill.
     }
 }

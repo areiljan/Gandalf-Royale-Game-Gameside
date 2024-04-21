@@ -18,43 +18,60 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.gandalf.entities.*;
+import ee.taltech.gandalf.components.TextureType;
+import ee.taltech.gandalf.entities.*;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
 import ee.taltech.gandalf.components.StartedGame;
 import ee.taltech.gandalf.network.NetworkClient;
 import ee.taltech.gandalf.network.messages.game.MouseClicks;
 import ee.taltech.gandalf.input.PlayerInput;
 import ee.taltech.gandalf.components.SpellTypes;
+import ee.taltech.gandalf.components.ItemTypes;
 import ee.taltech.gandalf.components.Lobby;
 import ee.taltech.gandalf.scenes.Hud;
 import ee.taltech.gandalf.world.WorldCollision;
 
 import java.util.Map;
+
 public class GameScreen extends ScreenAdapter {
+
     private static Texture otherPlayZoneTexture;
     private static Texture otherExpectedZoneTexture;
     private final World world;
     GandalfRoyale game;
     NetworkClient nc;
-    private final OrthogonalTiledMapRenderer renderer;
+
     private final ExtendViewport viewport;
     public final OrthographicCamera camera;
+
     private final Hud hud;
     public final StartedGame startedGame;
+
     private final Map<Integer, PlayerCharacter> gamePlayers;
     private final PlayerCharacter clientCharacter;
     private final Map<Integer, Spell> spells;
     private final Map<Integer, Item> items;
+    private final Map<Integer, Mob> mobs;
+
+    private final OrthogonalTiledMapRenderer renderer;
     private final TmxMapLoader mapLoader;
     private final TiledMap map;
-    private Texture img;
+
+
     private static Texture fireballTexture;
     private static Texture fireballBook;
+    private static Texture pumpkin;
+
+    private static Integer pumpkinWidth;
+    private static Integer pumpkinHeight;
+
     private static Texture firstPlayZoneTexture;
     private static Texture firstExpectedZoneTexture;
     private float elapsedTime;
     private float animationTime;
-    MouseClicks mouseClicks;
     private final ShapeRenderer shapeRenderer;
+
+    private final Box2DDebugRenderer debugRenderer; // For debugging
     private Box2DDebugRenderer debugRenderer; // For debugging
     private TextureRegion currentFrame;
     private PlayZone playZone;
@@ -70,6 +87,7 @@ public class GameScreen extends ScreenAdapter {
      */
     public GameScreen(GandalfRoyale game, Lobby lobby) {
         world = new World(new Vector2(0, 0), true); // Create a new Box2D world
+        CollisionHandler collisionHandler = new CollisionHandler(); // This has to be on a separate line!!!
         world.setContactListener(new CollisionHandler());
 
         this.game = game;
@@ -93,6 +111,7 @@ public class GameScreen extends ScreenAdapter {
         clientCharacter = startedGame.getClientCharacter();
         spells = startedGame.getSpells();
         items = startedGame.getItems();
+        mobs = startedGame.getMobs();
 
         hud = new Hud(camera, clientCharacter);
 
@@ -100,8 +119,18 @@ public class GameScreen extends ScreenAdapter {
         debugRenderer = new Box2DDebugRenderer();
     }
 
-    public World getWorld() {
-        return world;
+    /**
+     * Get any texture.
+     * Give the appropriate type upon calling this method to get the right texture.
+     * @return fireballBook
+     */
+    public static Texture getTexture(TextureType textureType) {
+        return switch (textureType) {
+            case FIREBALL_BOOK -> fireballBook;
+            case FIREBALL -> fireballTexture;
+            case PUMPKIN -> pumpkin;
+            default -> new Texture("wizard.png");
+        };
     }
 
     /**
@@ -114,6 +143,11 @@ public class GameScreen extends ScreenAdapter {
         otherPlayZoneTexture = new Texture("newZone.png");
         firstExpectedZoneTexture = new Texture("expected_zone.png");
         otherExpectedZoneTexture = new Texture("newExpectedZone.png");
+
+        // *------ PUMPKIN TEXTURE ------*
+        pumpkin = new Texture("pumpkin.png");
+        pumpkinWidth = pumpkin.getWidth() + 5;
+        pumpkinHeight = pumpkin.getHeight() + 5;
     }
 
     /**
@@ -165,9 +199,11 @@ public class GameScreen extends ScreenAdapter {
             game.batch.begin();
             // Set the image to 3 times smaller picture and flip it, if player is moving left.
             if (playerAnimator.lookRight()) {
-                game.batch.draw(currentFrame, player.xPosition - 30, player.yPosition - 15, 80, 80);
+                game.batch.draw(currentFrame, (float) player.xPosition - 30,
+                        (float) player.yPosition - 15, 80, 80);
             } else {
-                game.batch.draw(currentFrame, player.xPosition - 40, player.yPosition - 15, 80, 80);
+                game.batch.draw(currentFrame, (float) player.xPosition - 40,
+                        (float) player.yPosition - 15, 80, 80);
             }
             game.batch.end();
             // Draw health and mana bar
@@ -187,23 +223,23 @@ public class GameScreen extends ScreenAdapter {
 
         // Draw missing health bar
         shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 60,
-                (float) 100, 2);
+        shapeRenderer.rect( (float) player.xPosition - 45, (float) player.yPosition + 60,
+                100, 2);
 
         // Draw health bar
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 60,
-                (float) player.health(), 2);
+        shapeRenderer.rect((float) player.xPosition - 45, (float) player.yPosition + 60,
+                player.getHealth(), 2);
 
         // Draw missing mana bar
         shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 55,
-                (float) 100, 2);
+        shapeRenderer.rect((float) player.xPosition - 45, (float) player.yPosition + 55,
+                100, 2);
 
         // Draw mana bar
         shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.rect(player.xPosition - 45, player.yPosition + 55,
-                (float) player.mana(), 2);
+        shapeRenderer.rect((float) player.xPosition - 45, (float) player.yPosition + 55,
+                (float) player.getMana(), 2);
 
         // Stop rendering shapes
         shapeRenderer.end();
@@ -244,20 +280,22 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawSpells() {
         for (Spell spell : spells.values()) {
-            if ((spell.getType() == SpellTypes.FIREBALL) && (spell.rotation().isPresent())) {
-                game.batch.begin();
-                TextureRegion currentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
-                game.batch.draw(currentFrame,
-                        (float) spell.getXPosition(),
-                        (float) spell.getYPosition() - 32,
-                        0,
-                        0,
-                        32,
-                        17,
-                        1,
-                        1,
-                        spell.rotation().get());
-                game.batch.end();
+            if(spell.rotation().isPresent()) {
+                if (spell.getType() == ItemTypes.FIREBALL) {
+                    game.batch.begin();
+                    TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
+                    game.batch.draw(spellCurrentFrame,
+                            (float) spell.getXPosition(),
+                            (float) spell.getYPosition() - 32,
+                            0,
+                            0,
+                            32,
+                            17,
+                            1,
+                            1,
+                            spell.rotation().get());
+                    game.batch.end();
+                }
             }
         }
     }
@@ -267,13 +305,48 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawItems() {
         for (Item item : items.values()) {
-            if (item.getType() == SpellTypes.FIREBALL) {
+            if (item.getType() == ItemTypes.FIREBALL) {
                 game.batch.begin();
                 game.batch.draw(fireballBook, item.getXPosition() - (float) fireballBook.getWidth() / 3,
                         item.getYPosition() - (float) fireballBook.getHeight() / 3,
                         30, 30);
                 game.batch.end();
             }
+        }
+    }
+
+    /**
+     * Draw mobs with their health bar.
+     */
+    private void drawMobs() {
+        for (Mob mob : mobs.values()) {
+            // *-------------- MOB ASSET --------------*
+            game.batch.begin();
+            game.batch.draw(pumpkin,
+                    mob.getXPosition() - (float) pumpkinWidth / 2,
+                    mob.getYPosition() - (float) pumpkinHeight / 2,
+                    pumpkinWidth, pumpkinHeight);
+            game.batch.end();
+
+            // *-------------- MOB HEATH BAR --------------*
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled); // Start drawing
+
+            // Missing health
+            shapeRenderer.setColor(Color.BLACK);
+            shapeRenderer.rect(
+                    mob.getXPosition() - (float) 25 / 2,
+                    mob.getYPosition() + (float) pumpkinHeight / 2,
+                    25, 2);
+
+            // Present health
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.rect(
+                    mob.getXPosition() - (float) 25 / 2,
+                    mob.getYPosition() + (float) pumpkinHeight / 2,
+                    (float) mob.getHealth() / 2, 2);
+
+            shapeRenderer.end(); // Stop drawing
         }
     }
 
@@ -337,7 +410,7 @@ public class GameScreen extends ScreenAdapter {
         // Set camera projection matrix
         game.batch.setProjectionMatrix(camera.combined);
 
-        
+
         // Render game objects
         game.batch.begin();
         camera.zoom = 12f; // To render 4X bigger area than seen.
@@ -345,8 +418,9 @@ public class GameScreen extends ScreenAdapter {
         renderer.render();
         camera.zoom = 3f; // Reset the camera back to its original state.
         game.batch.end();
-        
+
         drawPlayers(); // Draw client character.
+        drawMobs();
         if (!spells.isEmpty()) {
             drawSpells(); // Draw spells.
         }
@@ -382,7 +456,6 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void hide() {
         Gdx.input.setInputProcessor(null);
-        img.dispose();
         world.dispose();
         debugRenderer.dispose();
         hud.dispose();

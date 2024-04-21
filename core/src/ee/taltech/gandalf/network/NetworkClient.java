@@ -7,6 +7,7 @@ import com.esotericsoftware.kryonet.Listener;
 import ee.taltech.gandalf.network.listeners.game.*;
 import ee.taltech.gandalf.screens.ScreenController;
 import ee.taltech.gandalf.components.SpellTypes;
+import ee.taltech.gandalf.components.ItemTypes;
 import ee.taltech.gandalf.network.listeners.lobby.LobbyListener;
 import ee.taltech.gandalf.network.listeners.lobby.LobbyRoomListener;
 import ee.taltech.gandalf.network.messages.game.*;
@@ -28,6 +29,7 @@ public class NetworkClient {
     SpellListener fireballPositionListener;
     HealthAndManaListener healthAndManaListener;
     ItemListener itemListener;
+    MobListener mobListener;
     PlayZoneListener playZoneListener;
 
 
@@ -67,7 +69,7 @@ public class NetworkClient {
         kryo.register(StartGame.class);
         kryo.register(PlayZoneUpdate.class);
         kryo.register(KeyPress.class);
-        kryo.register(SpellTypes.class);
+        kryo.register(ItemTypes.class);
         kryo.register(MouseClicks.class);
         kryo.register(KeyPress.Action.class);
         kryo.register(Position.class);
@@ -78,8 +80,10 @@ public class NetworkClient {
         kryo.register(UpdateMana.class);
         kryo.register(ItemPickedUp.class);
         kryo.register(ItemDropped.class);
+        kryo.register(MobPosition.class);
+        kryo.register(UpdateMobHealth.class);
         kryo.addDefaultSerializer(KeyPress.Action.class, DefaultSerializers.EnumSerializer.class);
-        kryo.addDefaultSerializer(SpellTypes.class, DefaultSerializers.EnumSerializer.class);
+        kryo.addDefaultSerializer(ItemTypes.class, DefaultSerializers.EnumSerializer.class);
     }
 
     /**
@@ -88,7 +92,7 @@ public class NetworkClient {
     public void connect() {
         // Connect client with the server.
         try {
-            client.connect(5000, "localhost", 8080, 8081);
+            client.connect(5000, "193.40.255.34", 8080, 8081);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -147,6 +151,7 @@ public class NetworkClient {
         healthAndManaListener = new HealthAndManaListener(screenController);
         itemListener = new ItemListener(screenController);
         playZoneListener = new PlayZoneListener(screenController);
+        mobListener = new MobListener(screenController);
 
         // Add to listeners list so they can be removed later
         listeners.add(playerListener);
@@ -154,6 +159,7 @@ public class NetworkClient {
         listeners.add(healthAndManaListener);
         listeners.add(itemListener);
         listeners.add(playZoneListener);
+        listeners.add(mobListener);
 
         // Add listener to client so that messages can be listened to
         client.addListener(playerListener);
@@ -161,6 +167,7 @@ public class NetworkClient {
         client.addListener(healthAndManaListener);
         client.addListener(itemListener);
         client.addListener(playZoneListener);
+        client.addListener(mobListener);
         // Add here more game listeners
     }
 
