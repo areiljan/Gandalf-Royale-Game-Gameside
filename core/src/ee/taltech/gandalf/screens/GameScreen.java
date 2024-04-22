@@ -57,6 +57,8 @@ public class GameScreen extends ScreenAdapter {
 
     private static Texture fireballTexture;
     private static Texture fireballBook;
+    private static Texture pumpkin;
+    private static Texture coin;
     private static Texture pumpkinTexture;
 
     private static Integer pumpkinWidth;
@@ -109,7 +111,7 @@ public class GameScreen extends ScreenAdapter {
         items = startedGame.getItems();
         mobs = startedGame.getMobs();
 
-        hud = new Hud(camera, clientCharacter);
+        hud = new Hud(clientCharacter);
 
         shapeRenderer = new ShapeRenderer();
         debugRenderer = new Box2DDebugRenderer();
@@ -124,6 +126,8 @@ public class GameScreen extends ScreenAdapter {
         return switch (textureType) {
             case FIREBALL_BOOK -> fireballBook;
             case FIREBALL -> fireballTexture;
+            case PUMPKIN -> pumpkin;
+            case COIN -> coin;
             case PUMPKIN -> pumpkinTexture;
             default -> new Texture("wizard.png");
         };
@@ -139,6 +143,7 @@ public class GameScreen extends ScreenAdapter {
         otherPlayZoneTexture = new Texture("hugeNewZone.png");
         firstExpectedZoneTexture = new Texture("expected_zone.png");
         otherExpectedZoneTexture = new Texture("huge_expected_zone.png");
+        coin = new Texture("coin.png");
 
         // *------ PUMPKIN TEXTURE ------*
         pumpkinTexture = new Texture("pumpkin.png");
@@ -301,13 +306,12 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawItems() {
         for (Item item : items.values()) {
-            if (item.getType() == ItemTypes.FIREBALL) {
-                game.batch.begin();
-                game.batch.draw(fireballBook, item.getXPosition() - (float) fireballBook.getWidth() / 3,
-                        item.getYPosition() - (float) fireballBook.getHeight() / 3,
-                        30, 30);
-                game.batch.end();
-            }
+            game.batch.begin();
+            game.batch.draw(item.getTexture(),
+                    item.getXPosition() - item.getTextureWidth() / 2,
+                    item.getYPosition() - item.getTextureHeight() / 2,
+                    item.getTextureWidth(), item.getTextureHeight());
+            game.batch.end();
         }
     }
 
@@ -368,6 +372,7 @@ public class GameScreen extends ScreenAdapter {
      */
     @Override
     public void render(float delta) {
+        viewport.apply();
         ScreenUtils.clear(0, 0, 0, 0);
         viewport.apply();
         world.step(delta, 6, 2);
@@ -387,6 +392,7 @@ public class GameScreen extends ScreenAdapter {
         // Render game objects
         game.batch.begin();
         camera.zoom = 12f; // To render 4X bigger area than seen.
+        camera.zoom = 12f; // To render 3X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
         camera.zoom = 3f; // Reset the camera back to its original state.
@@ -409,6 +415,9 @@ public class GameScreen extends ScreenAdapter {
         }
 
         hud.draw();
+        debugRenderer.render(world, camera.combined);
+
+        hud.draw((int) delta);
     }
 
     /**

@@ -43,7 +43,7 @@ public class PlayerListener extends Listener {
                 }
                 break;
             case ActionTaken actionTaken:
-                PlayerCharacter player = gameScreen.startedGame.getGamePlayers().get(actionTaken.userID);
+                PlayerCharacter player = gameScreen.startedGame.getPlayer(actionTaken.userID);
                 if (player.playerID == actionTaken.userID) {
                     player.getPlayerAnimator().updateAction(actionTaken);
                 }

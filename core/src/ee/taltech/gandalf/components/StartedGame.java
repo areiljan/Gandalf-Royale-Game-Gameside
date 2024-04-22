@@ -74,6 +74,16 @@ public class StartedGame {
     }
 
     /**
+     * Get a player from game by their ID.
+     *
+     * @param playerId player's ID who is wanted
+     * @return player's character
+     */
+    public PlayerCharacter getPlayer(Integer playerId) {
+        return gamePlayers.get(playerId);
+    }
+
+    /**
      * Get dead players.
      *
      * @return deadPlayers
