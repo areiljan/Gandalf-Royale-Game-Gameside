@@ -239,7 +239,6 @@ public class PlayerCharacterAnimator {
             previousAction = false;
         }
 
-
         // updateAction is sent every frame.
         this.mouseXPosition = actionTaken.mouseX;
         this.mouseYPosition = actionTaken.mouseY;

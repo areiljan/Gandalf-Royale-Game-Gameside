@@ -29,6 +29,7 @@ public class NetworkClient {
     HealthAndManaListener healthAndManaListener;
     ItemListener itemListener;
     MobListener mobListener;
+    PlayZoneListener playZoneListener;
 
 
     /**
@@ -56,6 +57,7 @@ public class NetworkClient {
         // Add sendable data structures.
         Kryo kryo = client.getKryo();
         kryo.register(java.util.ArrayList.class);
+        kryo.register(PlayZoneCoordinates.class);
         kryo.register(Position.class);
         kryo.register(ActionTaken.class);
         kryo.register(Join.class);
@@ -64,6 +66,7 @@ public class NetworkClient {
         kryo.register(LobbyDismantle.class);
         kryo.register(GetLobbies.class);
         kryo.register(StartGame.class);
+        kryo.register(PlayZoneUpdate.class);
         kryo.register(KeyPress.class);
         kryo.register(ItemTypes.class);
         kryo.register(MouseClicks.class);
@@ -147,6 +150,7 @@ public class NetworkClient {
         fireballPositionListener = new SpellListener(screenController);
         healthAndManaListener = new HealthAndManaListener(screenController);
         itemListener = new ItemListener(screenController);
+        playZoneListener = new PlayZoneListener(screenController);
         mobListener = new MobListener(screenController);
 
         // Add to listeners list so they can be removed later
@@ -154,6 +158,7 @@ public class NetworkClient {
         listeners.add(fireballPositionListener);
         listeners.add(healthAndManaListener);
         listeners.add(itemListener);
+        listeners.add(playZoneListener);
         listeners.add(mobListener);
 
         // Add listener to client so that messages can be listened to
@@ -161,6 +166,7 @@ public class NetworkClient {
         client.addListener(fireballPositionListener);
         client.addListener(healthAndManaListener);
         client.addListener(itemListener);
+        client.addListener(playZoneListener);
         client.addListener(mobListener);
         // Add here more game listeners
     }

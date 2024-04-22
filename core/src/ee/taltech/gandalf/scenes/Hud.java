@@ -66,7 +66,7 @@ public class Hud {
         // *--------- SET UI POSITION ON THE SCREEN ---------*
         inventoryGroup.setPosition(0, viewport.getScreenHeight() - 32);
         coinCounterGroup.setPosition(0, 32);
-        timeCounterGroup.setPosition(viewport.getScreenWidth() - 32, viewport.getScreenHeight() - 32);
+        timeCounterGroup.setPosition(viewport.getScreenWidth() - 100, viewport.getScreenHeight() - 32);
 
         // *--------- ADD UI TO STAGE ---------*
         stage.addActor(inventoryGroup);
@@ -198,7 +198,7 @@ public class Hud {
         // Update group positions in new viewport
         inventoryGroup.setPosition(0, viewport.getScreenHeight() - 32);
         coinCounterGroup.setPosition(0, 32);
-        timeCounterGroup.setPosition(viewport.getScreenWidth() - 32, viewport.getScreenHeight() - 32);
+        timeCounterGroup.setPosition(viewport.getScreenWidth() - 100, viewport.getScreenHeight() - 32);
     }
 
     /**

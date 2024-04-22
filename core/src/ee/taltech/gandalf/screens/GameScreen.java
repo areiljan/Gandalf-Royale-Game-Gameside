@@ -2,6 +2,7 @@ package ee.taltech.gandalf.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -31,6 +32,8 @@ import java.util.Map;
 
 public class GameScreen extends ScreenAdapter {
 
+    private static Texture otherPlayZoneTexture;
+    private static Texture otherExpectedZoneTexture;
     private final World world;
     GandalfRoyale game;
     NetworkClient nc;
@@ -55,17 +58,26 @@ public class GameScreen extends ScreenAdapter {
     private static Texture fireballTexture;
     private static Texture fireballBook;
     private static Texture pumpkin;
-    private static Texture coin;
+    private static Texture coinTexture;
+    private static Texture pumpkinTexture;
 
     private static Integer pumpkinWidth;
     private static Integer pumpkinHeight;
 
+    private static Texture firstPlayZoneTexture;
+    private static Texture firstExpectedZoneTexture;
     private float elapsedTime;
     private float animationTime;
     private final ShapeRenderer shapeRenderer;
 
     private final Box2DDebugRenderer debugRenderer; // For debugging
     private TextureRegion currentFrame;
+    private PlayZone playZone;
+    private Integer currentTime;
+
+    public Hud getHud() {
+        return hud;
+    }
 
     /**
      * Construct GameScreen.
@@ -107,17 +119,11 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
-     * Set all textures.
+     * CurrentTime setter.
+     * @param currentTime - set current time.
      */
-    private static void setTextures() {
-        fireballBook = new Texture("fireball_book.png");
-        fireballTexture = new Texture("spell1_Fireball.png");
-        coin = new Texture("coin.png");
-
-        // *------ PUMPKIN TEXTURE ------*
-        pumpkin = new Texture("pumpkin.png");
-        pumpkinWidth = pumpkin.getWidth() + 5;
-        pumpkinHeight = pumpkin.getHeight() + 5;
+    public void setCurrentTime(int currentTime) {
+        this.currentTime = currentTime;
     }
 
     /**
@@ -129,10 +135,30 @@ public class GameScreen extends ScreenAdapter {
         return switch (textureType) {
             case FIREBALL_BOOK -> fireballBook;
             case FIREBALL -> fireballTexture;
-            case PUMPKIN -> pumpkin;
-            case COIN -> coin;
+            case COIN -> coinTexture;
+            case PUMPKIN -> pumpkinTexture;
             default -> new Texture("wizard.png");
         };
+    }
+
+    /**
+     * Set all textures.
+     */
+    private static void setTextures() {
+        coinTexture = new Texture("coin.png");
+        fireballBook = new Texture("fireball_book.png");
+        fireballTexture = new Texture("spell1_Fireball.png");
+
+        // *------ PLAYZONE TEXTURES ------*
+        firstPlayZoneTexture = new Texture("safezone.png");
+        otherPlayZoneTexture = new Texture("hugeNewZone.png");
+        firstExpectedZoneTexture = new Texture("expected_zone.png");
+        otherExpectedZoneTexture = new Texture("huge_expected_zone.png");
+
+        // *------ PUMPKIN TEXTURE ------*
+        pumpkinTexture = new Texture("pumpkin.png");
+        pumpkinWidth = pumpkinTexture.getWidth() + 5;
+        pumpkinHeight = pumpkinTexture.getHeight() + 5;
     }
 
     /**
@@ -142,7 +168,8 @@ public class GameScreen extends ScreenAdapter {
     public static Texture getWizardTexture(int userID) {
         // Choose one of the spritesheets for the character
         String filename = "wizardTexture" + userID % 10 + ".png";
-        return new Texture(filename);
+        FileHandle fileHandle = Gdx.files.internal("wizards/" + filename);
+        return new Texture(fileHandle);
     }
 
     /**
@@ -230,6 +257,36 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * Draw PlayZone.
+     */
+    private void drawPlayZone() {
+        playZone = startedGame.getPlayZone();
+        int stage = playZone.getStage();
+        game.batch.begin();
+        if (stage == 1) {
+            game.batch.draw(firstExpectedZoneTexture, playZone.firstPlayZoneX() - 6000, playZone.firstPlayZoneY() - 6000, 12000, 12000);
+        }
+        if (stage == 2 || stage == 3) {
+            game.batch.draw(firstPlayZoneTexture, playZone.firstPlayZoneX() - 6000, playZone.firstPlayZoneY() - 6000, 12000, 12000);
+        }
+        if (stage == 3) {
+            game.batch.draw(otherExpectedZoneTexture, playZone.secondPlayZoneX() - 19200, playZone.secondPlayZoneY() - 19200, 38400, 38400);
+        }
+        if (stage == 4 || stage == 5) {
+            // size is map times 4
+            game.batch.draw(otherPlayZoneTexture, playZone.secondPlayZoneX() - 19200, playZone.secondPlayZoneY() - 19200, 38400, 38400);
+        }
+        if (stage == 5) {
+            game.batch.draw(otherExpectedZoneTexture, playZone.thirdPlayZoneX() - 7350, playZone.thirdPlayZoneY() - 7350, 14700, 14700);
+        }
+        if (stage >= 6) {
+            game.batch.draw(otherPlayZoneTexture, playZone.thirdPlayZoneX() - 7350, playZone.thirdPlayZoneY() - 7350, 14700, 14700);
+        }
+
+        game.batch.end();
+    }
+
+    /**
      * Draw spells.
      */
     private void drawSpells() {
@@ -275,7 +332,7 @@ public class GameScreen extends ScreenAdapter {
         for (Mob mob : mobs.values()) {
             // *-------------- MOB ASSET --------------*
             game.batch.begin();
-            game.batch.draw(pumpkin,
+            game.batch.draw(pumpkinTexture,
                     mob.getXPosition() - (float) pumpkinWidth / 2,
                     mob.getYPosition() - (float) pumpkinHeight / 2,
                     pumpkinWidth, pumpkinHeight);
@@ -327,6 +384,7 @@ public class GameScreen extends ScreenAdapter {
     public void render(float delta) {
         viewport.apply();
         ScreenUtils.clear(0, 0, 0, 0);
+        viewport.apply();
         world.step(delta, 6, 2);
         startedGame.update(delta);
 
@@ -340,8 +398,10 @@ public class GameScreen extends ScreenAdapter {
         // Set camera projection matrix
         game.batch.setProjectionMatrix(camera.combined);
 
+
         // Render game objects
         game.batch.begin();
+        camera.zoom = 12f; // To render 4X bigger area than seen.
         camera.zoom = 12f; // To render 3X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
@@ -353,11 +413,20 @@ public class GameScreen extends ScreenAdapter {
         if (!spells.isEmpty()) {
             drawSpells(); // Draw spells.
         }
-        drawItems();
 
         debugRenderer.render(world, camera.combined);
 
-        hud.draw((int) delta);
+        drawItems();
+
+        if (startedGame.getPlayZone() != null) {
+            drawPlayZone();
+        } else {
+            playZone = startedGame.getPlayZone();
+        }
+
+        debugRenderer.render(world, camera.combined);
+
+        hud.draw(currentTime);
     }
 
     /**

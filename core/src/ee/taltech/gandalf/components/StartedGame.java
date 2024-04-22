@@ -6,8 +6,8 @@ import ee.taltech.gandalf.entities.Item;
 import ee.taltech.gandalf.entities.Mob;
 import ee.taltech.gandalf.entities.PlayerCharacterAnimator;
 import ee.taltech.gandalf.entities.Spell;
+import ee.taltech.gandalf.entities.*;
 import ee.taltech.gandalf.network.messages.game.Position;
-import ee.taltech.gandalf.entities.PlayerCharacter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +25,7 @@ public class StartedGame {
     private final Map<Integer, Spell> spells;
     private final Map<Integer, Item> items;
     private final Map<Integer, Mob> mobs;
+    private PlayZone playZone;
 
     /**
      * Construct StartGame.
@@ -43,6 +44,24 @@ public class StartedGame {
         spells = new HashMap<>();
         items = new HashMap<>();
         mobs = new HashMap<>();
+        this.playZone = null;
+    }
+
+    /**
+     * Initialize the PlayZone.
+     */
+    public void initializePlayZone(int firstPlayZoneX, int firstPlayZoneY,
+                                   int secondPlayZoneX, int secondPlayZoneY,
+                                   int thirdPlayZoneX, int thirdPlayZoneY) {
+        this.playZone = new PlayZone(firstPlayZoneX, firstPlayZoneY, secondPlayZoneX,secondPlayZoneY, thirdPlayZoneX, thirdPlayZoneY);
+
+    }
+
+    /**
+     * Get the PlayZone.
+     */
+    public PlayZone getPlayZone() {
+        return playZone;
     }
 
     /**
