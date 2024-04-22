@@ -58,7 +58,7 @@ public class GameScreen extends ScreenAdapter {
     private static Texture fireballTexture;
     private static Texture fireballBook;
     private static Texture pumpkin;
-    private static Texture coin;
+    private static Texture coinTexture;
     private static Texture pumpkinTexture;
 
     private static Integer pumpkinWidth;
@@ -73,6 +73,7 @@ public class GameScreen extends ScreenAdapter {
     private final Box2DDebugRenderer debugRenderer; // For debugging
     private TextureRegion currentFrame;
     private PlayZone playZone;
+    private Integer currentTime;
 
     public Hud getHud() {
         return hud;
@@ -118,6 +119,14 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * CurrentTime setter.
+     * @param currentTime - set current time.
+     */
+    public void setCurrentTime(int currentTime) {
+        this.currentTime = currentTime;
+    }
+
+    /**
      * Get any texture.
      * Give the appropriate type upon calling this method to get the right texture.
      * @return fireballBook
@@ -126,8 +135,7 @@ public class GameScreen extends ScreenAdapter {
         return switch (textureType) {
             case FIREBALL_BOOK -> fireballBook;
             case FIREBALL -> fireballTexture;
-            case PUMPKIN -> pumpkin;
-            case COIN -> coin;
+            case COIN -> coinTexture;
             case PUMPKIN -> pumpkinTexture;
             default -> new Texture("wizard.png");
         };
@@ -137,13 +145,15 @@ public class GameScreen extends ScreenAdapter {
      * Set all textures.
      */
     private static void setTextures() {
+        coinTexture = new Texture("coin.png");
         fireballBook = new Texture("fireball_book.png");
         fireballTexture = new Texture("spell1_Fireball.png");
+
+        // *------ PLAYZONE TEXTURES ------*
         firstPlayZoneTexture = new Texture("safezone.png");
         otherPlayZoneTexture = new Texture("hugeNewZone.png");
         firstExpectedZoneTexture = new Texture("expected_zone.png");
         otherExpectedZoneTexture = new Texture("huge_expected_zone.png");
-        coin = new Texture("coin.png");
 
         // *------ PUMPKIN TEXTURE ------*
         pumpkinTexture = new Texture("pumpkin.png");
@@ -267,10 +277,10 @@ public class GameScreen extends ScreenAdapter {
             game.batch.draw(otherPlayZoneTexture, playZone.secondPlayZoneX() - 19200, playZone.secondPlayZoneY() - 19200, 38400, 38400);
         }
         if (stage == 5) {
-            game.batch.draw(otherExpectedZoneTexture, playZone.thirdPlayZoneX() - 7500, playZone.thirdPlayZoneY() - 7700, 15000, 15000);
+            game.batch.draw(otherExpectedZoneTexture, playZone.thirdPlayZoneX() - 7350, playZone.thirdPlayZoneY() - 7350, 14700, 14700);
         }
         if (stage >= 6) {
-            game.batch.draw(otherPlayZoneTexture, playZone.thirdPlayZoneX() - 7500, playZone.thirdPlayZoneY() - 7700, 15000, 15000);
+            game.batch.draw(otherPlayZoneTexture, playZone.thirdPlayZoneX() - 7350, playZone.thirdPlayZoneY() - 7350, 14700, 14700);
         }
 
         game.batch.end();
@@ -414,10 +424,9 @@ public class GameScreen extends ScreenAdapter {
             playZone = startedGame.getPlayZone();
         }
 
-        hud.draw();
         debugRenderer.render(world, camera.combined);
 
-        hud.draw((int) delta);
+        hud.draw(currentTime);
     }
 
     /**

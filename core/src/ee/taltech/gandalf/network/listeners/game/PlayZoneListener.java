@@ -9,6 +9,7 @@ import ee.taltech.gandalf.screens.ScreenController;
 
 public class PlayZoneListener extends Listener {
     private ScreenController screenController;
+
     /**
      * Construct PlayZoneListener.
      *
@@ -33,10 +34,10 @@ public class PlayZoneListener extends Listener {
                 gameScreen.startedGame.initializePlayZone(playZoneCoordinates.firstPlayZoneX,
                         playZoneCoordinates.firstPlayZoneY, playZoneCoordinates.secondPlayZoneX,
                         playZoneCoordinates.secondPlayZoneY, playZoneCoordinates.thirdPlayZoneX,
-                        playZoneCoordinates.firstPlayZoneY);
+                        playZoneCoordinates.thirdPlayZoneY);
                 break;
             case PlayZoneUpdate playZoneUpdate: // playZoneUpdate message
-                gameScreen.getHud().setCurrentTime(playZoneUpdate.timer);
+                gameScreen.setCurrentTime(playZoneUpdate.timer);
                 if (gameScreen.startedGame.getPlayZone() != null) {
                     gameScreen.startedGame.getPlayZone().updateZone(playZoneUpdate.stage);
                 }

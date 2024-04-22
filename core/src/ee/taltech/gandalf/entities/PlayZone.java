@@ -24,7 +24,7 @@ public class PlayZone {
                     int secondPlayZoneX, int secondPlayZoneY,
                     int thirdPlayZoneX, int thirdPlayZoneY) {
         this.timer = 0;
-        this.stage = 1;
+        this.stage = 0;
         this.firstPlayZoneX = firstPlayZoneX;
         this.firstPlayZoneY = firstPlayZoneY;
         this.secondPlayZoneX = secondPlayZoneX;
@@ -90,7 +90,7 @@ public class PlayZone {
             if (stage == 1) {
                 System.out.println("-----------------------PHASE ONE------------------------");
                 System.out.println("coordinates x: " + firstPlayZoneX + " y: " + firstPlayZoneY);
-                System.out.println("You have 30 seconds");
+                System.out.println("You have 60 seconds");
                 System.out.println("--------------------------------------------------------");
             } else if (stage == 2) {
                 System.out.println("FIRST ZONE SPAWNED");
@@ -98,14 +98,14 @@ public class PlayZone {
                 System.out.println("-----------------------PHASE TWO------------------------");
                 ;
                 System.out.println("coordinates x: " + secondPlayZoneX + " y: " + secondPlayZoneY);
-                System.out.println("You have 30 seconds");
+                System.out.println("You have 60 seconds");
                 System.out.println("--------------------------------------------------------");
             } else if (stage == 4) {
                 System.out.println("SECOND ZONE SPAWNED");
             } else if (stage == 5) {
                 System.out.println("---------------------PHASE THREE------------------------");;
                 System.out.println("coordinates x: " + thirdPlayZoneX + " y: " + thirdPlayZoneY);
-                System.out.println("You have 30 seconds");
+                System.out.println("You have 60 seconds");
                 System.out.println("--------------------------------------------------------");
             } else if (stage == 6) {
                 System.out.println("THIRD ZONE SPAWNED");
