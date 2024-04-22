@@ -92,7 +92,7 @@ public class NetworkClient {
     public void connect() {
         // Connect client with the server.
         try {
-            client.connect(5000, "localhost", 8080, 8081);
+            client.connect(5000, "193.40.255.34", 8080, 8081);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
