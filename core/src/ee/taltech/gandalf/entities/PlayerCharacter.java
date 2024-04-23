@@ -176,14 +176,14 @@ public class PlayerCharacter {
     }
 
     /**
-     * Drop item.
+     * Remove item.
      *
-     * @param droppedItemsId ID of the item that is dropped
-     * @return droppedItem
+     * @param itemsId ID of the item that is removed
+     * @return removed item
      */
-    public Item dropItem(Integer droppedItemsId) {
+    public Item removeItem(Integer itemsId) {
         for (Item item : inventory) {
-            if (!Objects.equals(item, null) && Objects.equals(item.getId(), droppedItemsId)) { // Find correct item
+            if (!Objects.equals(item, null) && Objects.equals(item.getId(), itemsId)) { // Find correct item
                 int itemsIndex = inventory.indexOf(item); // Get items index
                 inventory.remove(item); // Remove item from inventory
                 inventory.add(itemsIndex, null); // Put null in the empty spot

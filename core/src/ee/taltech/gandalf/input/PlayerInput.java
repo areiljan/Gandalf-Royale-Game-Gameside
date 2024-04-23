@@ -161,9 +161,15 @@ public class PlayerInput implements InputProcessor {
             } else {
                 type = ItemTypes.NOTHING;
             }
-
-            mouse = new MouseClicks(type, true,
+            if (type == ItemTypes.HEALING_POTION) {
+                mouse = new MouseClicks(type, true,
+                        relativeMousePosition.x,
+                        relativeMousePosition.y + 80,
+                        playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId());
+            } else {
+                mouse = new MouseClicks(type, true,
                     relativeMousePosition.x, relativeMousePosition.y + 80);
+            }
             // The mouse Y positions should be at the characters head.
             game.nc.sendUDP(mouse);
         }

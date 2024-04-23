@@ -2,7 +2,6 @@ package ee.taltech.gandalf.entities;
 
 import com.badlogic.gdx.graphics.Texture;
 import ee.taltech.gandalf.components.ItemTypes;
-import com.badlogic.gdx.physics.box2d.*;
 import ee.taltech.gandalf.components.TextureType;
 import ee.taltech.gandalf.screens.GameScreen;
 
@@ -16,8 +15,6 @@ public class Item {
     private final Texture texture;
     private float textureWidth;
     private float textureHeight;
-
-    private Body body;
 
     /**
      * Construct Item that is in the inventory and does not need coordinates.
@@ -138,12 +135,16 @@ public class Item {
         if (type == ItemTypes.FIREBALL) {
             // Get texture from game screen because then OpenGL does not give error
             itemsTexture = GameScreen.getTexture(TextureType.FIREBALL_BOOK);
-            textureHeight = (float) itemsTexture.getHeight() / 2.5f;
-            textureWidth = (float) itemsTexture.getWidth() / 2.5f;
+            textureHeight = itemsTexture.getHeight() / 2.5f;
+            textureWidth = itemsTexture.getWidth() / 2.5f;
         } else if (type == ItemTypes.COIN) {
             itemsTexture = GameScreen.getTexture(TextureType.COIN);
-            textureHeight = (float) itemsTexture.getHeight() / 2;
-            textureWidth = (float) itemsTexture.getWidth() / 2;
+            textureHeight = itemsTexture.getHeight() / 2f;
+            textureWidth = itemsTexture.getWidth() / 2f;
+        } else if (type == ItemTypes.HEALING_POTION) {
+            itemsTexture = GameScreen.getTexture(TextureType.HEALING_POTION);
+            textureHeight = itemsTexture.getHeight();
+            textureWidth = itemsTexture.getWidth();
         }
         return itemsTexture;
     }

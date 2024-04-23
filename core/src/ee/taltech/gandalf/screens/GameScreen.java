@@ -17,14 +17,11 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
-import ee.taltech.gandalf.components.TextureType;
+import ee.taltech.gandalf.components.*;
 import ee.taltech.gandalf.entities.*;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
-import ee.taltech.gandalf.components.StartedGame;
 import ee.taltech.gandalf.network.NetworkClient;
 import ee.taltech.gandalf.input.PlayerInput;
-import ee.taltech.gandalf.components.ItemTypes;
-import ee.taltech.gandalf.components.Lobby;
 import ee.taltech.gandalf.scenes.Hud;
 import ee.taltech.gandalf.world.WorldCollision;
 
@@ -32,8 +29,6 @@ import java.util.Map;
 
 public class GameScreen extends ScreenAdapter {
 
-    private static Texture otherPlayZoneTexture;
-    private static Texture otherExpectedZoneTexture;
     private final World world;
     GandalfRoyale game;
     NetworkClient nc;
@@ -54,12 +49,13 @@ public class GameScreen extends ScreenAdapter {
     private final TmxMapLoader mapLoader;
     private final TiledMap map;
 
-
+    private static Texture otherPlayZoneTexture;
+    private static Texture otherExpectedZoneTexture;
     private static Texture fireballTexture;
     private static Texture fireballBook;
-    private static Texture pumpkin;
     private static Texture coinTexture;
     private static Texture pumpkinTexture;
+    private static Texture healingPotionTexture;
 
     private static Integer pumpkinWidth;
     private static Integer pumpkinHeight;
@@ -74,10 +70,6 @@ public class GameScreen extends ScreenAdapter {
     private TextureRegion currentFrame;
     private PlayZone playZone;
     private Integer currentTime;
-
-    public Hud getHud() {
-        return hud;
-    }
 
     /**
      * Construct GameScreen.
@@ -137,6 +129,7 @@ public class GameScreen extends ScreenAdapter {
             case FIREBALL -> fireballTexture;
             case COIN -> coinTexture;
             case PUMPKIN -> pumpkinTexture;
+            case HEALING_POTION -> healingPotionTexture;
             default -> new Texture("wizard.png");
         };
     }
@@ -145,18 +138,26 @@ public class GameScreen extends ScreenAdapter {
      * Set all textures.
      */
     private static void setTextures() {
-        coinTexture = new Texture("coin.png");
-        fireballBook = new Texture("fireball_book.png");
-        fireballTexture = new Texture("spell1_Fireball.png");
+        // *------ BOOK TEXTURES ------*
+        fireballBook = new Texture("Spells/Fireball/fireball_book.png");
 
-        // *------ PLAYZONE TEXTURES ------*
-        firstPlayZoneTexture = new Texture("safezone.png");
-        otherPlayZoneTexture = new Texture("hugeNewZone.png");
-        firstExpectedZoneTexture = new Texture("expected_zone.png");
-        otherExpectedZoneTexture = new Texture("huge_expected_zone.png");
+        // *------ SPELL TEXTURES ------*
+        fireballTexture = new Texture("Spells/Fireball/spell1_Fireball.png");
+
+        // *------ HEALING POTION TEXTURES ------*
+        healingPotionTexture = new Texture("Potion/potion.png");
+
+        // *------ COIN TEXTURE ------*
+        coinTexture = new Texture("Coin/coin.png");
+
+        // *------ PLAY ZONE TEXTURES ------*
+        firstExpectedZoneTexture = new Texture("Zone/expected_zone.png");
+        otherExpectedZoneTexture = new Texture("Zone/huge_expected_zone.png");
+        otherPlayZoneTexture = new Texture("Zone/hugeNewZone.png");
+        firstPlayZoneTexture = new Texture("Zone/safezone.png");
 
         // *------ PUMPKIN TEXTURE ------*
-        pumpkinTexture = new Texture("pumpkin.png");
+        pumpkinTexture = new Texture("Pumpkin/pumpkin.png");
         pumpkinWidth = pumpkinTexture.getWidth() + 5;
         pumpkinHeight = pumpkinTexture.getHeight() + 5;
     }
@@ -168,7 +169,7 @@ public class GameScreen extends ScreenAdapter {
     public static Texture getWizardTexture(int userID) {
         // Choose one of the spritesheets for the character
         String filename = "wizardTexture" + userID % 10 + ".png";
-        FileHandle fileHandle = Gdx.files.internal("wizards/" + filename);
+        FileHandle fileHandle = Gdx.files.internal("Wizards/" + filename);
         return new Texture(fileHandle);
     }
 
@@ -402,7 +403,6 @@ public class GameScreen extends ScreenAdapter {
         // Render game objects
         game.batch.begin();
         camera.zoom = 12f; // To render 4X bigger area than seen.
-        camera.zoom = 12f; // To render 3X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
         camera.zoom = 3f; // Reset the camera back to its original state.

@@ -157,7 +157,7 @@ public class PlayerCharacterAnimator {
      * Initialized upon character creation.
      */
     private void createAnimations() {
-        // Define frames in the spritesheet
+        // Define frames in the sprite sheet
         TextureRegion[][] frames = TextureRegion.split(characterTexture, 64, 64);
 
         // Convert 2D array to 1D array
@@ -247,23 +247,5 @@ public class PlayerCharacterAnimator {
         } else {
             lookRight = false;
         }
-    }
-
-    /**
-     * Set the player animation based on the movement and actions.
-     */
-    public void setAnimation() {
-        // Define frames in the spritesheet
-        TextureRegion[][] frames = TextureRegion.split(spriteSheet, 64, 64);
-
-        // Convert 2D array to 1D array
-        TextureRegion[] animationFrames = new TextureRegion[36];
-        int index = 0;
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 6; j++) {
-                animationFrames[index++] = frames[i][j];
-            }
-        }
-
     }
 }
