@@ -1,14 +1,13 @@
-package ee.taltech.gandalf.entities;
+package ee.taltech.gandalf.components;
 
 public class PlayZone {
-    private int timer;
     private int stage;
-    private int firstPlayZoneX;
-    private int firstPlayZoneY;
-    private int secondPlayZoneX;
-    private int secondPlayZoneY;
-    private int thirdPlayZoneX;
-    private int thirdPlayZoneY;
+    private final int firstPlayZoneX;
+    private final int firstPlayZoneY;
+    private final int secondPlayZoneX;
+    private final int secondPlayZoneY;
+    private final int thirdPlayZoneX;
+    private final int thirdPlayZoneY;
 
     /**
      * PlayZone constructor.
@@ -23,7 +22,6 @@ public class PlayZone {
     public PlayZone(int firstPlayZoneX, int firstPlayZoneY,
                     int secondPlayZoneX, int secondPlayZoneY,
                     int thirdPlayZoneX, int thirdPlayZoneY) {
-        this.timer = 0;
         this.stage = 0;
         this.firstPlayZoneX = firstPlayZoneX;
         this.firstPlayZoneY = firstPlayZoneY;

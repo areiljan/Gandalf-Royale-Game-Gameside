@@ -11,13 +11,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import ee.taltech.gandalf.entities.Item;
 import ee.taltech.gandalf.entities.PlayerCharacter;
+
+import javax.swing.*;
 
 public class Hud {
 
-    private static final Texture ACTIVE_INVENTORY = new Texture("ActiveInventorySlot.png");
-    private static final Texture INACTIVE_INVENTORY = new Texture("NotActiveInventorySlot.png");
-    private static final Texture COIN = new Texture("coin.png");
+    private static final Texture ACTIVE_INVENTORY = new Texture("Hud/ActiveInventorySlot.png");
+    private static final Texture INACTIVE_INVENTORY = new Texture("Hud/NotActiveInventorySlot.png");
+    private static final Texture COIN = new Texture("Coin/coin.png");
 
     private final PlayerCharacter player;
     private final Viewport viewport;
@@ -152,9 +155,10 @@ public class Hud {
      * @return items drawable or null if there is no item in that slot
      */
     private Drawable drawItem(int i) {
-        Texture itemTexture = null;
+        Texture itemTexture;
         if (player.getInventory().get(i) != null) { // Get items texture if item exists
-            itemTexture = player.getInventory().get(i).getTexture();
+            Item item = player.getInventory().get(i);
+            itemTexture = item.getTexture();
             return new TextureRegionDrawable(new TextureRegion(itemTexture));
         }
         return null; // Return null if there is no item in that slot

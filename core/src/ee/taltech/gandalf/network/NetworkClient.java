@@ -79,6 +79,7 @@ public class NetworkClient {
         kryo.register(UpdateMana.class);
         kryo.register(ItemPickedUp.class);
         kryo.register(CoinPickedUp.class);
+        kryo.register(HealingPotionUsed.class);
         kryo.register(ItemDropped.class);
         kryo.register(MobPosition.class);
         kryo.register(UpdateMobHealth.class);
