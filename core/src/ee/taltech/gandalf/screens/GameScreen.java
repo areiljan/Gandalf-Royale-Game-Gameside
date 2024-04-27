@@ -87,6 +87,8 @@ public class GameScreen extends ScreenAdapter {
         this.nc = game.nc;
 
         setTextures();
+        pumpkinWidth = 50;
+        pumpkinHeight = 50;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
@@ -337,18 +339,16 @@ public class GameScreen extends ScreenAdapter {
                 int distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.xPosition - mob.getXPosition(), 2)
                         + Math.pow(playerCharacter.yPosition - mob.getYPosition(), 2));
                 if (distanceFromPlayer < 50) {
-                    currentMobFrame = mob.getMobAnimator().attackAnimation().getKeyFrame(elapsedTime);
+                    currentMobFrame = mob.getMobAnimator().attackAnimation().getKeyFrame(elapsedTime, true);
                 } else {
-                    currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime);
+                    currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime, true);
                 }
 
             }
             // *-------------- MOB ASSET --------------*
             game.batch.begin();
-            game.batch.draw(currentMobFrame,
-                    mob.getXPosition() - (float) pumpkinWidth / 2,
-                    mob.getYPosition() - (float) pumpkinHeight / 2,
-                    pumpkinWidth, pumpkinHeight);
+            game.batch.draw(currentMobFrame, (float) mob.getXPosition(),
+                    (float) mob.getXPosition(), 100, 100);
             game.batch.end();
 
             // *-------------- MOB HEATH BAR --------------*

@@ -66,25 +66,21 @@ public class MobAnimator {
      */
     private void createAnimations() {
         // Define frames in the sprite sheet
-        TextureRegion[][] movementFrames2d = TextureRegion.split(pumpkinMovementTexture, 25, 29);
-        TextureRegion[][] attackFrames2d = TextureRegion.split(pumpkinAttackTexture, 25, 29);
+        TextureRegion[][] movementFrames2d = TextureRegion.split(pumpkinMovementTexture, 25, 30);
+        TextureRegion[][] attackFrames2d = TextureRegion.split(pumpkinAttackTexture, 28, 30);
 
-        // Convert 2D array to 1D array
-        TextureRegion[] movementFrames = new TextureRegion[7];
-        TextureRegion[] flippedMovementFrames = new TextureRegion[7];
-
-        TextureRegion[] attackFrames = new TextureRegion[4];
-        TextureRegion[] flippedAttackFrames = new TextureRegion[4];
-
-        System.arraycopy(movementFrames2d, 0, movementFrames, 0, 7);
-        System.arraycopy(attackFrames2d, 0, attackFrames, 0, 4);
-
-
+        // Convert 2D array to 1D array for movementFrames
+        TextureRegion[] movementFrames = movementFrames2d[0];
+        TextureRegion[] flippedMovementFrames = new TextureRegion[movementFrames.length];
         for (int i = 0; i < movementFrames.length; i++) {
             // Flip frames for movement animation
             flippedMovementFrames[i] = new TextureRegion(movementFrames[i]);
             flippedMovementFrames[i].flip(true, false);
         }
+
+        // Convert 2D array to 1D array for attackFrames
+        TextureRegion[] attackFrames = attackFrames2d[0];
+        TextureRegion[] flippedAttackFrames = new TextureRegion[attackFrames.length];
         for (int i = 0; i < attackFrames.length; i++) {
             // Flip frames for action animation
             flippedAttackFrames[i] = new TextureRegion(attackFrames[i]);
