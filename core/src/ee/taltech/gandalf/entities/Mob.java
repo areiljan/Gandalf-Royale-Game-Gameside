@@ -4,8 +4,12 @@ package ee.taltech.gandalf.entities;
 public class Mob {
     private float xPosition;
     private float yPosition;
+    private float LastXPosition;
     private final Integer id;
     private Integer health;
+
+
+    private boolean lookRight;
 
     /**
      * Construct Mob.
@@ -18,6 +22,8 @@ public class Mob {
         this.xPosition = x;
         this.yPosition = y;
         this.id = id;
+        this.lookRight = true;
+        this.mobAnimator = new MobAnimator(this, id);
     }
 
     /**
@@ -68,11 +74,26 @@ public class Mob {
     /**
      * Set mob's position.
      *
-     * @param xPosition new x position
-     * @param yPosition new y position
+     * @param xNewPosition new x position
+     * @param yNewPosition new y position
      */
-    public void setPosition(float xPosition, float yPosition) {
-        this.xPosition = xPosition;
-        this.yPosition = yPosition;
+    public void setPosition(float xNewPosition, float yNewPosition) {
+        this.LastXPosition = this.xPosition;
+        this.xPosition = xNewPosition;
+        this.yPosition = yNewPosition;
+
+        if (LastXPosition > xPosition) {
+            lookRight = false;
+        } else {
+            lookRight = true;
+        }
+    }
+
+    /**
+     * Facing direction used in MobAnimator.
+     * @return - boolean of lookRight.
+     */
+    public boolean lookRight() {
+        return lookRight;
     }
 }

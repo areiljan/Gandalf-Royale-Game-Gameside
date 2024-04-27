@@ -8,5 +8,7 @@ public enum TextureType {
     FIREBALL,
     PUMPKIN,
     COIN,
-    HEALING_POTION
+    HEALING_POTION,
+    PUMPKINATTACK,
+    PUMPKINWALK
 }
