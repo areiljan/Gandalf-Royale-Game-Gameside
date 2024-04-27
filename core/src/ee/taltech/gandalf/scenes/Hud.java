@@ -20,7 +20,7 @@ public class Hud {
 
     private static final Texture ACTIVE_INVENTORY = new Texture("Hud/ActiveInventorySlot.png");
     private static final Texture INACTIVE_INVENTORY = new Texture("Hud/NotActiveInventorySlot.png");
-    private static final Texture COIN = new Texture("Coin/Coin_rotating.png");
+    private static final Texture COIN = new Texture("Coin/coin.png");
 
     private final PlayerCharacter player;
     private final Viewport viewport;

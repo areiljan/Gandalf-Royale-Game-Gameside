@@ -153,7 +153,7 @@ public class GameScreen extends ScreenAdapter {
         healingPotionTexture = new Texture("Potion/potion.png");
 
         // *------ COIN TEXTURE ------*
-        coinTexture = new Texture("Coin/Coin_rotating.png");
+        coinTexture = new Texture("Coin/coin.png");
 
         // *------ PLAY ZONE TEXTURES ------*
         firstExpectedZoneTexture = new Texture("Zone/expected_zone.png");
