@@ -151,7 +151,7 @@ public class GameScreen extends ScreenAdapter {
         healingPotionTexture = new Texture("Potion/potion.png");
 
         // *------ COIN TEXTURE ------*
-        coinTexture = new Texture("Coin/coin.png");
+        coinTexture = new Texture("Coin/Coin_rotating.png");
 
         // *------ PLAY ZONE TEXTURES ------*
         firstExpectedZoneTexture = new Texture("Zone/expected_zone.png");
@@ -337,15 +337,18 @@ public class GameScreen extends ScreenAdapter {
                 int distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.xPosition - mob.getXPosition(), 2)
                         + Math.pow(playerCharacter.yPosition - mob.getYPosition(), 2));
                 if (distanceFromPlayer < 50) {
-                    currentMobFrame = mob.get
+                    currentMobFrame = mob.getMobAnimator().attackAnimation().getKeyFrame(elapsedTime);
+                } else {
+                    currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime);
                 }
+
             }
             // *-------------- MOB ASSET --------------*
             game.batch.begin();
-//            game.batch.draw(pumpkinTexture,
-//                    mob.getXPosition() - (float) pumpkinWidth / 2,
-//                    mob.getYPosition() - (float) pumpkinHeight / 2,
-//                    pumpkinWidth, pumpkinHeight);
+            game.batch.draw(currentMobFrame,
+                    mob.getXPosition() - (float) pumpkinWidth / 2,
+                    mob.getYPosition() - (float) pumpkinHeight / 2,
+                    pumpkinWidth, pumpkinHeight);
             game.batch.end();
 
             // *-------------- MOB HEATH BAR --------------*

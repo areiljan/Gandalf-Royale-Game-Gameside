@@ -7,9 +7,9 @@ public class Mob {
     private float LastXPosition;
     private final Integer id;
     private Integer health;
-
-
+    private final MobAnimator mobAnimator;
     private boolean lookRight;
+
 
     /**
      * Construct Mob.
@@ -24,6 +24,14 @@ public class Mob {
         this.id = id;
         this.lookRight = true;
         this.mobAnimator = new MobAnimator(this, id);
+    }
+
+    /**
+     * mobAnimator getter.
+     * @return - mobAnimator.
+     */
+    public MobAnimator getMobAnimator() {
+        return mobAnimator;
     }
 
     /**
