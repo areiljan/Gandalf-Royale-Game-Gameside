@@ -6,6 +6,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -54,7 +55,8 @@ public class GameScreen extends ScreenAdapter {
     private static Texture fireballTexture;
     private static Texture fireballBook;
     private static Texture coinTexture;
-    private static Texture pumpkinTexture;
+    private static Texture pumpkinAttackingTexture;
+    private static Texture pumpkinWalkingTexture;
     private static Texture healingPotionTexture;
 
     private static Integer pumpkinWidth;
@@ -63,11 +65,15 @@ public class GameScreen extends ScreenAdapter {
     private static Texture firstPlayZoneTexture;
     private static Texture firstExpectedZoneTexture;
     private float elapsedTime;
-    private float animationTime;
+    private float actionAnimationTime;
+    private float mobAttackAnimationTime;
+    private Integer attackAnimationCount;
     private final ShapeRenderer shapeRenderer;
 
     private final Box2DDebugRenderer debugRenderer; // For debugging
-    private TextureRegion currentFrame;
+    private TextureRegion currentCharacterFrame;
+    private TextureRegion currentMobFrame;
+    private TextureRegion currentCoinFrame;
     private PlayZone playZone;
     private Integer currentTime;
 
@@ -85,6 +91,8 @@ public class GameScreen extends ScreenAdapter {
         this.nc = game.nc;
 
         setTextures();
+        pumpkinWidth = 50;
+        pumpkinHeight = 50;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
@@ -118,6 +126,7 @@ public class GameScreen extends ScreenAdapter {
         this.currentTime = currentTime;
     }
 
+
     /**
      * Get any texture.
      * Give the appropriate type upon calling this method to get the right texture.
@@ -128,7 +137,8 @@ public class GameScreen extends ScreenAdapter {
             case FIREBALL_BOOK -> fireballBook;
             case FIREBALL -> fireballTexture;
             case COIN -> coinTexture;
-            case PUMPKIN -> pumpkinTexture;
+            case PUMPKINATTACK -> pumpkinAttackingTexture;
+            case PUMPKINWALK -> pumpkinWalkingTexture;
             case HEALING_POTION -> healingPotionTexture;
             default -> new Texture("wizard.png");
         };
@@ -148,7 +158,7 @@ public class GameScreen extends ScreenAdapter {
         healingPotionTexture = new Texture("Potion/potion.png");
 
         // *------ COIN TEXTURE ------*
-        coinTexture = new Texture("Coin/coin.png");
+        coinTexture = new Texture("Coin/Coin_rotating.png");
 
         // *------ PLAY ZONE TEXTURES ------*
         firstExpectedZoneTexture = new Texture("Zone/expected_zone.png");
@@ -157,9 +167,8 @@ public class GameScreen extends ScreenAdapter {
         firstPlayZoneTexture = new Texture("Zone/safezone.png");
 
         // *------ PUMPKIN TEXTURE ------*
-        pumpkinTexture = new Texture("Pumpkin/pumpkin.png");
-        pumpkinWidth = pumpkinTexture.getWidth() + 5;
-        pumpkinHeight = pumpkinTexture.getHeight() + 5;
+        pumpkinAttackingTexture = new Texture("Pumpkin/Pumpkin_Attacking.png");
+        pumpkinWalkingTexture = new Texture("Pumpkin/Pumpkin_Walks.png");
     }
 
     /**
@@ -192,29 +201,29 @@ public class GameScreen extends ScreenAdapter {
 
             // All state handling. Choosing the frame to display this tick.
             if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.DEATH) {
-                currentFrame = playerAnimator.deathAnimation().getKeyFrame(4 * 0.3f, false);
+                currentCharacterFrame = playerAnimator.deathAnimation().getKeyFrame(4 * 0.3f, false);
             } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.ACTION) {
                 // Increment animationTime
-                animationTime += Gdx.graphics.getDeltaTime();
-                currentFrame = playerAnimator.actionAnimation().getKeyFrame(animationTime);
-                if (playerAnimator.actionAnimation().isAnimationFinished(animationTime)) {
+                actionAnimationTime += Gdx.graphics.getDeltaTime();
+                currentCharacterFrame = playerAnimator.actionAnimation().getKeyFrame(actionAnimationTime);
+                if (playerAnimator.actionAnimation().isAnimationFinished(actionAnimationTime)) {
                     playerAnimator.setState(PlayerCharacterAnimator.AnimationStates.IDLE);
-                    animationTime = 0;
+                    actionAnimationTime = 0;
                 }
             } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
-                currentFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
+                currentCharacterFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
             } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE) {
-                currentFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
+                currentCharacterFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
             }
 
 
             game.batch.begin();
             // Set the image to 3 times smaller picture and flip it, if player is moving left.
             if (playerAnimator.lookRight()) {
-                game.batch.draw(currentFrame, (float) player.xPosition - 30,
+                game.batch.draw(currentCharacterFrame, (float) player.xPosition - 30,
                         (float) player.yPosition - 15, 80, 80);
             } else {
-                game.batch.draw(currentFrame, (float) player.xPosition - 40,
+                game.batch.draw(currentCharacterFrame, (float) player.xPosition - 40,
                         (float) player.yPosition - 15, 80, 80);
             }
             game.batch.end();
@@ -317,12 +326,22 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawItems() {
         for (Item item : items.values()) {
-            game.batch.begin();
-            game.batch.draw(item.getTexture(),
-                    item.getXPosition() - item.getTextureWidth() / 2,
-                    item.getYPosition() - item.getTextureHeight() / 2,
-                    item.getTextureWidth(), item.getTextureHeight());
-            game.batch.end();
+            if (item.getType() == ItemTypes.COIN) {
+                currentCoinFrame = item.getCoinRotationAnimation().getKeyFrame(elapsedTime, true);
+                game.batch.begin();
+                game.batch.draw(currentCoinFrame,
+                        item.getXPosition() - item.getTextureWidth() / 2,
+                        item.getYPosition() - item.getTextureHeight() / 2,
+                        10, 10);
+                game.batch.end();
+            } else {
+                game.batch.begin();
+                game.batch.draw(item.getTexture(),
+                        item.getXPosition() - item.getTextureWidth() / 2,
+                        item.getYPosition() - item.getTextureHeight() / 2,
+                        item.getTextureWidth(), item.getTextureHeight());
+                game.batch.end();
+            }
         }
     }
 
@@ -331,12 +350,43 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawMobs() {
         for (Mob mob : mobs.values()) {
+            MobAnimator mobAnimator = mob.getMobAnimator();
+            int shortestDistance = Integer.MAX_VALUE; // Initialize with a large value
+            int distanceFromPlayer = 0;
+            for (PlayerCharacter playerCharacter : gamePlayers.values()) {
+                distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.xPosition - mob.getXPosition(), 2)
+                        + Math.pow(playerCharacter.yPosition - mob.getYPosition(), 2));
+                // Update shortest distance if the current distance is shorter
+                shortestDistance = Math.min(shortestDistance, distanceFromPlayer);
+            }
+            // Check if mob is near the player
+            if (shortestDistance < 64) {
+                // Increment attack animation time
+                mobAttackAnimationTime += Gdx.graphics.getDeltaTime();
+
+                // Check if attack animation is finished
+                if (mobAnimator.attackAnimation().isAnimationFinished(mobAttackAnimationTime)) {
+                    // Reset animation time
+                    mobAttackAnimationTime = 0;
+                    attackAnimationCount++;
+                } else if (attackAnimationCount < 2) {
+                    // Set current mob frame to attack animation frame
+                    currentMobFrame = mob.getMobAnimator().attackAnimation().getKeyFrame(mobAttackAnimationTime, true);
+                } else if (attackAnimationCount >= 2) {
+                    // Set current mob frame to movement animation frame
+                    currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime, true);
+                }
+            } else {
+                // Reset attack animation count when player moves away
+                attackAnimationCount = 0;
+                // Set current mob frame to movement animation frame
+                currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime, true);
+            }
+
             // *-------------- MOB ASSET --------------*
             game.batch.begin();
-            game.batch.draw(pumpkinTexture,
-                    mob.getXPosition() - (float) pumpkinWidth / 2,
-                    mob.getYPosition() - (float) pumpkinHeight / 2,
-                    pumpkinWidth, pumpkinHeight);
+            game.batch.draw(currentMobFrame, (float) mob.getXPosition() - pumpkinWidth / 2,
+                    (float) mob.getYPosition() - pumpkinHeight / 2, pumpkinWidth, pumpkinHeight);
             game.batch.end();
 
             // *-------------- MOB HEATH BAR --------------*
@@ -410,6 +460,7 @@ public class GameScreen extends ScreenAdapter {
 
         drawPlayers(); // Draw client character.
         drawMobs();
+
         if (!spells.isEmpty()) {
             drawSpells(); // Draw spells.
         }
