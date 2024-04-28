@@ -1,6 +1,8 @@
 package ee.taltech.gandalf.entities;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import ee.taltech.gandalf.components.ItemTypes;
 import ee.taltech.gandalf.components.TextureType;
 import ee.taltech.gandalf.screens.GameScreen;
@@ -15,6 +17,8 @@ public class Item {
     private final Texture texture;
     private float textureWidth;
     private float textureHeight;
+    private Texture coinRotationTexture;
+    private Animation<TextureRegion> coinRotationAnimation;
 
     /**
      * Construct Item that is in the inventory and does not need coordinates.
@@ -42,6 +46,9 @@ public class Item {
         this.texture = setTextureBasedOnType();
         this.xPosition = xPosition;
         this.yPosition = yPosition;
+        if (type == ItemTypes.COIN) {
+            coinAnimations();
+        }
     }
 
     /**
@@ -139,13 +146,34 @@ public class Item {
             textureWidth = itemsTexture.getWidth() / 2.5f;
         } else if (type == ItemTypes.COIN) {
             itemsTexture = GameScreen.getTexture(TextureType.COIN);
-            textureHeight = itemsTexture.getHeight() / 2f;
-            textureWidth = itemsTexture.getWidth() / 2f;
         } else if (type == ItemTypes.HEALING_POTION) {
             itemsTexture = GameScreen.getTexture(TextureType.HEALING_POTION);
             textureHeight = itemsTexture.getHeight();
             textureWidth = itemsTexture.getWidth();
         }
         return itemsTexture;
+    }
+
+    /**
+     * Create animations for the coin.
+     */
+    private void coinAnimations() {
+        // Define frames in the sprite sheet
+        TextureRegion[][] coinRotationFrames2D = TextureRegion.split(texture, 16, 16);
+
+        // Convert 2D array to 1D array
+        TextureRegion[] coinRotationFrames = new TextureRegion[10];
+        int index = 0;
+        for (int j = 0; j < 10; j++) {
+            coinRotationFrames[index++] = coinRotationFrames2D[0][j];
+        }
+        coinRotationAnimation = new Animation<>(0.1F, coinRotationFrames);
+    }
+
+    /**
+     * Get coin rotation animation.
+     */
+    public Animation<TextureRegion> getCoinRotationAnimation() {
+        return coinRotationAnimation;
     }
 }

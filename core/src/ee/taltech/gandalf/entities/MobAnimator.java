@@ -11,8 +11,6 @@ public class MobAnimator {
     private final Texture pumpkinMovementTexture;
     private final Texture pumpkinAttackTexture;
     private final Mob mob;
-    private boolean previousAction;
-    public int actionTimes;
     private Animation<TextureRegion> attackAnimation;
     private Animation<TextureRegion> movementAnimation;
     private Animation<TextureRegion> flippedAttackAnimation;
@@ -29,8 +27,6 @@ public class MobAnimator {
         this.mob = mob;
         this.pumpkinMovementTexture = GameScreen.getTexture(TextureType.PUMPKINWALK);
         this.pumpkinAttackTexture = GameScreen.getTexture(TextureType.PUMPKINATTACK);
-        this.actionTimes = 0;
-        this.previousAction = false;
         createAnimations();
     }
 
@@ -61,8 +57,8 @@ public class MobAnimator {
     }
 
     /**
-     * Create animations for the selected character.
-     * Initialized upon character creation.
+     * Create animations for the selected mob.
+     * Initialized upon mob creation.
      */
     private void createAnimations() {
         // Define frames in the sprite sheet

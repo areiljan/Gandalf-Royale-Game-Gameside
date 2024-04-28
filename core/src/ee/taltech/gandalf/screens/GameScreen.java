@@ -6,6 +6,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -63,8 +64,7 @@ public class GameScreen extends ScreenAdapter {
 
     private static Texture firstPlayZoneTexture;
     private static Texture firstExpectedZoneTexture;
-    private float elapsedPlayerTime;
-    private float elapsedMobTime;
+    private float elapsedTime;
     private float actionAnimationTime;
     private float mobAttackAnimationTime;
     private Integer attackAnimationCount;
@@ -73,6 +73,7 @@ public class GameScreen extends ScreenAdapter {
     private final Box2DDebugRenderer debugRenderer; // For debugging
     private TextureRegion currentCharacterFrame;
     private TextureRegion currentMobFrame;
+    private TextureRegion currentCoinFrame;
     private PlayZone playZone;
     private Integer currentTime;
 
@@ -125,6 +126,7 @@ public class GameScreen extends ScreenAdapter {
         this.currentTime = currentTime;
     }
 
+
     /**
      * Get any texture.
      * Give the appropriate type upon calling this method to get the right texture.
@@ -156,7 +158,7 @@ public class GameScreen extends ScreenAdapter {
         healingPotionTexture = new Texture("Potion/potion.png");
 
         // *------ COIN TEXTURE ------*
-        coinTexture = new Texture("Coin/coin.png");
+        coinTexture = new Texture("Coin/Coin_rotating.png");
 
         // *------ PLAY ZONE TEXTURES ------*
         firstExpectedZoneTexture = new Texture("Zone/expected_zone.png");
@@ -184,7 +186,7 @@ public class GameScreen extends ScreenAdapter {
      * Draw all player character to screen.
      */
     private void drawPlayers() {
-        elapsedPlayerTime += Gdx.graphics.getDeltaTime();
+        elapsedTime += Gdx.graphics.getDeltaTime();
         for (PlayerCharacter player : gamePlayers.values()) {
             // elapsedTime is never reset and used for looping animations.
             // use animationTime and reset it to play an animation once
@@ -209,9 +211,9 @@ public class GameScreen extends ScreenAdapter {
                     actionAnimationTime = 0;
                 }
             } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
-                currentCharacterFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedPlayerTime, true); // Use elapsedTime
+                currentCharacterFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
             } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE) {
-                currentCharacterFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedPlayerTime, true); // Use elapsedTime
+                currentCharacterFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
             }
 
 
@@ -302,7 +304,7 @@ public class GameScreen extends ScreenAdapter {
             if(spell.rotation().isPresent()) {
                 if (spell.getType() == ItemTypes.FIREBALL) {
                     game.batch.begin();
-                    TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedPlayerTime, true);
+                    TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
                     game.batch.draw(spellCurrentFrame,
                             (float) spell.getXPosition(),
                             (float) spell.getYPosition() - 32,
@@ -324,12 +326,22 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawItems() {
         for (Item item : items.values()) {
-            game.batch.begin();
-            game.batch.draw(item.getTexture(),
-                    item.getXPosition() - item.getTextureWidth() / 2,
-                    item.getYPosition() - item.getTextureHeight() / 2,
-                    item.getTextureWidth(), item.getTextureHeight());
-            game.batch.end();
+            if (item.getType() == ItemTypes.COIN) {
+                currentCoinFrame = item.getCoinRotationAnimation().getKeyFrame(elapsedTime, true);
+                game.batch.begin();
+                game.batch.draw(currentCoinFrame,
+                        item.getXPosition() - item.getTextureWidth() / 2,
+                        item.getYPosition() - item.getTextureHeight() / 2,
+                        10, 10);
+                game.batch.end();
+            } else {
+                game.batch.begin();
+                game.batch.draw(item.getTexture(),
+                        item.getXPosition() - item.getTextureWidth() / 2,
+                        item.getYPosition() - item.getTextureHeight() / 2,
+                        item.getTextureWidth(), item.getTextureHeight());
+                game.batch.end();
+            }
         }
     }
 
@@ -337,7 +349,6 @@ public class GameScreen extends ScreenAdapter {
      * Draw mobs with their health bar.
      */
     private void drawMobs() {
-        elapsedMobTime += Gdx.graphics.getDeltaTime();
         for (Mob mob : mobs.values()) {
             MobAnimator mobAnimator = mob.getMobAnimator();
             int shortestDistance = Integer.MAX_VALUE; // Initialize with a large value
@@ -363,13 +374,13 @@ public class GameScreen extends ScreenAdapter {
                     currentMobFrame = mob.getMobAnimator().attackAnimation().getKeyFrame(mobAttackAnimationTime, true);
                 } else if (attackAnimationCount >= 2) {
                     // Set current mob frame to movement animation frame
-                    currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedMobTime, true);
+                    currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime, true);
                 }
             } else {
                 // Reset attack animation count when player moves away
                 attackAnimationCount = 0;
                 // Set current mob frame to movement animation frame
-                currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedMobTime, true);
+                currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime, true);
             }
 
             // *-------------- MOB ASSET --------------*
