@@ -63,8 +63,11 @@ public class GameScreen extends ScreenAdapter {
 
     private static Texture firstPlayZoneTexture;
     private static Texture firstExpectedZoneTexture;
-    private float elapsedTime;
-    private float animationTime;
+    private float elapsedPlayerTime;
+    private float elapsedMobTime;
+    private float actionAnimationTime;
+    private float mobAttackAnimationTime;
+    private Integer attackAnimationCount;
     private final ShapeRenderer shapeRenderer;
 
     private final Box2DDebugRenderer debugRenderer; // For debugging
@@ -181,7 +184,7 @@ public class GameScreen extends ScreenAdapter {
      * Draw all player character to screen.
      */
     private void drawPlayers() {
-        elapsedTime += Gdx.graphics.getDeltaTime();
+        elapsedPlayerTime += Gdx.graphics.getDeltaTime();
         for (PlayerCharacter player : gamePlayers.values()) {
             // elapsedTime is never reset and used for looping animations.
             // use animationTime and reset it to play an animation once
@@ -199,16 +202,16 @@ public class GameScreen extends ScreenAdapter {
                 currentCharacterFrame = playerAnimator.deathAnimation().getKeyFrame(4 * 0.3f, false);
             } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.ACTION) {
                 // Increment animationTime
-                animationTime += Gdx.graphics.getDeltaTime();
-                currentCharacterFrame = playerAnimator.actionAnimation().getKeyFrame(animationTime);
-                if (playerAnimator.actionAnimation().isAnimationFinished(animationTime)) {
+                actionAnimationTime += Gdx.graphics.getDeltaTime();
+                currentCharacterFrame = playerAnimator.actionAnimation().getKeyFrame(actionAnimationTime);
+                if (playerAnimator.actionAnimation().isAnimationFinished(actionAnimationTime)) {
                     playerAnimator.setState(PlayerCharacterAnimator.AnimationStates.IDLE);
-                    animationTime = 0;
+                    actionAnimationTime = 0;
                 }
             } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
-                currentCharacterFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
+                currentCharacterFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedPlayerTime, true); // Use elapsedTime
             } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE) {
-                currentCharacterFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
+                currentCharacterFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedPlayerTime, true); // Use elapsedTime
             }
 
 
@@ -299,7 +302,7 @@ public class GameScreen extends ScreenAdapter {
             if(spell.rotation().isPresent()) {
                 if (spell.getType() == ItemTypes.FIREBALL) {
                     game.batch.begin();
-                    TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
+                    TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedPlayerTime, true);
                     game.batch.draw(spellCurrentFrame,
                             (float) spell.getXPosition(),
                             (float) spell.getYPosition() - 32,
@@ -334,21 +337,45 @@ public class GameScreen extends ScreenAdapter {
      * Draw mobs with their health bar.
      */
     private void drawMobs() {
+        elapsedMobTime += Gdx.graphics.getDeltaTime();
         for (Mob mob : mobs.values()) {
+            MobAnimator mobAnimator = mob.getMobAnimator();
+            int shortestDistance = Integer.MAX_VALUE; // Initialize with a large value
+            int distanceFromPlayer = 0;
             for (PlayerCharacter playerCharacter : gamePlayers.values()) {
-                int distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.xPosition - mob.getXPosition(), 2)
+                distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.xPosition - mob.getXPosition(), 2)
                         + Math.pow(playerCharacter.yPosition - mob.getYPosition(), 2));
-                if (distanceFromPlayer < 50) {
-                    currentMobFrame = mob.getMobAnimator().attackAnimation().getKeyFrame(elapsedTime, true);
-                } else {
-                    currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime, true);
-                }
-
+                // Update shortest distance if the current distance is shorter
+                shortestDistance = Math.min(shortestDistance, distanceFromPlayer);
             }
+            // Check if mob is near the player
+            if (shortestDistance < 64) {
+                // Increment attack animation time
+                mobAttackAnimationTime += Gdx.graphics.getDeltaTime();
+
+                // Check if attack animation is finished
+                if (mobAnimator.attackAnimation().isAnimationFinished(mobAttackAnimationTime)) {
+                    // Reset animation time
+                    mobAttackAnimationTime = 0;
+                    attackAnimationCount++;
+                } else if (attackAnimationCount < 2) {
+                    // Set current mob frame to attack animation frame
+                    currentMobFrame = mob.getMobAnimator().attackAnimation().getKeyFrame(mobAttackAnimationTime, true);
+                } else if (attackAnimationCount >= 2) {
+                    // Set current mob frame to movement animation frame
+                    currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedMobTime, true);
+                }
+            } else {
+                // Reset attack animation count when player moves away
+                attackAnimationCount = 0;
+                // Set current mob frame to movement animation frame
+                currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedMobTime, true);
+            }
+
             // *-------------- MOB ASSET --------------*
             game.batch.begin();
-            game.batch.draw(currentMobFrame, (float) mob.getXPosition(),
-                    (float) mob.getXPosition(), 100, 100);
+            game.batch.draw(currentMobFrame, (float) mob.getXPosition() - pumpkinWidth / 2,
+                    (float) mob.getYPosition() - pumpkinHeight / 2, pumpkinWidth, pumpkinHeight);
             game.batch.end();
 
             // *-------------- MOB HEATH BAR --------------*
@@ -422,6 +449,7 @@ public class GameScreen extends ScreenAdapter {
 
         drawPlayers(); // Draw client character.
         drawMobs();
+
         if (!spells.isEmpty()) {
             drawSpells(); // Draw spells.
         }

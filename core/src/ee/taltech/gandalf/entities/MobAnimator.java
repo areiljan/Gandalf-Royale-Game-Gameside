@@ -41,9 +41,9 @@ public class MobAnimator {
      */
     public Animation<TextureRegion> attackAnimation() {
         if (mob.lookRight()) {
-            return attackAnimation;
-        } else {
             return flippedAttackAnimation;
+        } else {
+            return attackAnimation;
         }
     }
 
@@ -54,9 +54,9 @@ public class MobAnimator {
      */
     public Animation<TextureRegion> movementAnimation() {
         if (mob.lookRight()) {
-            return movementAnimation;
-        } else {
             return flippedMovementAnimation;
+        } else {
+            return movementAnimation;
         }
     }
 
@@ -66,30 +66,30 @@ public class MobAnimator {
      */
     private void createAnimations() {
         // Define frames in the sprite sheet
-        TextureRegion[][] movementFrames2d = TextureRegion.split(pumpkinMovementTexture, 25, 30);
-        TextureRegion[][] attackFrames2d = TextureRegion.split(pumpkinAttackTexture, 28, 30);
+        TextureRegion[][] movementFrames2D = TextureRegion.split(pumpkinMovementTexture, 28, 30);
+        TextureRegion[][] attackFrames2D = TextureRegion.split(pumpkinAttackTexture, 28, 30);
 
-        // Convert 2D array to 1D array for movementFrames
-        TextureRegion[] movementFrames = movementFrames2d[0];
+        // Convert 2D array to 1D array
+        TextureRegion[] movementFrames = new TextureRegion[7];
+        TextureRegion[] attackFrames = new TextureRegion[4];
         TextureRegion[] flippedMovementFrames = new TextureRegion[movementFrames.length];
-        for (int i = 0; i < movementFrames.length; i++) {
-            // Flip frames for movement animation
-            flippedMovementFrames[i] = new TextureRegion(movementFrames[i]);
-            flippedMovementFrames[i].flip(true, false);
-        }
-
-        // Convert 2D array to 1D array for attackFrames
-        TextureRegion[] attackFrames = attackFrames2d[0];
         TextureRegion[] flippedAttackFrames = new TextureRegion[attackFrames.length];
-        for (int i = 0; i < attackFrames.length; i++) {
-            // Flip frames for action animation
-            flippedAttackFrames[i] = new TextureRegion(attackFrames[i]);
-            flippedAttackFrames[i].flip(true, false);
+        int index = 0;
+        for (int j = 0; j < 7; j++) {
+            movementFrames[index] = movementFrames2D[0][j];
+            flippedMovementFrames[index] = new TextureRegion(movementFrames[index]);
+            flippedMovementFrames[index].flip(true, false);
+            index++;
         }
-
-        // Make an animation out of each array of frames.
+        index = 0;
+        for (int j = 0; j < 4; j++) {
+            attackFrames[index] = attackFrames2D[0][j];
+            flippedAttackFrames[index] = new TextureRegion(attackFrames[index]);
+            flippedAttackFrames[index].flip(true, false);
+            index++;
+        }
         movementAnimation = new Animation<>(0.1F, movementFrames);
-        flippedMovementAnimation = new Animation<>(0.1f, flippedMovementFrames);
+        flippedMovementAnimation = new Animation<>(0.1F, flippedMovementFrames);
         attackAnimation = new Animation<>(0.1F, attackFrames);
         flippedAttackAnimation = new Animation<>(0.1F, flippedAttackFrames);
     }
