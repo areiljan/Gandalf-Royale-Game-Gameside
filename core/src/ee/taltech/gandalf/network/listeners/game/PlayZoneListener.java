@@ -2,6 +2,7 @@ package ee.taltech.gandalf.network.listeners.game;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import ee.taltech.gandalf.components.PlayZone;
 import ee.taltech.gandalf.network.messages.game.PlayZoneCoordinates;
 import ee.taltech.gandalf.network.messages.game.PlayZoneUpdate;
 import ee.taltech.gandalf.screens.GameScreen;
@@ -37,9 +38,12 @@ public class PlayZoneListener extends Listener {
                         playZoneCoordinates.thirdPlayZoneY);
                 break;
             case PlayZoneUpdate playZoneUpdate: // playZoneUpdate message
+                PlayZone playZone = gameScreen.startedGame.getPlayZone();
+
                 gameScreen.setCurrentTime(playZoneUpdate.timer);
-                if (gameScreen.startedGame.getPlayZone() != null) {
-                    gameScreen.startedGame.getPlayZone().updateZone(playZoneUpdate.stage);
+                if (playZone != null && playZone.getStage() != playZoneUpdate.stage) {
+                    String message = playZone.updateZone(playZoneUpdate.stage);
+                    gameScreen.displayMessageOnScreen(message);
                 }
                 break;
             default: // Ignore if something else comes through

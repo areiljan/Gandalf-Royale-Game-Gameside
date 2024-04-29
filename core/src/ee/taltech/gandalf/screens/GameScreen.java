@@ -412,6 +412,15 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * Display message on the screen.
+     *
+     * @param message message as a string
+     */
+    public void displayMessageOnScreen(String message) {
+        hud.addMessage(message);
+    }
+
+    /**
      * Disable players movement aka don't listen to input.
      */
     public void disableClientPlayerCharacter() {
