@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import ee.taltech.gandalf.GandalfRoyale;
-import ee.taltech.gandalf.screens.LobbyScreen;
 
 
 public class MenuScreen extends ScreenAdapter {
@@ -57,7 +56,7 @@ public class MenuScreen extends ScreenAdapter {
         table.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // Styling heading
-        Label.LabelStyle headingStyle = new Label.LabelStyle(game.font, Color.FIREBRICK);
+        Label.LabelStyle headingStyle = new Label.LabelStyle(GandalfRoyale.font, Color.FIREBRICK);
 
         // Styling buttons
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
@@ -70,22 +69,22 @@ public class MenuScreen extends ScreenAdapter {
 
         // Creating heading
         Label heading = new Label("GandalfRoyale", headingStyle);
-        heading.setFontScale(6);
+        heading.setFontScale(3);
 
         // Creating Play button
         buttonPlay = new TextButton("Play", textButtonStyle);
         buttonPlay.pad(20);
-        buttonPlay.getLabel().setFontScale(3);
+        buttonPlay.getLabel().setFontScale(2);
 
         // Creating Settings button
         buttonSettings = new TextButton("Settings", textButtonStyle);
         buttonSettings.pad(20);
-        buttonSettings.getLabel().setFontScale(3);
+        buttonSettings.getLabel().setFontScale(2);
 
         // Creating Exit button
         buttonExit = new TextButton("Exit", textButtonStyle);
         buttonExit.pad(20);
-        buttonExit.getLabel().setFontScale(3);
+        buttonExit.getLabel().setFontScale(2);
 
         // Creating credits (creator names) label
         Label credits = new Label("*Artur_Reiljan*Rasmus_Kilkson*Ramus_Raasuke*", headingStyle);
