@@ -1,6 +1,7 @@
 package ee.taltech.gandalf.entities;
 
 import com.badlogic.gdx.graphics.Texture;
+import ee.taltech.gandalf.components.Constants;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import ee.taltech.gandalf.components.ItemTypes;
@@ -142,14 +143,14 @@ public class Item {
         if (type == ItemTypes.FIREBALL) {
             // Get texture from game screen because then OpenGL does not give error
             itemsTexture = GameScreen.getTexture(TextureType.FIREBALL_BOOK);
-            textureHeight = itemsTexture.getHeight() / 2.5f;
-            textureWidth = itemsTexture.getWidth() / 2.5f;
+            textureHeight = itemsTexture.getHeight() / 2.5f / Constants.PPM;
+            textureWidth = itemsTexture.getWidth() / 2.5f / Constants.PPM;
         } else if (type == ItemTypes.COIN) {
             itemsTexture = GameScreen.getTexture(TextureType.COIN);
         } else if (type == ItemTypes.HEALING_POTION) {
             itemsTexture = GameScreen.getTexture(TextureType.HEALING_POTION);
-            textureHeight = itemsTexture.getHeight();
-            textureWidth = itemsTexture.getWidth();
+            textureHeight = itemsTexture.getHeight() / Constants.PPM;
+            textureWidth = itemsTexture.getWidth() / Constants.PPM;
         }
         return itemsTexture;
     }

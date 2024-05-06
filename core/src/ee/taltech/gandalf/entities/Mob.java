@@ -90,11 +90,7 @@ public class Mob {
         this.xPosition = xNewPosition;
         this.yPosition = yNewPosition;
 
-        if (LastXPosition > xPosition) {
-            lookRight = false;
-        } else {
-            lookRight = true;
-        }
+        lookRight = LastXPosition <= xPosition;
     }
 
     /**

@@ -15,7 +15,6 @@ import java.util.Objects;
 
 public class StartedGame {
     // Threshold for the server to override the position difference
-    private static final Integer OVERWRITE_THRESHOLD = 5;
     private final GandalfRoyale game;
     private final World world;
     private final Map<Integer, PlayerCharacter> gamePlayers;
@@ -183,10 +182,12 @@ public class StartedGame {
         // Check if there is an incoming Position message and if it matches the clientID
         if (position != null && position.userID == clientId
                 // Check for the difference in client prediction and actual server position
-                && (Math.abs(clientCharacter.xPosition - position.xPosition) > OVERWRITE_THRESHOLD
-                || Math.abs(clientCharacter.yPosition - position.yPosition) > OVERWRITE_THRESHOLD)) {
+                && (Math.abs(clientCharacter.getXPosition() - position.xPosition) > Constants.MOVEMENT_THRESHOLD
+                || Math.abs(clientCharacter.getYPosition() - position.yPosition) > Constants.MOVEMENT_THRESHOLD)) {
             // Locates the client according to the server position (override the prediction made on client).
-            clientCharacter.setPosition(position.xPosition, position.yPosition);
+            float newX = clientCharacter.getXPosition() + (position.xPosition - clientCharacter.getXPosition()) * Constants.interpFactor;
+            float newY = clientCharacter.getYPosition() + (position.yPosition - clientCharacter.getYPosition()) * Constants.interpFactor;
+            clientCharacter.setPosition(newX, newY);
         }
     }
 
@@ -289,6 +290,7 @@ public class StartedGame {
      * @param delta time
      */
     public void update(float delta) {
-        clientCharacter.updatePosition(); // Update the player position prediction for smoother response.
+        clientCharacter.updateVector();
+        clientCharacter.updatePosition();
     }
 }

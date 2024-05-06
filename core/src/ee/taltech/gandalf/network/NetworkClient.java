@@ -1,5 +1,10 @@
 package ee.taltech.gandalf.network;
 
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.objects.EllipseMapObject;
+import com.badlogic.gdx.maps.objects.PolygonMapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 import com.esotericsoftware.kryonet.Client;
@@ -11,6 +16,7 @@ import ee.taltech.gandalf.network.listeners.lobby.LobbyListener;
 import ee.taltech.gandalf.network.listeners.lobby.LobbyRoomListener;
 import ee.taltech.gandalf.network.messages.game.*;
 import ee.taltech.gandalf.network.messages.lobby.*;
+import ee.taltech.gandalf.world.MapObjectData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,6 +89,8 @@ public class NetworkClient {
         kryo.register(ItemDropped.class);
         kryo.register(MobPosition.class);
         kryo.register(UpdateMobHealth.class);
+        kryo.register(MapObjectData.class);
+        kryo.register(float[].class);
         kryo.addDefaultSerializer(KeyPress.Action.class, DefaultSerializers.EnumSerializer.class);
         kryo.addDefaultSerializer(ItemTypes.class, DefaultSerializers.EnumSerializer.class);
     }

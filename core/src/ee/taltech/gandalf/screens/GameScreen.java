@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -20,6 +21,9 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.gandalf.components.*;
 import ee.taltech.gandalf.entities.*;
+import ee.taltech.gandalf.components.Constants;
+import ee.taltech.gandalf.entities.Item;
+import ee.taltech.gandalf.entities.PlayerCharacterAnimator;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
 import ee.taltech.gandalf.network.NetworkClient;
 import ee.taltech.gandalf.input.PlayerInput;
@@ -34,8 +38,9 @@ public class GameScreen extends ScreenAdapter {
     GandalfRoyale game;
     NetworkClient nc;
 
-    private final ExtendViewport viewport;
-    public final OrthographicCamera camera;
+    private OrthogonalTiledMapRenderer renderer;
+    private ExtendViewport viewport;
+    public OrthographicCamera camera;
 
     private final Hud hud;
     public final StartedGame startedGame;
@@ -46,9 +51,8 @@ public class GameScreen extends ScreenAdapter {
     private final Map<Integer, Item> items;
     private final Map<Integer, Mob> mobs;
 
-    private final OrthogonalTiledMapRenderer renderer;
-    private final TmxMapLoader mapLoader;
-    private final TiledMap map;
+    private TmxMapLoader mapLoader;
+    private TiledMap map;
 
     private static Texture otherPlayZoneTexture;
     private static Texture otherExpectedZoneTexture;
@@ -59,15 +63,15 @@ public class GameScreen extends ScreenAdapter {
     private static Texture pumpkinWalkingTexture;
     private static Texture healingPotionTexture;
 
-    private static Integer pumpkinWidth;
-    private static Integer pumpkinHeight;
+    private static float pumpkinWidth;
+    private static float pumpkinHeight;
 
     private static Texture firstPlayZoneTexture;
     private static Texture firstExpectedZoneTexture;
     private float elapsedTime;
     private float actionAnimationTime;
     private float mobAttackAnimationTime;
-    private Integer attackAnimationCount;
+    private Integer attackAnimationCount = 0;
     private final ShapeRenderer shapeRenderer;
 
     private final Box2DDebugRenderer debugRenderer; // For debugging
@@ -91,19 +95,20 @@ public class GameScreen extends ScreenAdapter {
         this.nc = game.nc;
 
         setTextures();
-        pumpkinWidth = 50;
-        pumpkinHeight = 50;
+        pumpkinWidth = 32 / Constants.PPM;
+        pumpkinHeight = 32 / Constants.PPM;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
-        viewport = new ExtendViewport(150, 150, camera);
+        mapLoader = new TmxMapLoader();
+
+        viewport = new ExtendViewport(Constants.minChunksSeen, Constants.minChunksSeen,
+                Constants.maxTilesSeenWidth, Constants.maxTilesSeenHeight, camera);
         viewport.apply();
 
-        this.mapLoader = new TmxMapLoader();
-        this.map = mapLoader.load("Gandalf_Royale.tmx");
-        this.renderer = new OrthogonalTiledMapRenderer(map);
-
-        new WorldCollision(world, map);
+        map = mapLoader.load("Gandalf_Royale.tmx");
+        renderer = new OrthogonalTiledMapRenderer(map, 1 / Constants.PPM);
+        new WorldCollision(world, map, nc);
 
         startedGame = new StartedGame(game, lobby, world);
         gamePlayers = startedGame.getGamePlayers();
@@ -120,6 +125,7 @@ public class GameScreen extends ScreenAdapter {
 
     /**
      * CurrentTime setter.
+     *
      * @param currentTime - set current time.
      */
     public void setCurrentTime(int currentTime) {
@@ -130,6 +136,7 @@ public class GameScreen extends ScreenAdapter {
     /**
      * Get any texture.
      * Give the appropriate type upon calling this method to get the right texture.
+     *
      * @return fireballBook
      */
     public static Texture getTexture(TextureType textureType) {
@@ -195,7 +202,7 @@ public class GameScreen extends ScreenAdapter {
 
             // Movement and idle setters.
             if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE ||
-            playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
+                    playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
                 playerAnimator.setState();
             }
 
@@ -220,11 +227,15 @@ public class GameScreen extends ScreenAdapter {
             game.batch.begin();
             // Set the image to 3 times smaller picture and flip it, if player is moving left.
             if (playerAnimator.lookRight()) {
-                game.batch.draw(currentCharacterFrame, (float) player.xPosition - 30,
-                        (float) player.yPosition - 15, 80, 80);
+                game.batch.draw(currentCharacterFrame, player.getXPosition() - 35f / Constants.PPM,
+                        player.getYPosition() - 40f / Constants.PPM,
+                        80 / Constants.PPM,
+                        80 / Constants.PPM);
             } else {
-                game.batch.draw(currentCharacterFrame, (float) player.xPosition - 40,
-                        (float) player.yPosition - 15, 80, 80);
+                game.batch.draw(currentCharacterFrame, player.getXPosition() - 45f / Constants.PPM,
+                        player.getYPosition() - 40f / Constants.PPM,
+                        80 / Constants.PPM,
+                        80 / Constants.PPM);
             }
             game.batch.end();
             // Draw health and mana bar
@@ -244,23 +255,23 @@ public class GameScreen extends ScreenAdapter {
 
         // Draw missing health bar
         shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect( (float) player.xPosition - 45, (float) player.yPosition + 60,
-                100, 2);
+        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 30 / Constants.PPM,
+                100 / Constants.PPM, 2 / Constants.PPM);
 
         // Draw health bar
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect((float) player.xPosition - 45, (float) player.yPosition + 60,
-                player.getHealth(), 2);
+        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 30 / Constants.PPM,
+                player.getHealth() / Constants.PPM, 2 / Constants.PPM);
 
         // Draw missing mana bar
         shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect((float) player.xPosition - 45, (float) player.yPosition + 55,
-                100, 2);
+        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 35 / Constants.PPM,
+                100 / Constants.PPM, 2 / Constants.PPM);
 
         // Draw mana bar
         shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.rect((float) player.xPosition - 45, (float) player.yPosition + 55,
-                (float) player.getMana(), 2);
+        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 35 / Constants.PPM,
+                (float) (player.getMana() / Constants.PPM), 2 / Constants.PPM);
 
         // Stop rendering shapes
         shapeRenderer.end();
@@ -274,23 +285,41 @@ public class GameScreen extends ScreenAdapter {
         int stage = playZone.getStage();
         game.batch.begin();
         if (stage == 1) {
-            game.batch.draw(firstExpectedZoneTexture, playZone.firstPlayZoneX() - 6000, playZone.firstPlayZoneY() - 6000, 12000, 12000);
+            game.batch.draw(firstExpectedZoneTexture,
+                    playZone.firstPlayZoneX() - Constants.FIRST_ZONE_TEXTURE_SIZE / 2f,
+                    playZone.firstPlayZoneY() - Constants.FIRST_ZONE_TEXTURE_SIZE / 2f,
+                    Constants.FIRST_ZONE_TEXTURE_SIZE, Constants.FIRST_ZONE_TEXTURE_SIZE);
         }
         if (stage == 2 || stage == 3) {
-            game.batch.draw(firstPlayZoneTexture, playZone.firstPlayZoneX() - 6000, playZone.firstPlayZoneY() - 6000, 12000, 12000);
+            game.batch.draw(firstPlayZoneTexture,
+                    playZone.firstPlayZoneX() - Constants.FIRST_ZONE_TEXTURE_SIZE / 2f,
+                    playZone.firstPlayZoneY() - Constants.FIRST_ZONE_TEXTURE_SIZE / 2f,
+                    Constants.FIRST_ZONE_TEXTURE_SIZE, Constants.FIRST_ZONE_TEXTURE_SIZE);
         }
         if (stage == 3) {
-            game.batch.draw(otherExpectedZoneTexture, playZone.secondPlayZoneX() - 19200, playZone.secondPlayZoneY() - 19200, 38400, 38400);
+            game.batch.draw(otherExpectedZoneTexture,
+                    playZone.secondPlayZoneX() - Constants.SECOND_ZONE_TEXTURE_SIZE / 2f,
+                    playZone.secondPlayZoneY() - Constants.SECOND_ZONE_TEXTURE_SIZE / 2f,
+                    Constants.SECOND_ZONE_TEXTURE_SIZE, Constants.SECOND_ZONE_TEXTURE_SIZE);
         }
         if (stage == 4 || stage == 5) {
             // size is map times 4
-            game.batch.draw(otherPlayZoneTexture, playZone.secondPlayZoneX() - 19200, playZone.secondPlayZoneY() - 19200, 38400, 38400);
+            game.batch.draw(otherPlayZoneTexture,
+                    playZone.secondPlayZoneX() - Constants.SECOND_ZONE_TEXTURE_SIZE / 2f,
+                    playZone.secondPlayZoneY() - Constants.SECOND_ZONE_TEXTURE_SIZE / 2f,
+                    Constants.SECOND_ZONE_TEXTURE_SIZE, Constants.SECOND_ZONE_TEXTURE_SIZE);
         }
         if (stage == 5) {
-            game.batch.draw(otherExpectedZoneTexture, playZone.thirdPlayZoneX() - 7350, playZone.thirdPlayZoneY() - 7350, 14700, 14700);
+            game.batch.draw(otherExpectedZoneTexture,
+                    playZone.thirdPlayZoneX() - Constants.THIRD_ZONE_TEXTURE_SIZE / 2f,
+                    playZone.thirdPlayZoneY() - Constants.THIRD_ZONE_TEXTURE_SIZE / 2f,
+                    Constants.THIRD_ZONE_TEXTURE_SIZE, Constants.THIRD_ZONE_TEXTURE_SIZE);
         }
         if (stage >= 6) {
-            game.batch.draw(otherPlayZoneTexture, playZone.thirdPlayZoneX() - 7350, playZone.thirdPlayZoneY() - 7350, 14700, 14700);
+            game.batch.draw(otherPlayZoneTexture,
+                    playZone.thirdPlayZoneX() - Constants.THIRD_ZONE_TEXTURE_SIZE / 2f,
+                    playZone.thirdPlayZoneY() - Constants.THIRD_ZONE_TEXTURE_SIZE / 2f,
+                    Constants.THIRD_ZONE_TEXTURE_SIZE, Constants.THIRD_ZONE_TEXTURE_SIZE);
         }
 
         game.batch.end();
@@ -301,17 +330,17 @@ public class GameScreen extends ScreenAdapter {
      */
     private void drawSpells() {
         for (Spell spell : spells.values()) {
-            if(spell.rotation().isPresent()) {
+            if (spell.rotation().isPresent()) {
                 if (spell.getType() == ItemTypes.FIREBALL) {
                     game.batch.begin();
                     TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
                     game.batch.draw(spellCurrentFrame,
                             (float) spell.getXPosition(),
-                            (float) spell.getYPosition() - 32,
+                            (float) spell.getYPosition() - 1,
                             0,
                             0,
-                            32,
-                            17,
+                            32 / Constants.PPM,
+                            17 / Constants.PPM,
                             1,
                             1,
                             spell.rotation().get());
@@ -332,7 +361,7 @@ public class GameScreen extends ScreenAdapter {
                 game.batch.draw(currentCoinFrame,
                         item.getXPosition() - item.getTextureWidth() / 2,
                         item.getYPosition() - item.getTextureHeight() / 2,
-                        10, 10);
+                        10 / Constants.PPM, 10 / Constants.PPM);
                 game.batch.end();
             } else {
                 game.batch.begin();
@@ -354,13 +383,13 @@ public class GameScreen extends ScreenAdapter {
             int shortestDistance = Integer.MAX_VALUE; // Initialize with a large value
             int distanceFromPlayer = 0;
             for (PlayerCharacter playerCharacter : gamePlayers.values()) {
-                distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.xPosition - mob.getXPosition(), 2)
-                        + Math.pow(playerCharacter.yPosition - mob.getYPosition(), 2));
+                distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.getXPosition() - mob.getXPosition(), 2)
+                        + Math.pow(playerCharacter.getYPosition() - mob.getYPosition(), 2));
                 // Update shortest distance if the current distance is shorter
                 shortestDistance = Math.min(shortestDistance, distanceFromPlayer);
             }
             // Check if mob is near the player
-            if (shortestDistance < 64) {
+            if (shortestDistance < 2) {
                 // Increment attack animation time
                 mobAttackAnimationTime += Gdx.graphics.getDeltaTime();
 
@@ -385,8 +414,10 @@ public class GameScreen extends ScreenAdapter {
 
             // *-------------- MOB ASSET --------------*
             game.batch.begin();
-            game.batch.draw(currentMobFrame, (float) mob.getXPosition() - pumpkinWidth / 2,
-                    (float) mob.getYPosition() - pumpkinHeight / 2, pumpkinWidth, pumpkinHeight);
+            game.batch.draw(currentMobFrame,
+                    mob.getXPosition() - pumpkinWidth / 2,
+                    mob.getYPosition() - pumpkinHeight / 2, 
+                    pumpkinWidth, pumpkinHeight);
             game.batch.end();
 
             // *-------------- MOB HEATH BAR --------------*
@@ -396,16 +427,16 @@ public class GameScreen extends ScreenAdapter {
             // Missing health
             shapeRenderer.setColor(Color.BLACK);
             shapeRenderer.rect(
-                    mob.getXPosition() - (float) 25 / 2,
-                    mob.getYPosition() + (float) pumpkinHeight / 2,
-                    25, 2);
+                    mob.getXPosition() - 25f / 2f / Constants.PPM,
+                    mob.getYPosition() + pumpkinHeight / 2,
+                    25 / Constants.PPM, 2 / Constants.PPM);
 
             // Present health
             shapeRenderer.setColor(Color.RED);
             shapeRenderer.rect(
-                    mob.getXPosition() - (float) 25 / 2,
-                    mob.getYPosition() + (float) pumpkinHeight / 2,
-                    (float) mob.getHealth() / 2, 2);
+                    mob.getXPosition() - 25f / 2f / Constants.PPM,
+                    mob.getYPosition() + pumpkinHeight / 2,
+                    mob.getHealth() / 2f / Constants.PPM, 2 / Constants.PPM);
 
             shapeRenderer.end(); // Stop drawing
         }
@@ -442,29 +473,25 @@ public class GameScreen extends ScreenAdapter {
      */
     @Override
     public void render(float delta) {
-        viewport.apply();
         ScreenUtils.clear(0, 0, 0, 0);
-        viewport.apply();
         world.step(delta, 6, 2);
         startedGame.update(delta);
 
-        // Update camera position to follow player
-        camera.position.x = clientCharacter.xPosition;
-        camera.position.y = clientCharacter.yPosition;
 
+        // Update camera position to follow player
+        camera.position.set(clientCharacter.getXPosition(), clientCharacter.getYPosition(), 0);
         // Update camera matrices
         camera.update();
-
+        viewport.apply();
         // Set camera projection matrix
         game.batch.setProjectionMatrix(camera.combined);
 
-
         // Render game objects
         game.batch.begin();
-        camera.zoom = 12f; // To render 4X bigger area than seen.
+        camera.zoom = 2.5f; // To render 2.5X bigger area than seen.
         renderer.setView(camera);
         renderer.render();
-        camera.zoom = 3f; // Reset the camera back to its original state.
+        camera.zoom = 1f; // Reset the camera back to its original state.
         game.batch.end();
 
         drawPlayers(); // Draw client character.
@@ -484,20 +511,18 @@ public class GameScreen extends ScreenAdapter {
             playZone = startedGame.getPlayZone();
         }
 
-        debugRenderer.render(world, camera.combined);
-
         hud.draw(currentTime);
     }
 
     /**
      * Correct camera position when resizing window.
      *
-     * @param width window width
+     * @param width  window width
      * @param height window height
      */
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);
+        viewport.update(width, height, true);
         hud.resize(width, height);
     }
 

@@ -6,10 +6,8 @@ import ee.taltech.gandalf.entities.PlayerCharacter;
 import ee.taltech.gandalf.network.messages.game.ActionTaken;
 import ee.taltech.gandalf.network.messages.game.KilledPlayer;
 import ee.taltech.gandalf.network.messages.game.Position;
-import ee.taltech.gandalf.screens.ScreenController;
 import ee.taltech.gandalf.screens.GameScreen;
-
-import java.util.Map;
+import ee.taltech.gandalf.screens.ScreenController;
 
 public class PlayerListener extends Listener {
 
