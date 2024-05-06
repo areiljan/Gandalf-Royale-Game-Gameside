@@ -13,8 +13,8 @@ public class PlayerCharacterAnimator {
     private AnimationStates state;
 
     public int actionTimes;
-    private int previousY;
-    private int previousX;
+    private float previousY;
+    private float previousX;
     private boolean lookRight;
 
     private Animation<TextureRegion> idleAnimation;
@@ -79,13 +79,13 @@ public class PlayerCharacterAnimator {
      * Change animator state based on character action.
      */
     public void setState() {
-        if (previousX != playerCharacter.xPosition || previousY != playerCharacter.yPosition) {
-            previousX = playerCharacter.xPosition;
-            previousY = playerCharacter.yPosition;
+        if (previousX != playerCharacter.getXPosition() || previousY != playerCharacter.getYPosition()) {
+            previousX = playerCharacter.getXPosition();
+            previousY = playerCharacter.getYPosition();
             state = AnimationStates.MOVEMENT;
         } else {
-            previousX = playerCharacter.xPosition;
-            previousY = playerCharacter.yPosition;
+            previousX = playerCharacter.getXPosition();
+            previousY = playerCharacter.getYPosition();
             state = AnimationStates.IDLE;
         }
     }

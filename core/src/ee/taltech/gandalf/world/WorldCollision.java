@@ -1,27 +1,44 @@
 package ee.taltech.gandalf.world;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Ellipse;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Json;
+import com.esotericsoftware.kryo.io.Output;
+import ee.taltech.gandalf.components.Constants;
+import ee.taltech.gandalf.network.NetworkClient;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class WorldCollision {
 
+    private final NetworkClient nc;
     private boolean collisionsCreated;
     private final Map map;
     private World world;
     private final int tileHeight;
     private final int tileWidth;
+    public List<MapObjectData> savedData = new ArrayList<>();
 
     /**
      * @param world Box2D world created in GameScreen
      * @param map   Map containing assets created in GameScreen
      */
-    public WorldCollision(World world, Map map) {
+    public WorldCollision(World world, Map map, NetworkClient nc) {
         this.world = world;
         this.map = map;
 
@@ -31,7 +48,7 @@ public class WorldCollision {
 
         // Collision created flag for loading purposes.
         this.collisionsCreated = false;
-
+        this.nc = nc;
         createCollisionsForEveryTile();
 
     }
@@ -52,11 +69,11 @@ public class WorldCollision {
             }
         }
         collisionsCreated = true; // Flag for collision end
-
     }
 
     /**
      * Loop through tiles.
+     *
      * @param tileLayer - to loop through.
      */
     public void loopThroughTiles(TiledMapTileLayer tileLayer) {
@@ -113,13 +130,13 @@ public class WorldCollision {
      */
     private void createCircle(EllipseMapObject ellipseMapObject, int tileX, int tileY, float textureRegionWidth) {
         Ellipse ellipse = ellipseMapObject.getEllipse();
-
+        savedData.add(new MapObjectData("ellipse", ellipse.x, ellipse.y, ellipse.width, ellipse.height, tileX, tileY, textureRegionWidth));
         BodyDef bodyDef = getBodyDef(ellipse.x, ellipse.y, ellipse.height,
                 (textureRegionWidth != 0 ? -ellipse.width : ellipse.width),
                 tileX, tileY, textureRegionWidth);
         Body body = world.createBody(bodyDef);
         CircleShape circleShape = new CircleShape();
-        circleShape.setRadius(ellipse.width / 2f);
+        circleShape.setRadius(ellipse.width / 2f / Constants.PPM);
 
         body.createFixture(circleShape, 0.0f);
     }
@@ -134,13 +151,13 @@ public class WorldCollision {
      */
     private void createRectangle(RectangleMapObject rectangleMapObject, int tileX, int tileY, float textureRegionWidth) {
         Rectangle rectangle = rectangleMapObject.getRectangle();
-
+        savedData.add(new MapObjectData("rectangle", rectangle.x, rectangle.y, rectangle.width, rectangle.height, tileX, tileY, textureRegionWidth));
         BodyDef bodyDef = getBodyDef(rectangle.x, rectangle.y,
                 rectangle.height, (textureRegionWidth != 0 ? -rectangle.width : rectangle.width),
                 tileX, tileY, textureRegionWidth);
         Body body = world.createBody(bodyDef);
         PolygonShape rectangleShape = new PolygonShape();
-        rectangleShape.setAsBox(rectangle.width / 2f, rectangle.height / 2f);
+        rectangleShape.setAsBox(rectangle.width / 2f / Constants.PPM, rectangle.height / 2f / Constants.PPM);
         body.createFixture(rectangleShape, 0.0f);
     }
 
@@ -154,8 +171,9 @@ public class WorldCollision {
      */
     private void createPolygon(PolygonMapObject polygonMapObject, int tileX, int tileY, float textureRegionWidth) {
         // Get all position of the polygon 'corners' or vertices
-        float[] vertices = polygonMapObject.getPolygon().getTransformedVertices();
-
+        Polygon polygon = polygonMapObject.getPolygon();
+        savedData.add(new MapObjectData("polygon", 0, 0, 0, 0, tileX, tileY, textureRegionWidth, polygon.getTransformedVertices()));
+        float[] vertices = polygon.getTransformedVertices();
         if (vertices.length > 300) {
             System.out.println("Warning: Vertex count really high: " + vertices.length);
         }
@@ -168,6 +186,14 @@ public class WorldCollision {
                 vertices[i] = -vertices[i];
             }
         }
+
+        // Scale vertices using PPM
+        float[] scaledVertices = new float[vertices.length];
+
+        for (int i = 0; i < vertices.length; i++) {
+            scaledVertices[i] = vertices[i] / Constants.PPM;
+        }
+
         // Define the body's location
         BodyDef bodyDef = getBodyDef(0, 0, 0, 0, tileX, tileY, textureRegionWidth);
         Body body = world.createBody(bodyDef);
@@ -176,12 +202,12 @@ public class WorldCollision {
         if (vertices.length <= 8) {
             // PolygonShape can have maximum of 8 vertices.
             PolygonShape polygonShape = new PolygonShape();
-            polygonShape.set(vertices);
+            polygonShape.set(scaledVertices);
             body.createFixture(polygonShape, 0.0f);
         } else {
             // Use ChainShape for complex shapes (more than 8 vertices)
             ChainShape chainShape = new ChainShape();
-            chainShape.createLoop(vertices);
+            chainShape.createLoop(scaledVertices);
             body.createFixture(chainShape, 0.0f);
             chainShape.dispose(); // Dispose of the shape after use
         }
@@ -205,8 +231,10 @@ public class WorldCollision {
         bodyDef.type = BodyDef.BodyType.StaticBody;
 
         // Calculate offset based on tile coordinates
-        float bodyX = tileX * tileWidth + (textureRegionWidth != 0 ? -x : x) + (width / 2f) + textureRegionWidth;
-        float bodyY = tileY * tileHeight + y + (height / 2f);
+        float bodyX = (float) (tileX * tileWidth) / Constants.PPM +
+                (textureRegionWidth != 0 ? -x / Constants.PPM : x / Constants.PPM)
+                + (width / 2f / Constants.PPM) + textureRegionWidth / Constants.PPM;
+        float bodyY = (float) (tileY * tileHeight) / Constants.PPM + y / Constants.PPM + (height / 2f / Constants.PPM);
 
         bodyDef.position.set(bodyX, bodyY);
         bodyDef.fixedRotation = true;
@@ -221,5 +249,19 @@ public class WorldCollision {
      */
     public boolean areCollisionsCreated() {
         return collisionsCreated;
+    }
+
+    /**
+     * Method for saving the world to kryonet .bin file.
+     */
+    public void saveWorld() {
+        try {
+            Output output = new Output(new FileOutputStream("mapdata.bin"));
+            nc.client.getKryo().writeObject(output, savedData);
+            output.close();
+            System.out.println("finished");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

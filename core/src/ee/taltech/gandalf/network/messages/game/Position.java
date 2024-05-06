@@ -1,8 +1,8 @@
 package ee.taltech.gandalf.network.messages.game;
 
 public class Position {
-    public int xPosition;
-    public int yPosition;
+    public float xPosition;
+    public float yPosition;
     public int userID;
 
     /**

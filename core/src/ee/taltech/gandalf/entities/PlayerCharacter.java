@@ -1,6 +1,8 @@
 package ee.taltech.gandalf.entities;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import ee.taltech.gandalf.components.Constants;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
 
 import java.util.ArrayList;
@@ -14,14 +16,13 @@ public class PlayerCharacter {
     private final PlayerCharacterAnimator playerCharacterAnimator;
     private Body body;
 
-    public int xPosition;
-    public int yPosition;
+    private float xPosition;
+    private float yPosition;
+    private float lastXPosition;
+    private float lastYPosition;
     public int playerID;
 
-    private boolean moveLeft;
-    boolean moveRight;
-    boolean moveDown;
-    boolean moveUp;
+    private Vector2 movement;
 
     private Integer health;
     private double mana;
@@ -38,8 +39,8 @@ public class PlayerCharacter {
      */
     public PlayerCharacter(Integer playerID) {
         // Here should be the random spawn points for a PlayerCharacter
-        this.xPosition = 0;
-        this.yPosition = 0;
+        this.xPosition = 4800 / Constants.PPM;
+        this.yPosition = 4800 / Constants.PPM;
         this.playerID = playerID;
 
         health = 100;
@@ -47,6 +48,8 @@ public class PlayerCharacter {
         coins = 0;
 
         this.playerCharacterAnimator = new PlayerCharacterAnimator(this, playerID);
+
+        this.movement = Vector2.Zero;
 
         inventory = new ArrayList<>();
         // Add empty items to inventory slots
@@ -72,23 +75,36 @@ public class PlayerCharacter {
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(xPosition, yPosition);
         bodyDef.fixedRotation = true;
-        Body hitBoxBody = world.createBody(bodyDef);
+        Body playerBody = world.createBody(bodyDef);
 
         // Create a fixture defining the hit box shape
         PolygonShape hitBoxShape = new PolygonShape();
-        hitBoxShape.setAsBox(PlayerCharacter.WIDTH, PlayerCharacter.HEIGHT);
+        hitBoxShape.setAsBox(PlayerCharacter.WIDTH / Constants.PPM, PlayerCharacter.HEIGHT / Constants.PPM);
+
+        CircleShape collisionCircle = new CircleShape();
+        float circleRadius = 10 / Constants.PPM;
+        collisionCircle.setRadius(circleRadius);
+        collisionCircle.setPosition(new Vector2(0f, -(PlayerCharacter.HEIGHT / Constants.PPM) + circleRadius));
+
+        FixtureDef fixtureDefCollisionCircle = new FixtureDef();
+        fixtureDefCollisionCircle.shape = collisionCircle;
+        fixtureDefCollisionCircle.density = 0.0f;
+
+        FixtureDef fixtureDefHitbox = new FixtureDef();
+        fixtureDefHitbox.shape = hitBoxShape;
+        fixtureDefHitbox.density = 0.0f;
+        fixtureDefHitbox.isSensor = true;
 
         // Attach the fixture to the body
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.shape = hitBoxShape;
-        fixtureDef.density = 1.0f;
-        hitBoxBody.createFixture(fixtureDef);
+        playerBody.createFixture(fixtureDefHitbox);
+        playerBody.createFixture(fixtureDefCollisionCircle);
 
         // Clean up
         hitBoxShape.dispose();
+        collisionCircle.dispose();
 
-        hitBoxBody.setUserData(this);
-        this.body = hitBoxBody;
+        playerBody.setUserData(this);
+        this.body = playerBody;
     }
 
     /**
@@ -209,53 +225,6 @@ public class PlayerCharacter {
         return coins;
     }
 
-    /**
-     * Update player's position.
-     */
-    public void updatePosition() {
-        // updatePosition is activated every TPS.
-        // One key press distance that a character travels.
-        int distance = 3;
-        // Diagonal movement correction formula.
-        int diagonal = (int) (distance / Math.sqrt(2));
-        if (moveLeft && moveUp) {
-            this.xPosition -= diagonal;
-            this.yPosition += diagonal;
-        } else if (moveLeft && moveDown) {
-            this.xPosition -= diagonal;
-            this.yPosition -= diagonal;
-        } else if (moveRight && moveUp) {
-            this.xPosition += diagonal;
-            this.yPosition += diagonal;
-        } else if (moveRight && moveDown) {
-            this.xPosition += diagonal;
-            this.yPosition -= diagonal;
-        } else {
-            oneDirectionMovement(distance);
-        }
-        // Set the position of the Box2D body to match the player's coordinates
-        body.setTransform( (float) xPosition + 5, (float) yPosition + 25, body.getAngle());
-    }
-
-    /**
-     * Moving only in one direction.
-     *
-     * @param distance how much player is moving
-     */
-    private void oneDirectionMovement(int distance) {
-        if (moveLeft) {
-            this.xPosition -= distance;
-        }
-        if (moveRight) {
-            this.xPosition += distance;
-        }
-        if (moveUp) {
-            this.yPosition += distance;
-        }
-        if (moveDown) {
-            this.yPosition -= distance;
-        }
-    }
 
     /**
      * Set player's movement based on keypress.
@@ -263,19 +232,39 @@ public class PlayerCharacter {
      * @param keyPress incoming keypress
      */
     public void setMovement(KeyPress keyPress) {
-        // Set a action where player should be headed.
-        if (keyPress.action == KeyPress.Action.LEFT) {
-            this.moveLeft = keyPress.pressed;
+        // Set an action where player should be headed.
+        if (keyPress.pressed) {
+            if (keyPress.action == KeyPress.Action.LEFT) {
+                movement.x = -1;
+            } else if (keyPress.action == KeyPress.Action.RIGHT) {
+                movement.x = 1;
+            } else if (keyPress.action == KeyPress.Action.UP) {
+                movement.y = 1;
+            } else if (keyPress.action == KeyPress.Action.DOWN) {
+                movement.y = -1;
+            }
+        } else {
+            // Only cancel the movement if one key is pressed down.
+            if (keyPress.action == KeyPress.Action.LEFT && movement.x < 0) {
+                movement.x = 0;
+            } else if (keyPress.action == KeyPress.Action.RIGHT && movement.x > 0) {
+                movement.x = 0;
+            } else if (keyPress.action == KeyPress.Action.UP && movement.y > 0) {
+                movement.y = 0;
+            } else if (keyPress.action == KeyPress.Action.DOWN && movement.y < 0) {
+                movement.y = 0;
+            }
         }
-        if (keyPress.action == KeyPress.Action.RIGHT) {
-            this.moveRight = keyPress.pressed;
-        }
-        if (keyPress.action == KeyPress.Action.UP) {
-            this.moveUp = keyPress.pressed;
-        }
-        if (keyPress.action == KeyPress.Action.DOWN) {
-            this.moveDown = keyPress.pressed;
-        }
+    }
+
+    /**
+     * Applies force to the movement direction, even after collision.
+     */
+    public void updateVector() {
+        Vector2 scaledMovement = movement.cpy().scl(Constants.movementSpeed);
+        float maxSpeed = Constants.movementSpeed * (float) Math.sqrt(2);
+        scaledMovement.clamp(maxSpeed, maxSpeed);
+        body.setLinearVelocity(scaledMovement);
     }
 
     /**
@@ -284,8 +273,41 @@ public class PlayerCharacter {
      * @param xPosition x coordinate
      * @param yPosition y coordinate
      */
-    public void setPosition(int xPosition, int yPosition) {
+    public void setPosition(float xPosition, float yPosition) {
         this.xPosition = xPosition;
         this.yPosition = yPosition;
     }
+
+    /**
+     * Update the position of the body.
+     */
+    public void updatePosition() {
+        if (lastYPosition != yPosition && lastXPosition != xPosition) {
+            this.body.setTransform(xPosition, yPosition, body.getAngle());
+            this.lastXPosition = xPosition;
+            this.lastYPosition = yPosition;
+        }
+    }
+
+    /**
+     * @return Player x position
+     */
+    public float getXPosition() {
+        if (body == null) {
+            return xPosition;
+        }
+        return body.getPosition().x;
+    }
+
+    /**
+     * @return Player y position
+     */
+    public float getYPosition() {
+        if (body == null) {
+            return yPosition;
+        }
+        return body.getPosition().y;
+    }
+
+
 }
