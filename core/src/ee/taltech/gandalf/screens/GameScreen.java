@@ -30,6 +30,7 @@ import ee.taltech.gandalf.input.PlayerInput;
 import ee.taltech.gandalf.scenes.Hud;
 import ee.taltech.gandalf.world.WorldCollision;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class GameScreen extends ScreenAdapter {
@@ -47,9 +48,9 @@ public class GameScreen extends ScreenAdapter {
 
     private final Map<Integer, PlayerCharacter> gamePlayers;
     private final PlayerCharacter clientCharacter;
-    private final Map<Integer, Spell> spells;
-    private final Map<Integer, Item> items;
-    private final Map<Integer, Mob> mobs;
+    private Map<Integer, Spell> spells;
+    private Map<Integer, Item> items;
+    private Map<Integer, Mob> mobs;
 
     private TmxMapLoader mapLoader;
     private TiledMap map;
@@ -113,9 +114,6 @@ public class GameScreen extends ScreenAdapter {
         startedGame = new StartedGame(game, lobby, world);
         gamePlayers = startedGame.getGamePlayers();
         clientCharacter = startedGame.getClientCharacter();
-        spells = startedGame.getSpells();
-        items = startedGame.getItems();
-        mobs = startedGame.getMobs();
 
         hud = new Hud(clientCharacter);
 
@@ -255,22 +253,22 @@ public class GameScreen extends ScreenAdapter {
 
         // Draw missing health bar
         shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 30 / Constants.PPM,
+        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 35 / Constants.PPM,
                 100 / Constants.PPM, 2 / Constants.PPM);
 
         // Draw health bar
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 30 / Constants.PPM,
+        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 35 / Constants.PPM,
                 player.getHealth() / Constants.PPM, 2 / Constants.PPM);
 
         // Draw missing mana bar
         shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 35 / Constants.PPM,
+        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 30 / Constants.PPM,
                 100 / Constants.PPM, 2 / Constants.PPM);
 
         // Draw mana bar
         shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 35 / Constants.PPM,
+        shapeRenderer.rect(player.getXPosition() - 50 / Constants.PPM, player.getYPosition() + 30 / Constants.PPM,
                 (float) (player.getMana() / Constants.PPM), 2 / Constants.PPM);
 
         // Stop rendering shapes
@@ -329,16 +327,18 @@ public class GameScreen extends ScreenAdapter {
      * Draw spells.
      */
     private void drawSpells() {
+        // The spells need to be changed only outside rendering, otherwise will crash.
+        spells = new HashMap<>(startedGame.getSpells());
         for (Spell spell : spells.values()) {
             if (spell.rotation().isPresent()) {
                 if (spell.getType() == ItemTypes.FIREBALL) {
                     game.batch.begin();
                     TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
                     game.batch.draw(spellCurrentFrame,
-                            (float) spell.getXPosition(),
-                            (float) spell.getYPosition() - 1,
-                            0,
-                            0,
+                            (float) spell.getXPosition() - 32 / Constants.PPM / 2,
+                            (float) spell.getYPosition() - 17 / Constants.PPM / 2,
+                            32 / Constants.PPM / 2,
+                            32 / Constants.PPM / 2,
                             32 / Constants.PPM,
                             17 / Constants.PPM,
                             1,
@@ -354,6 +354,7 @@ public class GameScreen extends ScreenAdapter {
      * Draw items that are on the ground.
      */
     private void drawItems() {
+        items = new HashMap<>(startedGame.getItems());
         for (Item item : items.values()) {
             if (item.getType() == ItemTypes.COIN) {
                 currentCoinFrame = item.getCoinRotationAnimation().getKeyFrame(elapsedTime, true);
@@ -378,6 +379,7 @@ public class GameScreen extends ScreenAdapter {
      * Draw mobs with their health bar.
      */
     private void drawMobs() {
+        mobs = new HashMap<>(startedGame.getMobs());
         for (Mob mob : mobs.values()) {
             MobAnimator mobAnimator = mob.getMobAnimator();
             int shortestDistance = Integer.MAX_VALUE; // Initialize with a large value
@@ -496,10 +498,7 @@ public class GameScreen extends ScreenAdapter {
 
         drawPlayers(); // Draw client character.
         drawMobs();
-
-        if (!spells.isEmpty()) {
-            drawSpells(); // Draw spells.
-        }
+        drawSpells(); // Draw spells.
 
         debugRenderer.render(world, camera.combined);
 

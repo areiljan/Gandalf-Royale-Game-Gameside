@@ -12,6 +12,7 @@ import ee.taltech.gandalf.network.messages.game.Position;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StartedGame {
     // Threshold for the server to override the position difference
@@ -40,9 +41,11 @@ public class StartedGame {
         clientId = game.nc.clientId;
         clientCharacter = gamePlayers.get(game.nc.clientId);
         clientCharacter.createHitBox(this.world);
-        spells = new HashMap<>();
-        items = new HashMap<>();
-        mobs = new HashMap<>();
+
+        // To sync putting items to Map and getting them. Creates a synchronization with failsafe.
+        spells = new ConcurrentHashMap<>();
+        items = new ConcurrentHashMap<>();
+        mobs = new ConcurrentHashMap<>();
         this.playZone = null;
     }
 
@@ -106,7 +109,9 @@ public class StartedGame {
      * @return spells
      */
     public Map<Integer, Spell> getSpells() {
-        return spells;
+        synchronized (spells) {
+            return new HashMap<>(spells);
+        }
     }
 
     /**
@@ -115,7 +120,9 @@ public class StartedGame {
      * @return items
      */
     public Map<Integer, Item> getItems() {
-        return items;
+        synchronized (mobs) {
+            return new HashMap<>(items);
+        }
     }
 
     /**
@@ -124,7 +131,9 @@ public class StartedGame {
      * @return mobs
      */
     public Map<Integer, Mob> getMobs() {
-        return mobs;
+        synchronized (mobs) {
+            return new HashMap<>(mobs);
+        }
     }
 
     /**
@@ -212,11 +221,13 @@ public class StartedGame {
      */
     public void updateSpellPositions(Integer senderId, double xPosition, double yPosition,
                                      Integer id, ItemTypes type) {
-        if (!spells.containsKey(id)) {
-            spells.put(id, new Spell(senderId, xPosition, yPosition, id, type));
-        } else {
-            spells.get(id).setXPosition(xPosition);
-            spells.get(id).setYPosition(yPosition);
+        synchronized (spells) {
+            if (!spells.containsKey(id)) {
+                spells.put(id, new Spell(senderId, xPosition, yPosition, id, type));
+            } else {
+                spells.get(id).setXPosition(xPosition);
+                spells.get(id).setYPosition(yPosition);
+            }
         }
     }
 
@@ -224,7 +235,9 @@ public class StartedGame {
      * Get rid of the spell.
      */
     public void removeSpell(Integer id) {
-        spells.remove(id);
+        synchronized (spells) {
+            spells.remove(id);
+        }
     }
 
     /**
@@ -251,7 +264,9 @@ public class StartedGame {
      * @param item item that is added
      */
     public void addItem(Item item) {
-        items.put(item.getId(), item);
+        synchronized (items) {
+            items.put(item.getId(), item);
+        }
     }
 
     /**
@@ -261,9 +276,11 @@ public class StartedGame {
      * @return removed item
      */
     public Item removeItem(Integer itemId) {
-        Item removedItem = items.get(itemId);
-        items.remove(itemId);
-        return removedItem;
+        synchronized (items) {
+            Item removedItem = items.get(itemId);
+            items.remove(itemId);
+            return removedItem;
+        }
     }
 
     /**
@@ -272,7 +289,9 @@ public class StartedGame {
      * @param mob mob that is added
      */
     public void addMob(Mob mob) {
-        mobs.put(mob.getId(), mob);
+        synchronized (mobs) {
+            mobs.put(mob.getId(), mob);
+        }
     }
 
     /**
@@ -281,7 +300,9 @@ public class StartedGame {
      * @param mobId mob's id who is removed
      */
     public void removeMob(Integer mobId) {
-        mobs.remove(mobId);
+        synchronized (mobs) {
+            mobs.remove(mobId);
+        }
     }
 
     /**
