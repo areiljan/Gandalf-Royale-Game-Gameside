@@ -23,7 +23,7 @@ public class PlayerInput implements InputProcessor {
     /**
      * Construct PlayerInput.
      *
-     * @param game GandalfRoyale game instance
+     * @param game            GandalfRoyale game instance
      * @param playerCharacter character who's input is read
      */
     public PlayerInput(GandalfRoyale game, PlayerCharacter playerCharacter) {
@@ -139,7 +139,7 @@ public class PlayerInput implements InputProcessor {
      * @param screenX x coordinate
      * @param screenY y coordinate
      * @param pointer ignored
-     * @param button what button is pressed
+     * @param button  what button is pressed
      * @return false
      */
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -149,11 +149,12 @@ public class PlayerInput implements InputProcessor {
             // Get the character's position
             Vector2 characterPositionOnScreen = new Vector2((float) windowWidth / 2, (float) windowHeight / 2);
 
-            // Create a vector representing the mouse position
-            Vector2 mousePosition = new Vector2(screenX, screenY);
-
+            // Create a vector representing the mouse position.
+            // The y coordinate is inverted now to more logical coords.
+            Vector2 mousePosition = new Vector2(screenX, windowHeight - screenY);
             // Subtract the character's position from the mouse position to get the relative position
             Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
+            // Make the vector smaller.
 
             ItemTypes type;
             if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
@@ -164,13 +165,13 @@ public class PlayerInput implements InputProcessor {
             if (type == ItemTypes.HEALING_POTION) {
                 mouse = new MouseClicks(type, true,
                         relativeMousePosition.x,
-                        relativeMousePosition.y + 80,
+                        relativeMousePosition.y,
                         playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId());
             } else {
                 mouse = new MouseClicks(type, true,
-                    relativeMousePosition.x, relativeMousePosition.y + 80);
+                        relativeMousePosition.x,
+                        relativeMousePosition.y);
             }
-            // The mouse Y positions should be at the characters head.
             game.nc.sendUDP(mouse);
         }
         return false;
@@ -182,7 +183,7 @@ public class PlayerInput implements InputProcessor {
      * @param screenX ignored
      * @param screenY ignored
      * @param pointer ignored
-     * @param button ignored
+     * @param button  ignored
      * @return false
      */
     @Override
@@ -205,7 +206,7 @@ public class PlayerInput implements InputProcessor {
         Vector2 characterPositionOnScreen = new Vector2((float) windowWidth / 2, (float) windowHeight / 2);
 
         // Create a vector representing the mouse position
-        Vector2 mousePosition = new Vector2(xMousePosition, yMousePosition);
+        Vector2 mousePosition = new Vector2(xMousePosition, windowHeight - yMousePosition);
 
         // Subtract the character's position from the mouse position to get the relative position
         Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
@@ -213,8 +214,7 @@ public class PlayerInput implements InputProcessor {
         // Check if the left mouse button is not pressed
         if (!Gdx.input.isButtonPressed(Buttons.LEFT)) {
             mouse = new MouseClicks(ItemTypes.NOTHING, false,
-                    relativeMousePosition.x, relativeMousePosition.y + 80);
-            // The mouse Y positions should be at the characters head.
+                    relativeMousePosition.x, relativeMousePosition.y);
             game.nc.sendUDP(mouse);
         }
         return false;
@@ -223,7 +223,7 @@ public class PlayerInput implements InputProcessor {
     /**
      * IGNORED.
      *
-     * @param i ignored
+     * @param i  ignored
      * @param i1 ignored
      * @param i2 ignored
      * @param i3 ignored
@@ -237,7 +237,7 @@ public class PlayerInput implements InputProcessor {
     /**
      * IGNORED.
      *
-     * @param i ignored
+     * @param i  ignored
      * @param i1 ignored
      * @param i2 ignored
      * @return false
