@@ -3,17 +3,18 @@ package ee.taltech.gandalf.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -21,16 +22,15 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.gandalf.components.*;
 import ee.taltech.gandalf.entities.*;
-import ee.taltech.gandalf.components.Constants;
-import ee.taltech.gandalf.entities.Item;
-import ee.taltech.gandalf.entities.PlayerCharacterAnimator;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
-import ee.taltech.gandalf.network.NetworkClient;
 import ee.taltech.gandalf.input.PlayerInput;
+import ee.taltech.gandalf.network.NetworkClient;
 import ee.taltech.gandalf.scenes.Hud;
+import ee.taltech.gandalf.world.TileData;
 import ee.taltech.gandalf.world.WorldCollision;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class GameScreen extends ScreenAdapter {
@@ -48,10 +48,6 @@ public class GameScreen extends ScreenAdapter {
 
     private final Map<Integer, PlayerCharacter> gamePlayers;
     private final PlayerCharacter clientCharacter;
-    private Map<Integer, Spell> spells;
-    private Map<Integer, Item> items;
-    private Map<Integer, Mob> mobs;
-
     private TmxMapLoader mapLoader;
     private TiledMap map;
 
@@ -63,9 +59,6 @@ public class GameScreen extends ScreenAdapter {
     private static Texture pumpkinAttackingTexture;
     private static Texture pumpkinWalkingTexture;
     private static Texture healingPotionTexture;
-
-    private static float pumpkinWidth;
-    private static float pumpkinHeight;
 
     private static Texture firstPlayZoneTexture;
     private static Texture firstExpectedZoneTexture;
@@ -81,6 +74,8 @@ public class GameScreen extends ScreenAdapter {
     private TextureRegion currentCoinFrame;
     private PlayZone playZone;
     private Integer currentTime;
+    private List<TiledMapTileLayer> layersToBeOrdered;
+
 
     /**
      * Construct GameScreen.
@@ -96,8 +91,6 @@ public class GameScreen extends ScreenAdapter {
         this.nc = game.nc;
 
         setTextures();
-        pumpkinWidth = 32 / Constants.PPM;
-        pumpkinHeight = 32 / Constants.PPM;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false);
@@ -119,7 +112,24 @@ public class GameScreen extends ScreenAdapter {
 
         shapeRenderer = new ShapeRenderer();
         debugRenderer = new Box2DDebugRenderer();
+
+        layersToBeOrdered = initializeLayersToBeOrdered();
     }
+
+    /**
+     * Add specific layers to the list.
+     *
+     * @return List of layers, that are needed to be ordered.
+     */
+    private List<TiledMapTileLayer> initializeLayersToBeOrdered() {
+        List<TiledMapTileLayer> layers = new ArrayList<>();
+        for (String layerName : Constants.LAYERS_TO_BE_ORDERED) {
+            TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(layerName);
+            layers.add(layer);
+        }
+        return layers;
+    }
+
 
     /**
      * CurrentTime setter.
@@ -190,56 +200,51 @@ public class GameScreen extends ScreenAdapter {
     /**
      * Draw all player character to screen.
      */
-    private void drawPlayers() {
-        elapsedTime += Gdx.graphics.getDeltaTime();
-        for (PlayerCharacter player : gamePlayers.values()) {
-            // elapsedTime is never reset and used for looping animations.
-            // use animationTime and reset it to play an animation once
-            PlayerCharacterAnimator playerAnimator = player.getPlayerAnimator();
+    private void drawPlayer(PlayerCharacter player) {
+        // elapsedTime is never reset and used for looping animations.
+        // use animationTime and reset it to play an animation once
+        PlayerCharacterAnimator playerAnimator = player.getPlayerAnimator();
 
-
-            // Movement and idle setters.
-            if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE ||
-                    playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
-                playerAnimator.setState();
-            }
-
-            // All state handling. Choosing the frame to display this tick.
-            if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.DEATH) {
-                currentCharacterFrame = playerAnimator.deathAnimation().getKeyFrame(4 * 0.3f, false);
-            } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.ACTION) {
-                // Increment animationTime
-                actionAnimationTime += Gdx.graphics.getDeltaTime();
-                currentCharacterFrame = playerAnimator.actionAnimation().getKeyFrame(actionAnimationTime);
-                if (playerAnimator.actionAnimation().isAnimationFinished(actionAnimationTime)) {
-                    playerAnimator.setState(PlayerCharacterAnimator.AnimationStates.IDLE);
-                    actionAnimationTime = 0;
-                }
-            } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
-                currentCharacterFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
-            } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE) {
-                currentCharacterFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
-            }
-
-
-            game.batch.begin();
-            // Set the image to 3 times smaller picture and flip it, if player is moving left.
-            if (playerAnimator.lookRight()) {
-                game.batch.draw(currentCharacterFrame, player.getXPosition() - 35f / Constants.PPM,
-                        player.getYPosition() - 40f / Constants.PPM,
-                        80 / Constants.PPM,
-                        80 / Constants.PPM);
-            } else {
-                game.batch.draw(currentCharacterFrame, player.getXPosition() - 45f / Constants.PPM,
-                        player.getYPosition() - 40f / Constants.PPM,
-                        80 / Constants.PPM,
-                        80 / Constants.PPM);
-            }
-            game.batch.end();
-            // Draw health and mana bar
-            drawBars(player);
+        // Movement and idle setters.
+        if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE ||
+                playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
+            playerAnimator.setState();
         }
+
+        // All state handling. Choosing the frame to display this tick.
+        if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.DEATH) {
+            currentCharacterFrame = playerAnimator.deathAnimation().getKeyFrame(4 * 0.3f, false);
+        } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.ACTION) {
+            // Increment animationTime
+            actionAnimationTime += Gdx.graphics.getDeltaTime();
+            currentCharacterFrame = playerAnimator.actionAnimation().getKeyFrame(actionAnimationTime);
+            if (playerAnimator.actionAnimation().isAnimationFinished(actionAnimationTime)) {
+                playerAnimator.setState(PlayerCharacterAnimator.AnimationStates.IDLE);
+                actionAnimationTime = 0;
+            }
+        } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.MOVEMENT) {
+            currentCharacterFrame = playerAnimator.movementAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
+        } else if (playerAnimator.getState() == PlayerCharacterAnimator.AnimationStates.IDLE) {
+            currentCharacterFrame = playerAnimator.idleAnimation().getKeyFrame(elapsedTime, true); // Use elapsedTime
+        }
+        game.batch.begin();
+        // Set the image to 3 times smaller picture and flip it, if player is moving left.
+        if (playerAnimator.lookRight()) {
+            game.batch.draw(currentCharacterFrame, player.getXPosition() - 35f / Constants.PPM,
+                    player.getYPosition() - 40f / Constants.PPM,
+                    80 / Constants.PPM,
+                    80 / Constants.PPM);
+        } else {
+            game.batch.draw(currentCharacterFrame, player.getXPosition() - 45f / Constants.PPM,
+                    player.getYPosition() - 40f / Constants.PPM,
+                    80 / Constants.PPM,
+                    80 / Constants.PPM);
+        }
+        game.batch.end();
+        // Draw health and mana bar
+        drawBars(player);
     }
+
 
     /**
      * Draw health and mana bar for player.
@@ -326,26 +331,23 @@ public class GameScreen extends ScreenAdapter {
     /**
      * Draw spells.
      */
-    private void drawSpells() {
+    private void drawSpell(Spell spell) {
         // The spells need to be changed only outside rendering, otherwise will crash.
-        spells = new HashMap<>(startedGame.getSpells());
-        for (Spell spell : spells.values()) {
-            if (spell.rotation().isPresent()) {
-                if (spell.getType() == ItemTypes.FIREBALL) {
-                    game.batch.begin();
-                    TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
-                    game.batch.draw(spellCurrentFrame,
-                            (float) spell.getXPosition() - 32 / Constants.PPM / 2,
-                            (float) spell.getYPosition() - 17 / Constants.PPM / 2,
-                            32 / Constants.PPM / 2,
-                            32 / Constants.PPM / 2,
-                            32 / Constants.PPM,
-                            17 / Constants.PPM,
-                            1,
-                            1,
-                            spell.rotation().get());
-                    game.batch.end();
-                }
+        if (spell.rotation().isPresent()) {
+            if (spell.getType() == ItemTypes.FIREBALL) {
+                game.batch.begin();
+                TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
+                game.batch.draw(spellCurrentFrame,
+                        (float) spell.getXPosition() - 32 / Constants.PPM / 2,
+                        (float) spell.getYPosition() - 17 / Constants.PPM / 2,
+                        32 / Constants.PPM / 2,
+                        32 / Constants.PPM / 2,
+                        32 / Constants.PPM,
+                        17 / Constants.PPM,
+                        1,
+                        1,
+                        spell.rotation().get());
+                game.batch.end();
             }
         }
     }
@@ -353,95 +355,90 @@ public class GameScreen extends ScreenAdapter {
     /**
      * Draw items that are on the ground.
      */
-    private void drawItems() {
-        items = new HashMap<>(startedGame.getItems());
-        for (Item item : items.values()) {
-            if (item.getType() == ItemTypes.COIN) {
-                currentCoinFrame = item.getCoinRotationAnimation().getKeyFrame(elapsedTime, true);
-                game.batch.begin();
-                game.batch.draw(currentCoinFrame,
-                        item.getXPosition() - item.getTextureWidth() / 2,
-                        item.getYPosition() - item.getTextureHeight() / 2,
-                        10 / Constants.PPM, 10 / Constants.PPM);
-                game.batch.end();
-            } else {
-                game.batch.begin();
-                game.batch.draw(item.getTexture(),
-                        item.getXPosition() - item.getTextureWidth() / 2,
-                        item.getYPosition() - item.getTextureHeight() / 2,
-                        item.getTextureWidth(), item.getTextureHeight());
-                game.batch.end();
-            }
+    private void drawItem(Item item) {
+        if (item.getType() == ItemTypes.COIN) {
+            currentCoinFrame = item.getCoinRotationAnimation().getKeyFrame(elapsedTime, true);
+            game.batch.begin();
+            game.batch.draw(currentCoinFrame,
+                    item.getXPosition() - item.getTextureWidth() / 2,
+                    item.getYPosition() - item.getTextureHeight() / 2,
+                    10 / Constants.PPM, 10 / Constants.PPM);
+            game.batch.end();
+        } else {
+            game.batch.begin();
+            game.batch.draw(item.getTexture(),
+                    item.getXPosition() - item.getTextureWidth() / 2,
+                    item.getYPosition() - item.getTextureHeight() / 2,
+                    item.getTextureWidth(), item.getTextureHeight());
+            game.batch.end();
         }
     }
+
 
     /**
      * Draw mobs with their health bar.
      */
-    private void drawMobs() {
-        mobs = new HashMap<>(startedGame.getMobs());
-        for (Mob mob : mobs.values()) {
-            MobAnimator mobAnimator = mob.getMobAnimator();
-            int shortestDistance = Integer.MAX_VALUE; // Initialize with a large value
-            int distanceFromPlayer = 0;
-            for (PlayerCharacter playerCharacter : gamePlayers.values()) {
-                distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.getXPosition() - mob.getXPosition(), 2)
-                        + Math.pow(playerCharacter.getYPosition() - mob.getYPosition(), 2));
-                // Update shortest distance if the current distance is shorter
-                shortestDistance = Math.min(shortestDistance, distanceFromPlayer);
-            }
-            // Check if mob is near the player
-            if (shortestDistance < 2) {
-                // Increment attack animation time
-                mobAttackAnimationTime += Gdx.graphics.getDeltaTime();
+    private void drawMob(Mob mob) {
+        MobAnimator mobAnimator = mob.getMobAnimator();
+        int shortestDistance = Integer.MAX_VALUE; // Initialize with a large value
+        int distanceFromPlayer = 0;
+        for (PlayerCharacter playerCharacter : gamePlayers.values()) {
+            distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.getXPosition() - mob.getXPosition(), 2)
+                    + Math.pow(playerCharacter.getYPosition() - mob.getYPosition(), 2));
+            // Update shortest distance if the current distance is shorter
+            shortestDistance = Math.min(shortestDistance, distanceFromPlayer);
+        }
+        // Check if mob is near the player
+        if (shortestDistance < 2) {
+            // Increment attack animation time
+            mobAttackAnimationTime += Gdx.graphics.getDeltaTime();
 
-                // Check if attack animation is finished
-                if (mobAnimator.attackAnimation().isAnimationFinished(mobAttackAnimationTime)) {
-                    // Reset animation time
-                    mobAttackAnimationTime = 0;
-                    attackAnimationCount++;
-                } else if (attackAnimationCount < 2) {
-                    // Set current mob frame to attack animation frame
-                    currentMobFrame = mob.getMobAnimator().attackAnimation().getKeyFrame(mobAttackAnimationTime, true);
-                } else if (attackAnimationCount >= 2) {
-                    // Set current mob frame to movement animation frame
-                    currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime, true);
-                }
-            } else {
-                // Reset attack animation count when player moves away
-                attackAnimationCount = 0;
+            // Check if attack animation is finished
+            if (mobAnimator.attackAnimation().isAnimationFinished(mobAttackAnimationTime)) {
+                // Reset animation time
+                mobAttackAnimationTime = 0;
+                attackAnimationCount++;
+            } else if (attackAnimationCount < 2) {
+                // Set current mob frame to attack animation frame
+                currentMobFrame = mob.getMobAnimator().attackAnimation().getKeyFrame(mobAttackAnimationTime, true);
+            } else if (attackAnimationCount >= 2) {
                 // Set current mob frame to movement animation frame
                 currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime, true);
             }
-
-            // *-------------- MOB ASSET --------------*
-            game.batch.begin();
-            game.batch.draw(currentMobFrame,
-                    mob.getXPosition() - pumpkinWidth / 2,
-                    mob.getYPosition() - pumpkinHeight / 2, 
-                    pumpkinWidth, pumpkinHeight);
-            game.batch.end();
-
-            // *-------------- MOB HEATH BAR --------------*
-            shapeRenderer.setProjectionMatrix(camera.combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled); // Start drawing
-
-            // Missing health
-            shapeRenderer.setColor(Color.BLACK);
-            shapeRenderer.rect(
-                    mob.getXPosition() - 25f / 2f / Constants.PPM,
-                    mob.getYPosition() + pumpkinHeight / 2,
-                    25 / Constants.PPM, 2 / Constants.PPM);
-
-            // Present health
-            shapeRenderer.setColor(Color.RED);
-            shapeRenderer.rect(
-                    mob.getXPosition() - 25f / 2f / Constants.PPM,
-                    mob.getYPosition() + pumpkinHeight / 2,
-                    mob.getHealth() / 2f / Constants.PPM, 2 / Constants.PPM);
-
-            shapeRenderer.end(); // Stop drawing
+        } else {
+            // Reset attack animation count when player moves away
+            attackAnimationCount = 0;
+            // Set current mob frame to movement animation frame
+            currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime, true);
         }
+
+        // *-------------- MOB ASSET --------------*
+        game.batch.begin();
+        game.batch.draw(currentMobFrame,
+                mob.getXPosition() - Constants.PUMPKIN_WIDTH / 2f,
+                mob.getYPosition() - Constants.PUMPKIN_HEIGHT / 2f,
+                Constants.PUMPKIN_WIDTH, Constants.PUMPKIN_HEIGHT);
+        game.batch.end();
+
+        // *-------------- MOB HEATH BAR --------------*
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled); // Start drawing
+
+        // Missing health
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.rect(
+                mob.getXPosition() - 25f / 2f / Constants.PPM,
+                mob.getYPosition() + Constants.PUMPKIN_HEIGHT / 2f,
+                25 / Constants.PPM, 2 / Constants.PPM);
+
+        // Present health
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(
+                mob.getXPosition() - 25f / 2f / Constants.PPM,
+                mob.getYPosition() + Constants.PUMPKIN_HEIGHT / 2f,
+                mob.getHealth() / 2f / Constants.PPM, 2 / Constants.PPM);
+
+        shapeRenderer.end(); // Stop drawing
     }
 
     /**
@@ -461,7 +458,7 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
-     * Show screen on initialisation.
+     * Show screen on initialization.
      */
     @Override
     public void show() {
@@ -490,19 +487,14 @@ public class GameScreen extends ScreenAdapter {
 
         // Render game objects
         game.batch.begin();
-        camera.zoom = 2.5f; // To render 2.5X bigger area than seen.
+        camera.zoom = 3f; // To render 3X bigger area than seen.
         renderer.setView(camera);
-        renderer.render();
-        camera.zoom = 1f; // Reset the camera back to its original state.
+        renderer.render(Constants.BACKGROUND_LAYERS);
         game.batch.end();
-
-        drawPlayers(); // Draw client character.
-        drawMobs();
-        drawSpells(); // Draw spells.
+        renderByLayering(); // Render entities and tiles
+        camera.zoom = 1f; // Reset the camera back to its original state.
 
         debugRenderer.render(world, camera.combined);
-
-        drawItems();
 
         if (startedGame.getPlayZone() != null) {
             drawPlayZone();
@@ -514,7 +506,87 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
-     * Correct camera position when resizing window.
+     * Sort player rendering and layer rendering to make the right visual appearance.
+     */
+    private void renderByLayering() {
+        // Get all game objects, that should be rendered.
+        List<Entity> entities = getGameObjects();
+        elapsedTime += Gdx.graphics.getDeltaTime();
+        for (Entity entity : entities) {
+            switch (entity) {
+                case PlayerCharacter player -> drawPlayer(player);
+                case TileData tileData -> drawTile(tileData);
+                case Mob mob -> drawMob(mob);
+                case Spell spell -> drawSpell(spell);
+                case Item item -> drawItem(item);
+                default -> throw new IllegalStateException("Rendering for item not implemented yet: " + entity);
+            }
+        }
+    }
+
+    /**
+     * Render tile once.
+     *
+     * @param tile One tile asset
+     */
+    private void drawTile(TileData tile) {
+        game.batch.begin();
+        game.batch.draw(tile.sprite, tile.x, tile.y,
+                tile.sprite.getWidth() / Constants.PPM,
+                tile.sprite.getHeight() / Constants.PPM);
+        game.batch.end();
+    }
+
+    /**
+     * Sorts the players and tiles based on y position.
+     *
+     * @return Players and Tiles in render order.
+     */
+    private List<Entity> getGameObjects() {
+        List<Entity> entities = new ArrayList<>();
+        entities.addAll(getTilesNearby());
+        entities.addAll(startedGame.getGamePlayers().values());
+        entities.addAll(startedGame.getSpells().values());
+        entities.addAll(startedGame.getMobs().values());
+        entities.addAll(startedGame.getItems().values());
+        entities.sort(new GameObjectComparator());
+        return entities.reversed(); // Higher Y should be rendered first.
+    }
+
+    /**
+     * Get the tiles that need to be rendered on the screen.
+     *
+     * @return tiles near client's viewport.
+     */
+    private List<TileData> getTilesNearby() {
+        List<TileData> tilesNearby = new ArrayList<>();
+        // Loop through 3 layers "props", "vegetation", "rocks", that are manually set.
+        for (TiledMapTileLayer layer : layersToBeOrdered) {
+            // Loop x-cords around client's viewport.
+            for (int x = (int) (clientCharacter.getXPosition() - Constants.maxTilesSeenWidth);
+                 x < clientCharacter.getXPosition() + Constants.maxTilesSeenWidth; x++) {
+                // Loop y-cords around client's viewport. Y - cords are read from top to bottom.
+                for (int y = (int) (clientCharacter.getYPosition() + Constants.maxTilesSeenHeight);
+                     y > clientCharacter.getYPosition() - Constants.maxTilesSeenHeight; y--) {
+                    TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+                    if (cell != null) {
+                        TiledMapTile tile = cell.getTile();
+                        Sprite sprite = new Sprite(tile.getTextureRegion().getTexture());
+                        if (cell.getFlipHorizontally()) {
+                            sprite.flip(true, false);
+                        }
+                        // Create TileData object accordingly.
+                        tilesNearby.add(new TileData(sprite, x, y, layer));
+                    }
+                }
+            }
+        }
+        return tilesNearby;
+    }
+
+    /**
+     * dd
+     * Correct camera position when resizing a window.
      *
      * @param width  window width
      * @param height window height
