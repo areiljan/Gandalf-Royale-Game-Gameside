@@ -108,7 +108,7 @@ public class GameScreen extends ScreenAdapter {
         gamePlayers = startedGame.getGamePlayers();
         clientCharacter = startedGame.getClientCharacter();
 
-        hud = new Hud(clientCharacter);
+        hud = new Hud(clientCharacter, startedGame);
 
         shapeRenderer = new ShapeRenderer();
         debugRenderer = new Box2DDebugRenderer();
