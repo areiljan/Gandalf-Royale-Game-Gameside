@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ee.taltech.gandalf.GandalfRoyale;
+import ee.taltech.gandalf.components.StartedGame;
 import ee.taltech.gandalf.entities.Item;
 import ee.taltech.gandalf.entities.PlayerCharacter;
 
@@ -18,32 +19,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * The type Hud.
+ */
 public class Hud {
 
     private static final Texture ACTIVE_INVENTORY = new Texture("Hud/ActiveInventorySlot.png");
     private static final Texture INACTIVE_INVENTORY = new Texture("Hud/NotActiveInventorySlot.png");
     private static final Texture COIN = new Texture("Coin/coin.png");
+    private static final Texture ARROW = new Texture("Hud/ZoneArrow.png");
     private static final Integer MESSAGE_ON_SCREEN_TIME = 150;
 
     private final PlayerCharacter player;
     private final Viewport viewport;
     private final Stage stage;
     private final Table root;
+    private final StartedGame startedGame;
 
     private Image coinImage;
     private Label coinLabel;
-
+    private Image arrowImage;
     private Label timeLabel;
-
     private Label messageLabel;
     private final List<String> messages;
     private Integer messageTimer;
     private String currentMessage;
+    private float arrowAngle;
 
     private final Group inventoryGroup;
     private final Group messageGroup;
     private final Group coinCounterGroup;
     private final Group timeCounterGroup;
+    private final Group zoneArrowGroup;
+    private final Group emptySlotGroup;
 
     private final Image[] inventorySlotImages;
     private final Image[] itemImages;
@@ -51,10 +59,12 @@ public class Hud {
     /**
      * Construct hud for client's game.
      *
-     * @param player client's player character
+     * @param player      client's player character
+     * @param startedGame
      */
-    public Hud(PlayerCharacter player) {
+    public Hud(PlayerCharacter player, StartedGame startedGame) {
         this.player = player;
+        this.startedGame = startedGame;
 
         // *--------- VIEWPORT ---------*
         viewport = new ScreenViewport();
@@ -76,24 +86,32 @@ public class Hud {
         messageTimer = 0;
         currentMessage = "";
 
+        // *--------- ARROW ----------*
+        arrowAngle = 90.0f;
+
         // *--------- GROUPS ---------*
         inventoryGroup = new HorizontalGroup();
         messageGroup = new HorizontalGroup();
         coinCounterGroup = new HorizontalGroup();
         timeCounterGroup = new HorizontalGroup();
+        zoneArrowGroup = new HorizontalGroup();
+        emptySlotGroup = new HorizontalGroup();
 
         // *--------- CREATE UI ---------*
         createInventory();
         createCoinCounter();
         createTimeCounter();
+        createZoneArrow();
         createMessage();
 
         // *--------- ADD UI TO STAGE ---------*
         root.add(inventoryGroup).expandX().top().left();
-        root.add(messageGroup).expandX().top();
-        root.add(timeCounterGroup).expand().top().right();
+        root.add(messageGroup).expandX().top().padTop(20);
+        root.add(timeCounterGroup).expand().top().padTop(10).right().padRight(10);
         root.row();
-        root.add(coinCounterGroup).expand().bottom().left();
+        root.add(coinCounterGroup).expandX().bottom().padBottom(10).left().padLeft(10);
+        root.add(zoneArrowGroup).expandX().bottom().padBottom(140);
+        root.add(emptySlotGroup).expand().bottom().right();
     }
 
     /**
@@ -134,6 +152,21 @@ public class Hud {
         }
     }
 
+    /**
+     * Create zone arrow.
+     */
+    private void createZoneArrow() {
+        arrowImage = new Image();
+        arrowImage.setDrawable(new TextureRegionDrawable(new TextureRegion(ARROW)));
+        arrowImage.getDrawable().setMinWidth(100);
+        arrowImage.getDrawable().setMinHeight(100);
+
+        zoneArrowGroup.addActor(arrowImage);
+    }
+
+    /**
+     * Create message.
+     */
     private void createMessage() {
         messageLabel = new Label(currentMessage, new Label.LabelStyle(GandalfRoyale.font, Color.RED));
 
@@ -200,6 +233,18 @@ public class Hud {
     }
 
     /**
+     * Draw arrow guiding player toward new zone.
+     */
+    private void drawZoneArrow() {
+        if (startedGame.getPlayZone().getStage() > 0) {
+            arrowAngle = startedGame.getPlayZone().rotationToCurrentZone(player.getXPosition(), player.getYPosition());
+        }
+
+        // calculate arrow angle to the nearest zone
+        arrowImage.setRotation(arrowAngle);
+    }
+
+    /**
      * Create drawable for item, if slot has item in it.
      *
      * @param i what slot is looked at
@@ -238,9 +283,10 @@ public class Hud {
 
     /**
      * Draw hud aka update the values in it.
+     *
+     * @param currentTime the current time
      */
     public void draw(Integer currentTime) {
-
         // Update message based on the message buffer
         if (!messages.isEmpty() || !Objects.equals(currentMessage, "")) {
             if (Objects.equals(messageTimer, MESSAGE_ON_SCREEN_TIME) || Objects.equals(currentMessage, "")) {
@@ -253,6 +299,13 @@ public class Hud {
         drawMessage();
         drawCoinCounter();
         drawTimeCounter(currentTime);
+        if (startedGame.getPlayZone() != null && !startedGame.getPlayZone().areCoordinatesInNewZone((int)player.getXPosition(), (int) player.getYPosition())) {
+            zoneArrowGroup.setVisible(true);
+            System.out.println("drawing arrow now");
+            drawZoneArrow();
+        } else {
+            zoneArrowGroup.setVisible(false);
+        }
 
         stage.act();
         stage.draw();
@@ -261,7 +314,7 @@ public class Hud {
     /**
      * Resize hud.
      *
-     * @param width new width
+     * @param width  new width
      * @param height new height
      */
     public void resize(int width, int height) {

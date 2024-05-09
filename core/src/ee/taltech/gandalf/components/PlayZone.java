@@ -1,5 +1,8 @@
 package ee.taltech.gandalf.components;
 
+import static java.lang.Math.round;
+import static java.lang.Math.sqrt;
+
 public class PlayZone {
     private int stage;
     private final int firstPlayZoneX;
@@ -8,6 +11,8 @@ public class PlayZone {
     private final int secondPlayZoneY;
     private final int thirdPlayZoneX;
     private final int thirdPlayZoneY;
+    private int currentPlayZoneX;
+    private int currentPlayZoneY;
 
     /**
      * PlayZone constructor.
@@ -29,6 +34,8 @@ public class PlayZone {
         this.secondPlayZoneY = secondPlayZoneY;
         this.thirdPlayZoneX = thirdPlayZoneX;
         this.thirdPlayZoneY = thirdPlayZoneY;
+        this.currentPlayZoneX = 0;
+        this.currentPlayZoneY = 0;
     }
 
     /**
@@ -90,13 +97,19 @@ public class PlayZone {
 
         if (stage % 2 != 0) {
             if (stage == 1) {
+                currentPlayZoneX = firstPlayZoneX;
+                currentPlayZoneY = firstPlayZoneY;
                 message += "-----------------------PHASE ONE-----------------------\n";
             } else if (stage == 3) {
+                currentPlayZoneX = secondPlayZoneX;
+                currentPlayZoneY = secondPlayZoneY;
                 message += "-----------------------PHASE TWO-----------------------\n";
             }else if (stage == 5) {
+                currentPlayZoneX = thirdPlayZoneX;
+                currentPlayZoneY = thirdPlayZoneY;
                 message += "----------------------PHASE THREE----------------------\n";
             }
-            message += "                  coordinates x: " + firstPlayZoneX + " y: " + firstPlayZoneY + "                  \n";
+            message += "             coordinates x: " + currentPlayZoneX + " y: " + currentPlayZoneY + "                  \n";
             message += "                      You have 60 seconds\n";
             message += "-----------------------------------------------------------";
         }
@@ -111,6 +124,42 @@ public class PlayZone {
         }
 
         return message;
+    }
+
+    /**
+     * Rotation from the coordinates entered to current zone center.
+     */
+    public int rotationToCurrentZone(float x, float y) {
+        double angle = Math.toDegrees(Math.atan2(currentPlayZoneY - y, currentPlayZoneX - x)) - 45;
+        // the plus 45 degrees is just to adjust the rotation of the ZoneArrow.
+
+        // Ensure angle is positive
+        if (angle < 0) {
+            angle += 360;
+        }
+        return (int) angle;
+    }
+
+    /**
+     * Are the specified coordinates in the zone right now.
+     * @param x - the x coordinate.
+     * @param y - the y coordinate.
+     * @return - true if in the zone.
+     * Mirrored from serverside.
+     */
+    public boolean areCoordinatesInNewZone(int x, int y) {
+        if (stage < 1) {
+            return true;
+        } else if (stage <= 2) {
+            int distanceFromMidPoint = (int) sqrt(Math.pow(x - firstPlayZoneX, 2) + (Math.pow(firstPlayZoneY - y, 2)));
+            return (distanceFromMidPoint < Constants.FIRST_ZONE_RADIUS);
+        } else if (stage <= 4) {
+            int distanceFromMidPoint = (int) sqrt(Math.pow(x - secondPlayZoneX, 2) + (Math.pow(secondPlayZoneY - y, 2)));
+            return (distanceFromMidPoint < Constants.SECOND_ZONE_RADIUS);
+        } else {
+            int distanceFromMidPoint = (int) sqrt(Math.pow(x - thirdPlayZoneX, 2) + (Math.pow(thirdPlayZoneY - y, 2)));
+            return (distanceFromMidPoint < Constants.THIRD_ZONE_RADIUS);
+        }
     }
 
     /**

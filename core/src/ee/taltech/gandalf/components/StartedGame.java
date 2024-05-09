@@ -55,8 +55,7 @@ public class StartedGame {
     public void initializePlayZone(int firstPlayZoneX, int firstPlayZoneY,
                                    int secondPlayZoneX, int secondPlayZoneY,
                                    int thirdPlayZoneX, int thirdPlayZoneY) {
-        this.playZone = new PlayZone(firstPlayZoneX, firstPlayZoneY, secondPlayZoneX,secondPlayZoneY, thirdPlayZoneX, thirdPlayZoneY);
-
+        this.playZone = new PlayZone(firstPlayZoneX, firstPlayZoneY, secondPlayZoneX, secondPlayZoneY, thirdPlayZoneX, thirdPlayZoneY);
     }
 
     /**
