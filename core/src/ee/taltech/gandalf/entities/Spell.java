@@ -10,7 +10,7 @@ import ee.taltech.gandalf.screens.GameScreen;
 
 import java.util.Optional;
 
-public class Spell {
+public class Spell implements Entity {
 
     private final Integer senderId;
     private double previousXPosition;
@@ -100,17 +100,25 @@ public class Spell {
      *
      * @return x position
      */
-    public double getXPosition() {
-        return xPosition;
+    @Override
+    public float getXPosition() {
+        return (float) xPosition;
     }
+
 
     /**
      * Get y position.
      *
      * @return y position
      */
-    public double getYPosition() {
-        return yPosition;
+    @Override
+    public float getYPosition() {
+        return (float) yPosition;
+    }
+
+    @Override
+    public float getHeight() {
+        return 0;
     }
 
     /**

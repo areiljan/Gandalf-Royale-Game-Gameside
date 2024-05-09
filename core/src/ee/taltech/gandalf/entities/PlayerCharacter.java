@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PlayerCharacter {
+public class PlayerCharacter implements Entity {
     public static final Integer WIDTH = 12;
     public static final Integer HEIGHT = 24;
 
@@ -292,6 +292,7 @@ public class PlayerCharacter {
     /**
      * @return Player x position
      */
+    @Override
     public float getXPosition() {
         if (body == null) {
             return xPosition;
@@ -299,9 +300,15 @@ public class PlayerCharacter {
         return body.getPosition().x;
     }
 
+    @Override
+    public float getHeight() {
+        return PlayerCharacter.HEIGHT;
+    }
+
     /**
      * @return Player y position
      */
+    @Override
     public float getYPosition() {
         if (body == null) {
             return yPosition;

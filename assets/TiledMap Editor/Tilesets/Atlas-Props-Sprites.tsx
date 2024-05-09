@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.2" name="Atlas-Props-Sprites" tilewidth="736" tileheight="608" tilecount="641" columns="0">
+<tileset version="1.10" tiledversion="1.10.2" name="Atlas-Props-Sprites" tilewidth="736" tileheight="608" tilecount="713" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="1618">
   <image width="64" height="64" source="../../Props/atlas-props-individual sprites/ancient stones_0.png"/>
@@ -3264,5 +3264,321 @@
  </tile>
  <tile id="1680">
   <image width="32" height="32" source="../../Props/atlas-props-individual sprites/flooded gras details_11.png"/>
+ </tile>
+ <tile id="2259">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_1.png"/>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="38" y="166.75" width="32.75" height="33.5">
+    <ellipse/>
+   </object>
+  </objectgroup>
+  <animation>
+   <frame tileid="2259" duration="100"/>
+   <frame tileid="2260" duration="100"/>
+   <frame tileid="2261" duration="100"/>
+   <frame tileid="2262" duration="100"/>
+   <frame tileid="2263" duration="100"/>
+   <frame tileid="2264" duration="100"/>
+   <frame tileid="2265" duration="100"/>
+   <frame tileid="2266" duration="100"/>
+   <frame tileid="2267" duration="100"/>
+   <frame tileid="2268" duration="100"/>
+   <frame tileid="2269" duration="100"/>
+   <frame tileid="2270" duration="100"/>
+   <frame tileid="2271" duration="100"/>
+   <frame tileid="2272" duration="100"/>
+   <frame tileid="2273" duration="100"/>
+   <frame tileid="2274" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="2260">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_2.png"/>
+ </tile>
+ <tile id="2261">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_3.png"/>
+ </tile>
+ <tile id="2262">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_4.png"/>
+ </tile>
+ <tile id="2263">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_5.png"/>
+ </tile>
+ <tile id="2264">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_6.png"/>
+ </tile>
+ <tile id="2265">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_7.png"/>
+ </tile>
+ <tile id="2266">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_8.png"/>
+ </tile>
+ <tile id="2267">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_9.png"/>
+ </tile>
+ <tile id="2268">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_10.png"/>
+ </tile>
+ <tile id="2269">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_11.png"/>
+ </tile>
+ <tile id="2270">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_12.png"/>
+ </tile>
+ <tile id="2271">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_13.png"/>
+ </tile>
+ <tile id="2272">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_14.png"/>
+ </tile>
+ <tile id="2273">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_15.png"/>
+ </tile>
+ <tile id="2274">
+  <image width="110" height="180" source="../../Props/animated/obelisk_anim_1/Obelisk4-animation2-activated-110x180_16.png"/>
+ </tile>
+ <tile id="2275">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_1.png"/>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="21.5" y="120.75" width="22.5" height="22.25">
+    <ellipse/>
+   </object>
+  </objectgroup>
+  <animation>
+   <frame tileid="2275" duration="100"/>
+   <frame tileid="2276" duration="100"/>
+   <frame tileid="2277" duration="100"/>
+   <frame tileid="2278" duration="100"/>
+   <frame tileid="2279" duration="100"/>
+   <frame tileid="2280" duration="100"/>
+   <frame tileid="2281" duration="100"/>
+   <frame tileid="2282" duration="100"/>
+   <frame tileid="2283" duration="100"/>
+   <frame tileid="2284" duration="100"/>
+   <frame tileid="2285" duration="100"/>
+   <frame tileid="2286" duration="100"/>
+   <frame tileid="2287" duration="100"/>
+   <frame tileid="2288" duration="100"/>
+   <frame tileid="2289" duration="100"/>
+   <frame tileid="2290" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="2276">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_2.png"/>
+ </tile>
+ <tile id="2277">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_3.png"/>
+ </tile>
+ <tile id="2278">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_4.png"/>
+ </tile>
+ <tile id="2279">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_5.png"/>
+ </tile>
+ <tile id="2280">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_6.png"/>
+ </tile>
+ <tile id="2281">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_7.png"/>
+ </tile>
+ <tile id="2282">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_8.png"/>
+ </tile>
+ <tile id="2283">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_9.png"/>
+ </tile>
+ <tile id="2284">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_10.png"/>
+ </tile>
+ <tile id="2285">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_11.png"/>
+ </tile>
+ <tile id="2286">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_12.png"/>
+ </tile>
+ <tile id="2287">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_13.png"/>
+ </tile>
+ <tile id="2288">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_14.png"/>
+ </tile>
+ <tile id="2289">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_15.png"/>
+ </tile>
+ <tile id="2290">
+  <image width="70" height="150" source="../../Props/animated/obelisk_anim_2/Obelisk1-animation2-activated-70x150_16.png"/>
+ </tile>
+ <tile id="2291">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_1.png"/>
+  <objectgroup draworder="index" id="3">
+   <object id="7" x="45" y="66.25" width="21.5" height="20.5">
+    <ellipse/>
+   </object>
+  </objectgroup>
+  <animation>
+   <frame tileid="2291" duration="100"/>
+   <frame tileid="2292" duration="100"/>
+   <frame tileid="2293" duration="100"/>
+   <frame tileid="2294" duration="100"/>
+   <frame tileid="2295" duration="100"/>
+   <frame tileid="2296" duration="100"/>
+   <frame tileid="2297" duration="100"/>
+   <frame tileid="2298" duration="100"/>
+   <frame tileid="2299" duration="100"/>
+   <frame tileid="2300" duration="100"/>
+   <frame tileid="2301" duration="100"/>
+   <frame tileid="2302" duration="100"/>
+   <frame tileid="2303" duration="100"/>
+   <frame tileid="2304" duration="100"/>
+   <frame tileid="2305" duration="100"/>
+   <frame tileid="2306" duration="100"/>
+   <frame tileid="2307" duration="100"/>
+   <frame tileid="2308" duration="100"/>
+   <frame tileid="2309" duration="100"/>
+   <frame tileid="2310" duration="100"/>
+   <frame tileid="2311" duration="100"/>
+   <frame tileid="2312" duration="100"/>
+   <frame tileid="2313" duration="100"/>
+   <frame tileid="2314" duration="100"/>
+   <frame tileid="2315" duration="100"/>
+   <frame tileid="2316" duration="100"/>
+   <frame tileid="2317" duration="100"/>
+   <frame tileid="2318" duration="100"/>
+   <frame tileid="2319" duration="100"/>
+   <frame tileid="2320" duration="100"/>
+   <frame tileid="2321" duration="100"/>
+   <frame tileid="2322" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="2292">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_2.png"/>
+ </tile>
+ <tile id="2293">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_3.png"/>
+ </tile>
+ <tile id="2294">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_4.png"/>
+ </tile>
+ <tile id="2295">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_5.png"/>
+ </tile>
+ <tile id="2296">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_6.png"/>
+ </tile>
+ <tile id="2297">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_7.png"/>
+ </tile>
+ <tile id="2298">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_8.png"/>
+ </tile>
+ <tile id="2299">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_9.png"/>
+ </tile>
+ <tile id="2300">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_10.png"/>
+ </tile>
+ <tile id="2301">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_11.png"/>
+ </tile>
+ <tile id="2302">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_12.png"/>
+ </tile>
+ <tile id="2303">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_13.png"/>
+ </tile>
+ <tile id="2304">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_14.png"/>
+ </tile>
+ <tile id="2305">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_15.png"/>
+ </tile>
+ <tile id="2306">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_16.png"/>
+ </tile>
+ <tile id="2307">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_17.png"/>
+ </tile>
+ <tile id="2308">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_18.png"/>
+ </tile>
+ <tile id="2309">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_19.png"/>
+ </tile>
+ <tile id="2310">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_20.png"/>
+ </tile>
+ <tile id="2311">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_21.png"/>
+ </tile>
+ <tile id="2312">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_22.png"/>
+ </tile>
+ <tile id="2313">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_23.png"/>
+ </tile>
+ <tile id="2314">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_24.png"/>
+ </tile>
+ <tile id="2315">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_25.png"/>
+ </tile>
+ <tile id="2316">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_26.png"/>
+ </tile>
+ <tile id="2317">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_27.png"/>
+ </tile>
+ <tile id="2318">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_28.png"/>
+ </tile>
+ <tile id="2319">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_29.png"/>
+ </tile>
+ <tile id="2320">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_30.png"/>
+ </tile>
+ <tile id="2321">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_31.png"/>
+ </tile>
+ <tile id="2322">
+  <image width="110" height="110" source="../../Characters/NPC merchant/with animated items/merchant_loop/NPC Merchant-interaction-loop_32.png"/>
+ </tile>
+ <tile id="2323">
+  <image width="160" height="128" source="../../Props/animated/fountain/row-1-column-1.png"/>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="69.75" y="117.5">
+    <polygon points="0,0 21.5,0.75 67.5,-45 68,-67.25 26,-109 -4.25,-109.25 -47,-67.5 -47,-47"/>
+   </object>
+  </objectgroup>
+  <animation>
+   <frame tileid="2323" duration="100"/>
+   <frame tileid="2324" duration="100"/>
+   <frame tileid="2325" duration="100"/>
+   <frame tileid="2326" duration="100"/>
+   <frame tileid="2327" duration="100"/>
+   <frame tileid="2328" duration="100"/>
+   <frame tileid="2329" duration="100"/>
+   <frame tileid="2330" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="2324">
+  <image width="160" height="128" source="../../Props/animated/fountain/row-1-column-2.png"/>
+ </tile>
+ <tile id="2325">
+  <image width="160" height="128" source="../../Props/animated/fountain/row-1-column-3.png"/>
+ </tile>
+ <tile id="2326">
+  <image width="160" height="128" source="../../Props/animated/fountain/row-1-column-4.png"/>
+ </tile>
+ <tile id="2327">
+  <image width="160" height="128" source="../../Props/animated/fountain/row-1-column-5.png"/>
+ </tile>
+ <tile id="2328">
+  <image width="160" height="128" source="../../Props/animated/fountain/row-1-column-6.png"/>
+ </tile>
+ <tile id="2329">
+  <image width="160" height="128" source="../../Props/animated/fountain/row-1-column-7.png"/>
+ </tile>
+ <tile id="2330">
+  <image width="160" height="128" source="../../Props/animated/fountain/row-1-column-8.png"/>
  </tile>
 </tileset>

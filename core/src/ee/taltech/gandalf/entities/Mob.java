@@ -1,7 +1,7 @@
 package ee.taltech.gandalf.entities;
 
 
-public class Mob {
+public class Mob implements Entity {
     private float xPosition;
     private float yPosition;
     private float LastXPosition;
@@ -39,6 +39,7 @@ public class Mob {
      *
      * @return xPosition
      */
+    @Override
     public float getXPosition() {
         return xPosition;
     }
@@ -48,9 +49,16 @@ public class Mob {
      *
      * @return yPosition
      */
+    @Override
     public float getYPosition() {
         return yPosition;
     }
+
+    @Override
+    public float getHeight() {
+        return 0;
+    }
+
 
     /**
      * Get mob's ID.

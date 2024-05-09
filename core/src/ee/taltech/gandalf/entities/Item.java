@@ -8,7 +8,7 @@ import ee.taltech.gandalf.components.ItemTypes;
 import ee.taltech.gandalf.components.TextureType;
 import ee.taltech.gandalf.screens.GameScreen;
 
-public class Item {
+public class Item implements Entity {
 
     private final ItemTypes type;
     private final Integer id;
@@ -102,17 +102,24 @@ public class Item {
      *
      * @return xPosition
      */
+    @Override
     public float getXPosition() {
         return xPosition;
     }
+
 
     /**
      * Get item's y coordinate.
      *
      * @return yPosition
      */
+    @Override
     public float getYPosition() {
         return yPosition;
+    }
+    @Override
+    public float getHeight() {
+        return 0;
     }
 
     /**
