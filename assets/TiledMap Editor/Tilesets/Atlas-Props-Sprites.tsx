@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.2" name="Atlas-Props-Sprites" tilewidth="736" tileheight="608" tilecount="713" columns="0">
+<tileset version="1.10" tiledversion="1.10.2" name="Atlas-Props-Sprites" tilewidth="736" tileheight="608" tilecount="723" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="1618">
   <image width="64" height="64" source="../../Props/atlas-props-individual sprites/ancient stones_0.png"/>
@@ -3580,5 +3580,52 @@
  </tile>
  <tile id="2330">
   <image width="160" height="128" source="../../Props/animated/fountain/row-1-column-8.png"/>
+ </tile>
+ <tile id="2346">
+  <image width="95" height="96" source="../../Props/animated/ritual/Ritual site-anim1-loop_1.png"/>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="23.5" y="78">
+    <polygon points="0,0 25.5,-13 47,1 26.5,13.5"/>
+   </object>
+  </objectgroup>
+  <animation>
+   <frame tileid="2346" duration="100"/>
+   <frame tileid="2347" duration="100"/>
+   <frame tileid="2348" duration="100"/>
+   <frame tileid="2349" duration="100"/>
+   <frame tileid="2350" duration="100"/>
+   <frame tileid="2351" duration="100"/>
+   <frame tileid="2352" duration="100"/>
+   <frame tileid="2353" duration="100"/>
+   <frame tileid="2354" duration="100"/>
+   <frame tileid="2355" duration="100"/>
+  </animation>
+ </tile>
+ <tile id="2347">
+  <image width="95" height="96" source="../../Props/animated/ritual/Ritual site-anim1-loop_2.png"/>
+ </tile>
+ <tile id="2348">
+  <image width="95" height="96" source="../../Props/animated/ritual/Ritual site-anim1-loop_3.png"/>
+ </tile>
+ <tile id="2349">
+  <image width="95" height="96" source="../../Props/animated/ritual/Ritual site-anim1-loop_4.png"/>
+ </tile>
+ <tile id="2350">
+  <image width="95" height="96" source="../../Props/animated/ritual/Ritual site-anim1-loop_5.png"/>
+ </tile>
+ <tile id="2351">
+  <image width="95" height="96" source="../../Props/animated/ritual/Ritual site-anim1-loop_6.png"/>
+ </tile>
+ <tile id="2352">
+  <image width="95" height="96" source="../../Props/animated/ritual/Ritual site-anim1-loop_7.png"/>
+ </tile>
+ <tile id="2353">
+  <image width="95" height="96" source="../../Props/animated/ritual/Ritual site-anim1-loop_8.png"/>
+ </tile>
+ <tile id="2354">
+  <image width="95" height="96" source="../../Props/animated/ritual/Ritual site-anim1-loop_9.png"/>
+ </tile>
+ <tile id="2355">
+  <image width="95" height="96" source="../../Props/animated/ritual/Ritual site-anim1-loop_10.png"/>
  </tile>
 </tileset>
