@@ -33,6 +33,7 @@ import ee.taltech.gandalf.entities.collision.CollisionHandler;
 import ee.taltech.gandalf.input.PlayerInput;
 import ee.taltech.gandalf.network.NetworkClient;
 import ee.taltech.gandalf.scenes.Hud;
+import ee.taltech.gandalf.scenes.SettingsWindow;
 import ee.taltech.gandalf.world.TileData;
 import ee.taltech.gandalf.scenes.MenuWindow;
 import ee.taltech.gandalf.world.WorldCollision;
@@ -53,14 +54,18 @@ public class GameScreen extends ScreenAdapter {
 
     private final Hud hud;
     private final MenuWindow menuWindow;
+    private final SettingsWindow settingsWindow;
     private boolean menuWindowShown;
+    private boolean settingsWindowShown;
     public final StartedGame startedGame;
 
     private final Map<Integer, PlayerCharacter> gamePlayers;
     private final PlayerCharacter clientCharacter;
-    private TmxMapLoader mapLoader;
-    private TiledMap map;
+
     private final OrthogonalTiledMapRenderer renderer;
+    private final TmxMapLoader mapLoader;
+    private final TiledMap map;
+
     private static Texture otherPlayZoneTexture;
     private static Texture otherExpectedZoneTexture;
     private static Texture fireballTexture;
@@ -77,6 +82,7 @@ public class GameScreen extends ScreenAdapter {
     private static Texture pumpkinAttackingTexture;
     private static Texture pumpkinWalkingTexture;
     private static Texture healingPotionTexture;
+
     private static Texture firstPlayZoneTexture;
     private static Texture firstExpectedZoneTexture;
     private float elapsedTime;
@@ -84,7 +90,7 @@ public class GameScreen extends ScreenAdapter {
     private float mobAttackAnimationTime;
     private Integer attackAnimationCount = 0;
     private final ShapeRenderer shapeRenderer;
-    private final Box2DDebugRenderer debugRenderer; // For debugging
+
     private TextureRegion currentCharacterFrame;
     private TextureRegion currentMobFrame;
     private TextureRegion currentCoinFrame;
@@ -128,10 +134,11 @@ public class GameScreen extends ScreenAdapter {
 
         hud = new Hud(clientCharacter, startedGame);
         menuWindow = new MenuWindow(game);
+        settingsWindow = game.screenController.getSettingsWindow();
         menuWindowShown = false;
+        settingsWindowShown = false;
 
         shapeRenderer = new ShapeRenderer();
-        debugRenderer = new Box2DDebugRenderer();
 
         inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(new PlayerInput(game, clientCharacter, this));
@@ -188,6 +195,15 @@ public class GameScreen extends ScreenAdapter {
             case HEALING_POTION -> healingPotionTexture;
             default -> new Texture("wizard.png");
         };
+    }
+
+    /**
+     * Check if settings windows is shown.
+     *
+     * @return boolean value
+     */
+    public boolean isSettingsWindowShown() {
+        return settingsWindowShown;
     }
 
     /**
@@ -563,6 +579,20 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * Toggle settings window and input processor.
+     */
+    public void toggleSettingsWindow() {
+        settingsWindowShown = !settingsWindowShown;
+
+        if (settingsWindowShown) {
+            toggleMenuWindow(); // Toggle menu window off
+            inputMultiplexer.addProcessor(settingsWindow.getInput()); // Listen to input from settings window
+        } else {
+            inputMultiplexer.removeProcessor(settingsWindow.getInput()); // Stop listening to input from settings window
+        }
+    }
+
+    /**
      * Show screen on initialization.
      */
     @Override
@@ -600,8 +630,6 @@ public class GameScreen extends ScreenAdapter {
         renderByLayering(); // Render entities and tiles
         camera.zoom = 1f; // Reset the camera back to its original state.
 
-        debugRenderer.render(world, camera.combined);
-
         if (startedGame.getPlayZone() != null) {
             drawPlayZone();
         } else {
@@ -612,6 +640,9 @@ public class GameScreen extends ScreenAdapter {
 
         if (menuWindowShown) {
             menuWindow.draw();
+        }
+        if (settingsWindowShown) {
+            settingsWindow.draw();
         }
     }
 
@@ -706,6 +737,7 @@ public class GameScreen extends ScreenAdapter {
         viewport.update(width, height, true);
         hud.resize(width, height);
         menuWindow.resize(width, height);
+        settingsWindow.resize(width, height);
     }
 
     /**
@@ -716,7 +748,6 @@ public class GameScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
         world.dispose();
         map.dispose();
-        debugRenderer.dispose();
         hud.dispose();
         menuWindow.dispose();
         game.nc.removeAllListeners();
