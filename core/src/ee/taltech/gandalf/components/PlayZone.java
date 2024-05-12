@@ -97,6 +97,16 @@ public class PlayZone {
 
         if (stage % 2 != 0) {
             message += "60 seconds until next zone";
+            if (stage == 1) {
+                currentPlayZoneX = firstPlayZoneX;
+                currentPlayZoneY = firstPlayZoneY;
+            } else if (stage == 3) {
+                currentPlayZoneX = secondPlayZoneX;
+                currentPlayZoneY = secondPlayZoneY;
+            } else if (stage == 5) {
+                currentPlayZoneX = thirdPlayZoneX;
+                currentPlayZoneY = thirdPlayZoneY;
+            }
         }
         else {
             if (stage == 2) {
