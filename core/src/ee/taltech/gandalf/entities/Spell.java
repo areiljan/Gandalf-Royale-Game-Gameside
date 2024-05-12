@@ -43,7 +43,8 @@ public class Spell implements Entity {
 
     /**
      * Getter for the fireballAnimations.
-     * @return
+     *
+     * @return fireball animation
      */
     public Animation<TextureRegion> getFireballAnimation() {
         return fireballAnimation;
@@ -114,11 +115,6 @@ public class Spell implements Entity {
     @Override
     public float getYPosition() {
         return (float) yPosition;
-    }
-
-    @Override
-    public float getHeight() {
-        return 0;
     }
 
     /**

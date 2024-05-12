@@ -10,15 +10,16 @@ import ee.taltech.gandalf.components.ItemTypes;
 import ee.taltech.gandalf.entities.PlayerCharacter;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
 import ee.taltech.gandalf.network.messages.game.MouseClicks;
+import ee.taltech.gandalf.screens.GameScreen;
 
 import java.util.Objects;
 
 public class PlayerInput implements InputProcessor {
     private GandalfRoyale game;
     private PlayerCharacter playerCharacter;
+    private GameScreen screen;
     private KeyPress key;
     private MouseClicks mouse;
-    private boolean mouseClick;
 
     /**
      * Construct PlayerInput.
@@ -26,9 +27,10 @@ public class PlayerInput implements InputProcessor {
      * @param game            GandalfRoyale game instance
      * @param playerCharacter character who's input is read
      */
-    public PlayerInput(GandalfRoyale game, PlayerCharacter playerCharacter) {
+    public PlayerInput(GandalfRoyale game, PlayerCharacter playerCharacter, GameScreen screen) {
         this.game = game;
         this.playerCharacter = playerCharacter;
+        this.screen = screen;
     }
 
     /**
@@ -39,51 +41,56 @@ public class PlayerInput implements InputProcessor {
      */
     @Override
     public boolean keyDown(int keycode) {
-        switch (keycode) {
-            case Input.Keys.W:
-                key = new KeyPress(KeyPress.Action.UP, true);
-                break;
-            case Input.Keys.A:
-                key = new KeyPress(KeyPress.Action.LEFT, true);
-                break;
-            case Input.Keys.S:
-                key = new KeyPress(KeyPress.Action.DOWN, true);
-                break;
-            case Input.Keys.D:
-                key = new KeyPress(KeyPress.Action.RIGHT, true);
-                break;
-            case Input.Keys.F:
-                // Only if empty slot is selected
-                if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) == null) {
-                    key = new KeyPress(KeyPress.Action.INTERACT, true);
-                }
-                break;
-            case Input.Keys.R:
-                Integer droppedItemID;
-                // Only if empty slot in not selected
-                if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
-                    droppedItemID = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId();
-                    key = new KeyPress(KeyPress.Action.DROP, true, droppedItemID);
-                }
-                break;
-            case Input.Keys.NUM_1: // Set selected slot with keyboard
-                playerCharacter.setSelectedSlot(0);
-                break;
-            case Input.Keys.NUM_2: // Set selected slot with keyboard
-                playerCharacter.setSelectedSlot(1);
-                break;
-            case Input.Keys.NUM_3: // Set selected slot with keyboard
-                playerCharacter.setSelectedSlot(2);
-                break;
-            default:
-                break;
+        if (playerCharacter.getHealth() != 0) {
+            switch (keycode) {
+                case Input.Keys.W:
+                    key = new KeyPress(KeyPress.Action.UP, true);
+                    break;
+                case Input.Keys.A:
+                    key = new KeyPress(KeyPress.Action.LEFT, true);
+                    break;
+                case Input.Keys.S:
+                    key = new KeyPress(KeyPress.Action.DOWN, true);
+                    break;
+                case Input.Keys.D:
+                    key = new KeyPress(KeyPress.Action.RIGHT, true);
+                    break;
+                case Input.Keys.F:
+                    // Only if empty slot is selected
+                    if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) == null) {
+                        key = new KeyPress(KeyPress.Action.INTERACT, true);
+                    }
+                    break;
+                case Input.Keys.R:
+                    Integer droppedItemID;
+                    // Only if empty slot in not selected
+                    if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
+                        droppedItemID = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId();
+                        key = new KeyPress(KeyPress.Action.DROP, true, droppedItemID);
+                    }
+                    break;
+                case Input.Keys.NUM_1: // Set selected slot with keyboard
+                    playerCharacter.setSelectedSlot(0);
+                    break;
+                case Input.Keys.NUM_2: // Set selected slot with keyboard
+                    playerCharacter.setSelectedSlot(1);
+                    break;
+                case Input.Keys.NUM_3: // Set selected slot with keyboard
+                    playerCharacter.setSelectedSlot(2);
+                    break;
+                default:
+                    break;
+            }
+            if (!Objects.equals(key, null)) {
+                // Send LEFT to server
+                game.nc.sendUDP(key);
+                // Send LEFT to client
+                playerCharacter.setMovement(key);
+                key = null;
+            }
         }
-        if (!Objects.equals(key, null)) {
-            // Send LEFT to server
-            game.nc.sendUDP(key);
-            // Send LEFT to client
-            playerCharacter.setMovement(key);
-            key = null;
+        if (keycode == Input.Keys.ESCAPE) { // Open Menu Window || this has to work even if dead
+            screen.toggleMenuWindow();
         }
         return false;
     }
@@ -96,28 +103,30 @@ public class PlayerInput implements InputProcessor {
      */
     @Override
     public boolean keyUp(int keycode) {
-        switch (keycode) {
-            case Input.Keys.W:
-                key = new KeyPress(KeyPress.Action.UP, false);
-                break;
-            case Input.Keys.S:
-                key = new KeyPress(KeyPress.Action.DOWN, false);
-                break;
-            case Input.Keys.A:
-                key = new KeyPress(KeyPress.Action.LEFT, false);
-                break;
-            case Input.Keys.D:
-                key = new KeyPress(KeyPress.Action.RIGHT, false);
-                break;
-            default:
-                break;
-        }
-        if (!Objects.equals(key, null)) {
-            // Send LEFT to server
-            game.nc.sendUDP(key);
-            // Send LEFT to client
-            playerCharacter.setMovement(key);
-            key = null;
+        if (playerCharacter.getHealth() != 0) {
+            switch (keycode) {
+                case Input.Keys.W:
+                    key = new KeyPress(KeyPress.Action.UP, false);
+                    break;
+                case Input.Keys.S:
+                    key = new KeyPress(KeyPress.Action.DOWN, false);
+                    break;
+                case Input.Keys.A:
+                    key = new KeyPress(KeyPress.Action.LEFT, false);
+                    break;
+                case Input.Keys.D:
+                    key = new KeyPress(KeyPress.Action.RIGHT, false);
+                    break;
+                default:
+                    break;
+            }
+            if (!Objects.equals(key, null)) {
+                // Send LEFT to server
+                game.nc.sendUDP(key);
+                // Send LEFT to client
+                playerCharacter.setMovement(key);
+                key = null;
+            }
         }
         return false;
     }
@@ -145,34 +154,36 @@ public class PlayerInput implements InputProcessor {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         int windowHeight = Gdx.graphics.getHeight();
         int windowWidth = Gdx.graphics.getWidth();
-        if (button == Buttons.LEFT) {
-            // Get the character's position
-            Vector2 characterPositionOnScreen = new Vector2((float) windowWidth / 2, (float) windowHeight / 2);
+        if (playerCharacter.getHealth() != 0) {
+            if (button == Buttons.LEFT) {
+                // Get the character's position
+                Vector2 characterPositionOnScreen = new Vector2((float) windowWidth / 2, (float) windowHeight / 2);
 
-            // Create a vector representing the mouse position.
-            // The y coordinate is inverted now to more logical coords.
-            Vector2 mousePosition = new Vector2(screenX, windowHeight - screenY);
-            // Subtract the character's position from the mouse position to get the relative position
-            Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
-            // Make the vector smaller.
+                // Create a vector representing the mouse position.
+                // The y coordinate is inverted now to more logical coords.
+                Vector2 mousePosition = new Vector2(screenX, windowHeight - screenY);
+                // Subtract the character's position from the mouse position to get the relative position
+                Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
+                // Make the vector smaller.
 
-            ItemTypes type;
-            if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
-                type = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getType();
-            } else {
-                type = ItemTypes.NOTHING;
+                ItemTypes type;
+                if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
+                    type = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getType();
+                } else {
+                    type = ItemTypes.NOTHING;
+                }
+                if (type == ItemTypes.HEALING_POTION) {
+                    mouse = new MouseClicks(type, true,
+                            relativeMousePosition.x,
+                            relativeMousePosition.y,
+                            playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId());
+                } else {
+                    mouse = new MouseClicks(type, true,
+                            relativeMousePosition.x,
+                            relativeMousePosition.y);
+                }
+                game.nc.sendUDP(mouse);
             }
-            if (type == ItemTypes.HEALING_POTION) {
-                mouse = new MouseClicks(type, true,
-                        relativeMousePosition.x,
-                        relativeMousePosition.y,
-                        playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId());
-            } else {
-                mouse = new MouseClicks(type, true,
-                        relativeMousePosition.x,
-                        relativeMousePosition.y);
-            }
-            game.nc.sendUDP(mouse);
         }
         return false;
     }
@@ -202,20 +213,22 @@ public class PlayerInput implements InputProcessor {
     public boolean mouseMoved(int xMousePosition, int yMousePosition) {
         int windowHeight = Gdx.graphics.getHeight();
         int windowWidth = Gdx.graphics.getWidth();
-        // Get the character's position
-        Vector2 characterPositionOnScreen = new Vector2((float) windowWidth / 2, (float) windowHeight / 2);
+        if (playerCharacter.getHealth() != 0) {
+            // Get the character's position
+            Vector2 characterPositionOnScreen = new Vector2((float) windowWidth / 2, (float) windowHeight / 2);
 
-        // Create a vector representing the mouse position
-        Vector2 mousePosition = new Vector2(xMousePosition, windowHeight - yMousePosition);
+            // Create a vector representing the mouse position
+            Vector2 mousePosition = new Vector2(xMousePosition, windowHeight - yMousePosition);
 
-        // Subtract the character's position from the mouse position to get the relative position
-        Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
+            // Subtract the character's position from the mouse position to get the relative position
+            Vector2 relativeMousePosition = new Vector2(mousePosition).sub(characterPositionOnScreen);
 
-        // Check if the left mouse button is not pressed
-        if (!Gdx.input.isButtonPressed(Buttons.LEFT)) {
-            mouse = new MouseClicks(ItemTypes.NOTHING, false,
-                    relativeMousePosition.x, relativeMousePosition.y);
-            game.nc.sendUDP(mouse);
+            // Check if the left mouse button is not pressed
+            if (!Gdx.input.isButtonPressed(Buttons.LEFT)) {
+                mouse = new MouseClicks(ItemTypes.NOTHING, false,
+                        relativeMousePosition.x, relativeMousePosition.y);
+                game.nc.sendUDP(mouse);
+            }
         }
         return false;
     }
@@ -256,12 +269,14 @@ public class PlayerInput implements InputProcessor {
      */
     @Override
     public boolean scrolled(float amountX, float amountY) {
-        if (amountY > 0 && playerCharacter.getSelectedSlot() != 2) { // Scrolling down
-            playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() + 1);
+        if (playerCharacter.getHealth() != 0) {
+            if (amountY > 0 && playerCharacter.getSelectedSlot() != 2) { // Scrolling down
+                playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() + 1);
 
-        } else if (amountY < 0 && playerCharacter.getSelectedSlot() != 0) { // Scrolling up
-            playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() - 1);
+            } else if (amountY < 0 && playerCharacter.getSelectedSlot() != 0) { // Scrolling up
+                playerCharacter.setSelectedSlot(playerCharacter.getSelectedSlot() - 1);
 
+            }
         }
         return true;
     }

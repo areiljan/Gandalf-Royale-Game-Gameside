@@ -1,6 +1,7 @@
 package ee.taltech.gandalf.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
@@ -27,6 +28,7 @@ import ee.taltech.gandalf.input.PlayerInput;
 import ee.taltech.gandalf.network.NetworkClient;
 import ee.taltech.gandalf.scenes.Hud;
 import ee.taltech.gandalf.world.TileData;
+import ee.taltech.gandalf.scenes.MenuWindow;
 import ee.taltech.gandalf.world.WorldCollision;
 
 import java.util.ArrayList;
@@ -34,22 +36,24 @@ import java.util.List;
 import java.util.Map;
 
 public class GameScreen extends ScreenAdapter {
-
     private final World world;
     GandalfRoyale game;
     NetworkClient nc;
 
-    private OrthogonalTiledMapRenderer renderer;
     private ExtendViewport viewport;
-    public OrthographicCamera camera;
+    private OrthographicCamera camera;
 
     private final Hud hud;
+    private final MenuWindow menuWindow;
+    private boolean menuWindowShown;
     public final StartedGame startedGame;
 
     private final Map<Integer, PlayerCharacter> gamePlayers;
     private final PlayerCharacter clientCharacter;
-    private TmxMapLoader mapLoader;
-    private TiledMap map;
+
+    private final OrthogonalTiledMapRenderer renderer;
+    private final TmxMapLoader mapLoader;
+    private final TiledMap map;
 
     private static Texture otherPlayZoneTexture;
     private static Texture otherExpectedZoneTexture;
@@ -77,6 +81,8 @@ public class GameScreen extends ScreenAdapter {
     private List<TiledMapTileLayer> layersToBeOrdered;
 
 
+    private final InputMultiplexer inputMultiplexer;
+
     /**
      * Construct GameScreen.
      *
@@ -96,8 +102,8 @@ public class GameScreen extends ScreenAdapter {
         camera.setToOrtho(false);
         mapLoader = new TmxMapLoader();
 
-        viewport = new ExtendViewport(Constants.minChunksSeen, Constants.minChunksSeen,
-                Constants.maxTilesSeenWidth, Constants.maxTilesSeenHeight, camera);
+        viewport = new ExtendViewport(Constants.MIN_CHUNKS_SEEN, Constants.MIN_CHUNKS_SEEN,
+                Constants.MAX_TILES_SEEN_WIDTH, Constants.MAX_TILES_SEEN_HEIGHT, camera);
         viewport.apply();
 
         map = mapLoader.load("Gandalf_Royale.tmx");
@@ -109,9 +115,14 @@ public class GameScreen extends ScreenAdapter {
         clientCharacter = startedGame.getClientCharacter();
 
         hud = new Hud(clientCharacter, startedGame);
+        menuWindow = new MenuWindow(game);
+        menuWindowShown = false;
 
         shapeRenderer = new ShapeRenderer();
         debugRenderer = new Box2DDebugRenderer();
+
+        inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(new PlayerInput(game, clientCharacter, this));
 
         layersToBeOrdered = initializeLayersToBeOrdered();
     }
@@ -245,7 +256,6 @@ public class GameScreen extends ScreenAdapter {
         drawBars(player);
     }
 
-
     /**
      * Draw health and mana bar for player.
      *
@@ -338,8 +348,8 @@ public class GameScreen extends ScreenAdapter {
                 game.batch.begin();
                 TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
                 game.batch.draw(spellCurrentFrame,
-                        (float) spell.getXPosition() - 32 / Constants.PPM / 2,
-                        (float) spell.getYPosition() - 17 / Constants.PPM / 2,
+                        spell.getXPosition() - 32 / Constants.PPM / 2,
+                        spell.getYPosition() - 17 / Constants.PPM / 2,
                         32 / Constants.PPM / 2,
                         32 / Constants.PPM / 2,
                         32 / Constants.PPM,
@@ -374,22 +384,13 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
-
     /**
      * Draw mobs with their health bar.
      */
     private void drawMob(Mob mob) {
         MobAnimator mobAnimator = mob.getMobAnimator();
-        int shortestDistance = Integer.MAX_VALUE; // Initialize with a large value
-        int distanceFromPlayer = 0;
-        for (PlayerCharacter playerCharacter : gamePlayers.values()) {
-            distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.getXPosition() - mob.getXPosition(), 2)
-                    + Math.pow(playerCharacter.getYPosition() - mob.getYPosition(), 2));
-            // Update shortest distance if the current distance is shorter
-            shortestDistance = Math.min(shortestDistance, distanceFromPlayer);
-        }
-        // Check if mob is near the player
-        if (shortestDistance < 2) {
+        int shortestDistance = getShortestDistance(mob);
+        if (shortestDistance < 2) { // Check if mob is near the player
             // Increment attack animation time
             mobAttackAnimationTime += Gdx.graphics.getDeltaTime();
 
@@ -401,7 +402,7 @@ public class GameScreen extends ScreenAdapter {
             } else if (attackAnimationCount < 2) {
                 // Set current mob frame to attack animation frame
                 currentMobFrame = mob.getMobAnimator().attackAnimation().getKeyFrame(mobAttackAnimationTime, true);
-            } else if (attackAnimationCount >= 2) {
+            } else {
                 // Set current mob frame to movement animation frame
                 currentMobFrame = mob.getMobAnimator().movementAnimation().getKeyFrame(elapsedTime, true);
             }
@@ -442,6 +443,24 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
+     * Get the shortest distance to a player.
+     *
+     * @param mob mob whose distance to players is checked
+     * @return integer values of shortest distance to player from a mob
+     */
+    private int getShortestDistance(Mob mob) {
+        int shortestDistance = Integer.MAX_VALUE; // Initialize with a large value
+        int distanceFromPlayer = 0;
+        for (PlayerCharacter playerCharacter : gamePlayers.values()) {
+            distanceFromPlayer = (int) Math.sqrt(Math.pow(playerCharacter.getXPosition() - mob.getXPosition(), 2)
+                    + Math.pow(playerCharacter.getYPosition() - mob.getYPosition(), 2));
+            // Update the shortest distance if the current distance is shorter
+            shortestDistance = Math.min(shortestDistance, distanceFromPlayer);
+        }
+        return shortestDistance;
+    }
+
+    /**
      * Display message on the screen.
      *
      * @param message message as a string
@@ -451,10 +470,16 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
-     * Disable players movement aka don't listen to input.
+     * Toggle menu window and input processor.
      */
-    public void disableClientPlayerCharacter() {
-        Gdx.input.setInputProcessor(null);
+    public void toggleMenuWindow() {
+        menuWindowShown = !menuWindowShown;
+
+        if (menuWindowShown) {
+            inputMultiplexer.addProcessor(menuWindow.getStage()); // Listen to input from menu window
+        } else {
+            inputMultiplexer.removeProcessor(menuWindow.getStage()); // Stop listening to input from menu window
+        }
     }
 
     /**
@@ -462,7 +487,8 @@ public class GameScreen extends ScreenAdapter {
      */
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(new PlayerInput(game, clientCharacter));
+        // Set input for client
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     /**
@@ -503,6 +529,10 @@ public class GameScreen extends ScreenAdapter {
         }
 
         hud.draw(currentTime);
+
+        if (menuWindowShown) {
+            menuWindow.draw();
+        }
     }
 
     /**
@@ -563,11 +593,11 @@ public class GameScreen extends ScreenAdapter {
         // Loop through 3 layers "props", "vegetation", "rocks", that are manually set.
         for (TiledMapTileLayer layer : layersToBeOrdered) {
             // Loop x-cords around client's viewport.
-            for (int x = (int) (clientCharacter.getXPosition() - Constants.maxTilesSeenWidth);
-                 x < clientCharacter.getXPosition() + Constants.maxTilesSeenWidth; x++) {
+            for (int x = (int) (clientCharacter.getXPosition() - Constants.MAX_TILES_SEEN_WIDTH);
+                 x < clientCharacter.getXPosition() + Constants.MAX_TILES_SEEN_WIDTH; x++) {
                 // Loop y-cords around client's viewport. Y - cords are read from top to bottom.
-                for (int y = (int) (clientCharacter.getYPosition() + Constants.maxTilesSeenHeight);
-                     y > clientCharacter.getYPosition() - Constants.maxTilesSeenHeight; y--) {
+                for (int y = (int) (clientCharacter.getYPosition() + Constants.MAX_TILES_SEEN_HEIGHT);
+                     y > clientCharacter.getYPosition() - Constants.MAX_TILES_SEEN_HEIGHT; y--) {
                     TiledMapTileLayer.Cell cell = layer.getCell(x, y);
                     if (cell != null) {
                         TiledMapTile tile = cell.getTile();
@@ -595,6 +625,7 @@ public class GameScreen extends ScreenAdapter {
     public void resize(int width, int height) {
         viewport.update(width, height, true);
         hud.resize(width, height);
+        menuWindow.resize(width, height);
     }
 
     /**
@@ -604,7 +635,10 @@ public class GameScreen extends ScreenAdapter {
     public void hide() {
         Gdx.input.setInputProcessor(null);
         world.dispose();
+        map.dispose();
         debugRenderer.dispose();
         hud.dispose();
+        menuWindow.dispose();
+        game.nc.removeAllListeners();
     }
 }

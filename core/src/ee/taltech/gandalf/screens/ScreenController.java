@@ -3,6 +3,9 @@ package ee.taltech.gandalf.screens;
 import com.badlogic.gdx.Gdx;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.gandalf.components.Lobby;
+import ee.taltech.gandalf.components.StartedGame;
+
+import java.util.List;
 
 public class ScreenController {
     GandalfRoyale game;
@@ -10,6 +13,7 @@ public class ScreenController {
     private LobbyScreen lobbyScreen;
     private LobbyRoomScreen lobbyRoomScreen;
     private GameScreen gameScreen;
+    private GameEndScreen gameEndScreen;
 
     /**
      * Construct ScreenController.
@@ -65,6 +69,16 @@ public class ScreenController {
     }
 
     /**
+     * Set screen as GameEndScreen.
+     */
+    public void setGameEndScreen(StartedGame gameInstance, Integer winnerId) {
+        Gdx.app.postRunnable(() -> {
+            gameEndScreen = new GameEndScreen(game, gameInstance, winnerId);
+            game.setScreen(gameEndScreen);
+        });
+    }
+
+    /**
      * Get MenuScreen.
      */
     public MenuScreen getMenuScreen() {
@@ -90,5 +104,12 @@ public class ScreenController {
      */
     public GameScreen getGameScreen() {
         return gameScreen;
+    }
+
+    /**
+     * Get GameEndScreen.
+     */
+    public GameEndScreen getGameEndScreen() {
+        return gameEndScreen;
     }
 }

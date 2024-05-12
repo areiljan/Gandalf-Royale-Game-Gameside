@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import ee.taltech.gandalf.GandalfRoyale;
+import ee.taltech.gandalf.network.listeners.lobby.LobbyRoomListener;
 import ee.taltech.gandalf.network.messages.lobby.Leave;
 import ee.taltech.gandalf.network.messages.lobby.StartGame;
 import ee.taltech.gandalf.components.Lobby;
@@ -39,7 +40,7 @@ public class LobbyRoomScreen extends ScreenAdapter {
         this.game = game;
         this.lobby = lobby;
 
-        stage = new Stage(); // Creating a stage (place, where things can be put on)
+        stage = new Stage(game.viewport, game.batch); // Creating a stage (place, where things can be put on)
 
         root = new Table(); // Creating root table that covers the whole stage
         root.top(); // Starts from the top of the screen
@@ -49,7 +50,7 @@ public class LobbyRoomScreen extends ScreenAdapter {
         playerTables = new HashMap<>();
 
         createHeader();
-        setupListerners();
+        setupListeners();
     }
 
     private void createHeader() {
@@ -87,7 +88,7 @@ public class LobbyRoomScreen extends ScreenAdapter {
     /**
      * Set up listeners for buttons to work.
      */
-    private void setupListerners() {
+    private void setupListeners() {
         buttonLeave.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -115,6 +116,14 @@ public class LobbyRoomScreen extends ScreenAdapter {
         }
     }
 
+    /**
+     * Get lobby room's lobby.
+     *
+     * @return lobby
+     */
+    public Lobby getLobby() {
+        return lobby;
+    }
 
     /**
      * Show visually one player
@@ -199,6 +208,17 @@ public class LobbyRoomScreen extends ScreenAdapter {
         // Show the stage
         stage.act(delta);
         stage.draw();
+    }
+
+    /**
+     * Resize the viewport.
+     *
+     * @param width new width
+     * @param height new height
+     */
+    @Override
+    public void resize(int width, int height) {
+        game.viewport.update(width, height, true);
     }
 
     /**

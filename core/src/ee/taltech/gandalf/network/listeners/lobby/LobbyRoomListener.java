@@ -35,7 +35,8 @@ public class LobbyRoomListener extends Listener {
                 lobbyRoomScreen.joinLobby(join.playerId);
                 break;
             case Leave leave: // Leave message
-                lobbyRoomScreen.leaveLobby(leave.playerId);
+                if (leave.gameId == lobbyRoomScreen.getLobby().getId())
+                    lobbyRoomScreen.leaveLobby(leave.playerId);
                 break;
             case StartGame game: // StartGame message
                 lobbyRoomScreen.startGame();

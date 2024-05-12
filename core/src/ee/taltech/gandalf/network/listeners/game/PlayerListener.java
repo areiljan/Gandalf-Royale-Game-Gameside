@@ -4,7 +4,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import ee.taltech.gandalf.entities.PlayerCharacter;
 import ee.taltech.gandalf.network.messages.game.ActionTaken;
-import ee.taltech.gandalf.network.messages.game.KilledPlayer;
+import ee.taltech.gandalf.network.messages.game.GameOver;
 import ee.taltech.gandalf.network.messages.game.Position;
 import ee.taltech.gandalf.screens.GameScreen;
 import ee.taltech.gandalf.screens.ScreenController;
@@ -40,14 +40,14 @@ public class PlayerListener extends Listener {
                     gameScreen.startedGame.movePlayer(position);
                 }
                 break;
-            case ActionTaken actionTaken:
+            case ActionTaken actionTaken: // ActionTaken message
                 PlayerCharacter player = gameScreen.startedGame.getPlayer(actionTaken.userID);
                 if (player.playerID == actionTaken.userID) {
                     player.getPlayerAnimator().updateAction(actionTaken);
                 }
                 break;
-            case KilledPlayer killedPlayer:
-                gameScreen.startedGame.killPlayer(killedPlayer.id);
+            case GameOver gameOver: // GameOver message
+                screenController.setGameEndScreen(gameScreen.startedGame, gameOver.winner);
                 break;
             default: // If something else comes through
                 break;

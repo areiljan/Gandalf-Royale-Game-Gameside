@@ -1,10 +1,5 @@
 package ee.taltech.gandalf.network;
 
-import com.badlogic.gdx.maps.MapObjects;
-import com.badlogic.gdx.maps.objects.EllipseMapObject;
-import com.badlogic.gdx.maps.objects.PolygonMapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 import com.esotericsoftware.kryonet.Client;
@@ -63,6 +58,8 @@ public class NetworkClient {
         // Add sendable data structures.
         Kryo kryo = client.getKryo();
         kryo.register(java.util.ArrayList.class);
+        kryo.register(MapObjectData.class);
+        kryo.register(float[].class);
         kryo.register(PlayZoneCoordinates.class);
         kryo.register(Position.class);
         kryo.register(ActionTaken.class);
@@ -81,7 +78,6 @@ public class NetworkClient {
         kryo.register(SpellPosition.class);
         kryo.register(SpellDispel.class);
         kryo.register(UpdateHealth.class);
-        kryo.register(KilledPlayer.class);
         kryo.register(UpdateMana.class);
         kryo.register(ItemPickedUp.class);
         kryo.register(CoinPickedUp.class);
@@ -89,8 +85,8 @@ public class NetworkClient {
         kryo.register(ItemDropped.class);
         kryo.register(MobPosition.class);
         kryo.register(UpdateMobHealth.class);
-        kryo.register(MapObjectData.class);
-        kryo.register(float[].class);
+        kryo.register(GameLeave.class);
+        kryo.register(GameOver.class);
         kryo.addDefaultSerializer(KeyPress.Action.class, DefaultSerializers.EnumSerializer.class);
         kryo.addDefaultSerializer(ItemTypes.class, DefaultSerializers.EnumSerializer.class);
     }
@@ -101,7 +97,8 @@ public class NetworkClient {
     public void connect() {
         // Connect client with the server.
         try {
-            client.connect(5000, "193.40.255.34", 8080, 8081);
+            client.connect(5000, "localhost", 8080, 8081);
+            // 193.40.255.34
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

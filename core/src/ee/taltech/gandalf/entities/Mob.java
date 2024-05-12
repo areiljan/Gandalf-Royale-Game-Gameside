@@ -10,7 +10,6 @@ public class Mob implements Entity {
     private final MobAnimator mobAnimator;
     private boolean lookRight;
 
-
     /**
      * Construct Mob.
      *
@@ -53,12 +52,6 @@ public class Mob implements Entity {
     public float getYPosition() {
         return yPosition;
     }
-
-    @Override
-    public float getHeight() {
-        return 0;
-    }
-
 
     /**
      * Get mob's ID.

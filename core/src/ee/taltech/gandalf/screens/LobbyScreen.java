@@ -43,8 +43,6 @@ public class LobbyScreen extends ScreenAdapter {
     Label.LabelStyle headingStyle;
     Label.LabelStyle gameStyle;
 
-    Logger logger = Logger.getLogger(getClass().getName()); // Used for debugging
-
     /**
      * Construct LobbyScreen.
      *
@@ -57,7 +55,7 @@ public class LobbyScreen extends ScreenAdapter {
         lobbyTables = new HashMap<>(); // Map where all the lobby tables are held by lobby ID
         lobbyPlayerCountLabels = new HashMap<>(); // Map where all the player count labels are held by lobby ID
 
-        stage = new Stage(new ScreenViewport()); // Creating a stage (place, where things can be put on)
+        stage = new Stage(game.viewport, game.batch); // Creating a stage (place, where things can be put on)
 
         root = new Table(); // Creating root table that covers the whole stage
         root.top(); // Starts from the top of the screen
@@ -160,12 +158,12 @@ public class LobbyScreen extends ScreenAdapter {
     private Window createGameNamingWindow() {
         // Styling window
         Window.WindowStyle windowStyle = new Window.WindowStyle();
-        windowStyle.titleFont = game.font;
+        windowStyle.titleFont = GandalfRoyale.font;
         windowStyle.titleFontColor = Color.RED;
 
         // Styling text field
         TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
-        textFieldStyle.font = game.font;
+        textFieldStyle.font = GandalfRoyale.font;
         textFieldStyle.fontColor = Color.BLUE;
 
         // Creating game naming window
@@ -314,6 +312,17 @@ public class LobbyScreen extends ScreenAdapter {
         // Show the stage
         stage.act(delta);
         stage.draw();
+    }
+
+    /**
+     * Resize the viewport.
+     *
+     * @param width new width
+     * @param height new height
+     */
+    @Override
+    public void resize(int width, int height) {
+        game.viewport.update(width, height, true);
     }
 
     /**

@@ -9,9 +9,10 @@ import ee.taltech.gandalf.entities.Spell;
 import ee.taltech.gandalf.entities.*;
 import ee.taltech.gandalf.network.messages.game.Position;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class StartedGame {
@@ -19,7 +20,7 @@ public class StartedGame {
     private final GandalfRoyale game;
     private final World world;
     private final Map<Integer, PlayerCharacter> gamePlayers;
-    private final Map<Integer, PlayerCharacter> deadPlayers;
+    private final List<Integer> deadPlayers;
     private final Integer clientId;
     private final PlayerCharacter clientCharacter;
     private final Map<Integer, Spell> spells;
@@ -37,7 +38,7 @@ public class StartedGame {
         this.game = game;
         this.world = world;
         gamePlayers = createAlivePlayersMap(lobby);
-        deadPlayers = new HashMap<>();
+        deadPlayers = new ArrayList<>();
         clientId = game.nc.clientId;
         clientCharacter = gamePlayers.get(game.nc.clientId);
         clientCharacter.createHitBox(this.world);
@@ -89,7 +90,7 @@ public class StartedGame {
      *
      * @return deadPlayers
      */
-    public Map<Integer, PlayerCharacter> getDeadPlayers() {
+    public List<Integer> getDeadPlayers() {
         return deadPlayers;
     }
 
@@ -151,16 +152,6 @@ public class StartedGame {
     }
 
     /**
-     * Remove player from alive players.
-     *
-     * @param id ID of player that is removed
-     */
-    public void removePlayerFromAlivePlayers(Integer id) {
-        gamePlayers.remove(id);
-    }
-
-
-    /**
      * Update player's health.
      *
      * @param id player's ID
@@ -168,7 +159,7 @@ public class StartedGame {
      */
     public void updatePlayersHealth(Integer id, Integer health) {
         gamePlayers.get(id).setHealth(health);
-        if (health == 0) {
+        if (health == 0 && !deadPlayers.contains(id)) {
             killPlayer(id);
         }
     }
@@ -193,12 +184,11 @@ public class StartedGame {
                 && (Math.abs(clientCharacter.getXPosition() - position.xPosition) > Constants.MOVEMENT_THRESHOLD
                 || Math.abs(clientCharacter.getYPosition() - position.yPosition) > Constants.MOVEMENT_THRESHOLD)) {
             // Locates the client according to the server position (override the prediction made on client).
-            float newX = clientCharacter.getXPosition() + (position.xPosition - clientCharacter.getXPosition()) * Constants.interpFactor;
-            float newY = clientCharacter.getYPosition() + (position.yPosition - clientCharacter.getYPosition()) * Constants.interpFactor;
+            float newX = clientCharacter.getXPosition() + (position.xPosition - clientCharacter.getXPosition()) * Constants.INTERP_FACTOR;
+            float newY = clientCharacter.getYPosition() + (position.yPosition - clientCharacter.getYPosition()) * Constants.INTERP_FACTOR;
             clientCharacter.setPosition(newX, newY);
         }
     }
-
 
     /**
      * Method to move enemy players.
@@ -246,15 +236,11 @@ public class StartedGame {
      */
     public void killPlayer(Integer id) {
         PlayerCharacter player = gamePlayers.get(id);
-        deadPlayers.put(id, player);
-        player.setHealth(0);
-        player.setMana(0);
         player.getPlayerAnimator().setState(PlayerCharacterAnimator.AnimationStates.DEATH);
 
-        // Don't read players input if they are dead
-        if (Objects.equals(id, clientId)) {
-            game.screenController.getGameScreen().disableClientPlayerCharacter();
-        }
+        deadPlayers.add(id);
+        player.setHealth(0);
+        player.setMana(0);
     }
 
     /**

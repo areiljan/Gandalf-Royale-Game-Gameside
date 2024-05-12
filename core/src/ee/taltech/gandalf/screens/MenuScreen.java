@@ -22,11 +22,9 @@ public class MenuScreen extends ScreenAdapter {
     TextButton buttonPlay;
     TextButton buttonSettings;
     TextButton buttonExit;
-    LobbyScreen lobbyScreen;
 
     // Background picture constants
     private static final Texture BACKGROUND_TEXTURE = new Texture("menuBackground.png"); // Background image
-    private static final Sprite BACKGROUND_SPRITE = new Sprite(BACKGROUND_TEXTURE); // Background sprite made from image
 
     /**
      * Construct MenuScreen.
@@ -36,7 +34,7 @@ public class MenuScreen extends ScreenAdapter {
     public MenuScreen(GandalfRoyale game) {
         this.game = game;
 
-        stage = new Stage(); // Creating a stage (place, where things can be put on)
+        stage = new Stage(game.viewport, game.batch); // Creating a stage (place, where things can be put on)
 
         root = new Table(); // Creating root table that covers the whole stage
         root.top(); // Starts from the top of the screen
@@ -143,6 +141,7 @@ public class MenuScreen extends ScreenAdapter {
     public void show() {
         // Reading input
         Gdx.input.setInputProcessor(stage);
+        game.batch.setProjectionMatrix(game.viewport.getCamera().projection);
     }
 
     /**
@@ -154,12 +153,23 @@ public class MenuScreen extends ScreenAdapter {
     public void render(float delta) {
         // Draw background picture
         game.batch.begin();
-        BACKGROUND_SPRITE.draw(game.batch);
+        game.batch.draw(BACKGROUND_TEXTURE, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         game.batch.end();
 
         // Update stage every frame
         stage.act(delta);
         stage.draw();
+    }
+
+    /**
+     * Resize the viewport.
+     *
+     * @param width new width
+     * @param height new height
+     */
+    @Override
+    public void resize(int width, int height) {
+        game.viewport.update(width, height, true);
     }
 
     /**

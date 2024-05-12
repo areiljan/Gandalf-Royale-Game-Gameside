@@ -261,8 +261,8 @@ public class PlayerCharacter implements Entity {
      * Applies force to the movement direction, even after collision.
      */
     public void updateVector() {
-        Vector2 scaledMovement = movement.cpy().scl(Constants.movementSpeed);
-        float maxSpeed = Constants.movementSpeed * (float) Math.sqrt(2);
+        Vector2 scaledMovement = movement.cpy().scl(Constants.MOVEMENT_SPEED);
+        float maxSpeed = Constants.MOVEMENT_SPEED * (float) Math.sqrt(2);
         scaledMovement.clamp(maxSpeed, maxSpeed);
         body.setLinearVelocity(scaledMovement);
     }
@@ -300,11 +300,6 @@ public class PlayerCharacter implements Entity {
         return body.getPosition().x;
     }
 
-    @Override
-    public float getHeight() {
-        return PlayerCharacter.HEIGHT;
-    }
-
     /**
      * @return Player y position
      */
@@ -315,6 +310,4 @@ public class PlayerCharacter implements Entity {
         }
         return body.getPosition().y;
     }
-
-
 }
