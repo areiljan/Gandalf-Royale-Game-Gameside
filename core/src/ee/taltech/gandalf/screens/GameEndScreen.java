@@ -96,12 +96,13 @@ public class GameEndScreen extends ScreenAdapter {
         for (int i = 0; i < deadPlayers.size(); i++) {
             int ranking = 1 + deadPlayers.size() - i;
             String row = String.format("%s.  player  %s", ranking, deadPlayers.get(i));
-            if (i != deadPlayers.size() - 1) {
+            if (i != 0) {
                 row += "\n";
             }
             stringList.add(row);
         }
 
+        stringList = stringList.reversed();
         StringBuilder result = new StringBuilder();
         for (String row : stringList) {
             result.append(row);
