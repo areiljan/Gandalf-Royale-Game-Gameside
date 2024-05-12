@@ -10,8 +10,10 @@ import ee.taltech.gandalf.components.ItemTypes;
 import ee.taltech.gandalf.entities.PlayerCharacter;
 import ee.taltech.gandalf.network.messages.game.KeyPress;
 import ee.taltech.gandalf.network.messages.game.MouseClicks;
+import ee.taltech.gandalf.scenes.SettingsWindow;
 import ee.taltech.gandalf.screens.GameScreen;
 
+import java.util.Map;
 import java.util.Objects;
 
 public class PlayerInput implements InputProcessor {
@@ -42,44 +44,34 @@ public class PlayerInput implements InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
         if (playerCharacter.getHealth() != 0) {
-            switch (keycode) {
-                case Input.Keys.W:
-                    key = new KeyPress(KeyPress.Action.UP, true);
-                    break;
-                case Input.Keys.A:
-                    key = new KeyPress(KeyPress.Action.LEFT, true);
-                    break;
-                case Input.Keys.S:
-                    key = new KeyPress(KeyPress.Action.DOWN, true);
-                    break;
-                case Input.Keys.D:
-                    key = new KeyPress(KeyPress.Action.RIGHT, true);
-                    break;
-                case Input.Keys.F:
-                    // Only if empty slot is selected
-                    if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) == null) {
-                        key = new KeyPress(KeyPress.Action.INTERACT, true);
-                    }
-                    break;
-                case Input.Keys.R:
+            Map<String, Integer> keyBindings = game.screenController.getSettingsWindow().getKeyBindings();
+
+            if (keyBindings.get("UP") == keycode) {
+                key = new KeyPress(KeyPress.Action.UP, true);
+            } else if (keyBindings.get("LEFT") == keycode) {
+                key = new KeyPress(KeyPress.Action.LEFT, true);
+            } else if (keyBindings.get("DOWN") == keycode) {
+                key = new KeyPress(KeyPress.Action.DOWN, true);
+            } else if (keyBindings.get("RIGHT") == keycode) {
+                key = new KeyPress(KeyPress.Action.RIGHT, true);
+            } else if (keyBindings.get("PICK") == keycode) {
+                // Only if empty slot is selected
+                if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) == null) {
+                    key = new KeyPress(KeyPress.Action.INTERACT, true);
+                }
+
+                // Only if empty slot in not selected
+                else if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
                     Integer droppedItemID;
-                    // Only if empty slot in not selected
-                    if (playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()) != null) {
-                        droppedItemID = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId();
-                        key = new KeyPress(KeyPress.Action.DROP, true, droppedItemID);
-                    }
-                    break;
-                case Input.Keys.NUM_1: // Set selected slot with keyboard
-                    playerCharacter.setSelectedSlot(0);
-                    break;
-                case Input.Keys.NUM_2: // Set selected slot with keyboard
-                    playerCharacter.setSelectedSlot(1);
-                    break;
-                case Input.Keys.NUM_3: // Set selected slot with keyboard
-                    playerCharacter.setSelectedSlot(2);
-                    break;
-                default:
-                    break;
+                    droppedItemID = playerCharacter.getInventory().get(playerCharacter.getSelectedSlot()).getId();
+                    key = new KeyPress(KeyPress.Action.DROP, true, droppedItemID);
+                }
+            } else if (Input.Keys.NUM_1 == keycode) {
+                playerCharacter.setSelectedSlot(0);
+            } else if (Input.Keys.NUM_2 == keycode) {
+                playerCharacter.setSelectedSlot(1);
+            } else if (Input.Keys.NUM_3 == keycode) {
+                playerCharacter.setSelectedSlot(2);
             }
             if (!Objects.equals(key, null)) {
                 // Send LEFT to server
@@ -89,7 +81,9 @@ public class PlayerInput implements InputProcessor {
                 key = null;
             }
         }
-        if (keycode == Input.Keys.ESCAPE) { // Open Menu Window || this has to work even if dead
+
+        // Open Menu Window || this has to work even if dead
+        if (keycode == Input.Keys.ESCAPE && !screen.isSettingsWindowShown()) {
             screen.toggleMenuWindow();
         }
         return false;
@@ -104,22 +98,18 @@ public class PlayerInput implements InputProcessor {
     @Override
     public boolean keyUp(int keycode) {
         if (playerCharacter.getHealth() != 0) {
-            switch (keycode) {
-                case Input.Keys.W:
-                    key = new KeyPress(KeyPress.Action.UP, false);
-                    break;
-                case Input.Keys.S:
-                    key = new KeyPress(KeyPress.Action.DOWN, false);
-                    break;
-                case Input.Keys.A:
-                    key = new KeyPress(KeyPress.Action.LEFT, false);
-                    break;
-                case Input.Keys.D:
-                    key = new KeyPress(KeyPress.Action.RIGHT, false);
-                    break;
-                default:
-                    break;
+            Map<String, Integer> keyBindings = game.screenController.getSettingsWindow().getKeyBindings();
+
+            if (keyBindings.get("UP") == keycode) {
+                key = new KeyPress(KeyPress.Action.UP, false);
+            } else if (keyBindings.get("LEFT") == keycode) {
+                key = new KeyPress(KeyPress.Action.LEFT, false);
+            } else if (keyBindings.get("DOWN") == keycode) {
+                key = new KeyPress(KeyPress.Action.DOWN, false);
+            } else if (keyBindings.get("RIGHT") == keycode) {
+                key = new KeyPress(KeyPress.Action.RIGHT, false);
             }
+
             if (!Objects.equals(key, null)) {
                 // Send LEFT to server
                 game.nc.sendUDP(key);

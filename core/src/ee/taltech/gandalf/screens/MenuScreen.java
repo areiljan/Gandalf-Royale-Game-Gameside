@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import ee.taltech.gandalf.GandalfRoyale;
+import ee.taltech.gandalf.scenes.SettingsWindow;
 
 
 public class MenuScreen extends ScreenAdapter {
@@ -22,6 +23,9 @@ public class MenuScreen extends ScreenAdapter {
     TextButton buttonPlay;
     TextButton buttonSettings;
     TextButton buttonExit;
+
+    private boolean settingsWindowShown;
+    private SettingsWindow settingsWindow;
 
     // Background picture constants
     private static final Texture BACKGROUND_TEXTURE = new Texture("menuBackground.png"); // Background image
@@ -43,6 +47,9 @@ public class MenuScreen extends ScreenAdapter {
 
         createUI(); // Create visual part (stated only in constructor)
         setupListeners(); // Set up listeners for buttons (stated only in constructor)
+
+        settingsWindowShown = false;
+        settingsWindow = game.screenController.getSettingsWindow();
     }
 
     /**
@@ -121,7 +128,7 @@ public class MenuScreen extends ScreenAdapter {
         buttonSettings.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-//                game.setScreen(new SettingsScreen(game)); // Change screen to SettingsScreen
+                toggleSettingsWindow(); // Show settings window
             }
         });
 
@@ -134,6 +141,16 @@ public class MenuScreen extends ScreenAdapter {
         });
     }
 
+    public void toggleSettingsWindow() {
+        settingsWindowShown = !settingsWindowShown;
+
+        if (settingsWindowShown) {
+            Gdx.input.setInputProcessor(settingsWindow.getInput());
+        } else {
+            Gdx.input.setInputProcessor(stage);
+        }
+    }
+
     /**
      * Show screen on initialisation.
      */
@@ -141,7 +158,6 @@ public class MenuScreen extends ScreenAdapter {
     public void show() {
         // Reading input
         Gdx.input.setInputProcessor(stage);
-        game.batch.setProjectionMatrix(game.viewport.getCamera().projection);
     }
 
     /**
@@ -155,6 +171,11 @@ public class MenuScreen extends ScreenAdapter {
         game.batch.begin();
         game.batch.draw(BACKGROUND_TEXTURE, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         game.batch.end();
+
+        // Draw settings window
+        if (settingsWindowShown) {
+            settingsWindow.draw();
+        }
 
         // Update stage every frame
         stage.act(delta);
@@ -170,6 +191,7 @@ public class MenuScreen extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
         game.viewport.update(width, height, true);
+        settingsWindow.resize(width, height);
     }
 
     /**

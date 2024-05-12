@@ -35,8 +35,6 @@ public class MenuWindow {
 
         createUI();
         setupListeners();
-
-        stage.setDebugAll(true);
     }
 
     /**
@@ -49,7 +47,7 @@ public class MenuWindow {
     }
 
     /**
-     * Create visual part of the MenuScreen.
+     * Create visual part of the MenuWindow.
      */
     private void createUI() {
         // Creating a table (place, where things can be put in and positioned)
@@ -91,6 +89,7 @@ public class MenuWindow {
         buttonSettings.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                game.screenController.getGameScreen().toggleSettingsWindow(); // Toggle settings window
             }
         });
 
