@@ -20,7 +20,7 @@ public class Spell implements Entity {
     private final Integer id;
 
     private final ItemTypes type;
-    private Animation<TextureRegion> fireballAnimation;
+    private Animation<TextureRegion> animation;
 
     /**
      * Construct Spell.
@@ -38,7 +38,7 @@ public class Spell implements Entity {
         this.previousYPosition = 0;
         this.id = id;
         this.type = type;
-        CreateAnimations();
+        createAnimations();
     }
 
     /**
@@ -46,8 +46,8 @@ public class Spell implements Entity {
      *
      * @return fireball animation
      */
-    public Animation<TextureRegion> getFireballAnimation() {
-        return fireballAnimation;
+    public Animation<TextureRegion> getAnimation() {
+        return animation;
     }
 
     /**
@@ -57,7 +57,7 @@ public class Spell implements Entity {
      * @return - rotation.
      */
     public Optional<Float> rotation() {
-        if (type == ItemTypes.FIREBALL && previousXPosition != 0 && previousYPosition != 0) {
+        if (previousXPosition != 0 && previousYPosition != 0) {
             double xDifference = previousXPosition - xPosition;
             double yDifference = previousYPosition - yPosition;
             float angle = (float) (Math.atan2(yDifference, xDifference) * 180 / MathUtils.PI);
@@ -71,20 +71,53 @@ public class Spell implements Entity {
     /**
      * Create animations for the fireball.
      */
-    private void CreateAnimations() {
-        Texture fireballTexture = GameScreen.getTexture(TextureType.FIREBALL);
-        // Define frames in the spritesheet
-        TextureRegion[][] frames = TextureRegion.split(fireballTexture, 32, 17);
+    private void createAnimations() {
+        if (type == ItemTypes.FIREBALL) {
+            Texture fireballTexture = GameScreen.getTexture(TextureType.FIREBALL);
+            // Define frames in the spritesheet
+            TextureRegion[][] frames = TextureRegion.split(fireballTexture, 72, 32);
+            // Convert 2D array to 1D array
+            TextureRegion[] fireballFrames = new TextureRegion[10];
 
-        // Convert 2D array to 1D array
-        TextureRegion[] fireballFrames = new TextureRegion[5];
-
-        for (int i = 0; i < 5; i++) {
-            fireballFrames[i] = frames[0][i];
-            fireballFrames[i].flip(true, false);
+            for (int i = 0; i < 10; i++) {
+                fireballFrames[i] = frames[0][i];
+                fireballFrames[i].flip(true, false);
+            }
+            animation = new Animation<>(0.1F, fireballFrames);
+        } else if (type == ItemTypes.PLASMA) {
+            Texture plasmaTexture = GameScreen.getTexture(TextureType.PLASMA);
+            // redefine frames in the spritesheet
+            TextureRegion[][] frames = TextureRegion.split(plasmaTexture, 64, 48);
+            // Convert 2D array to 1D array
+            TextureRegion[] plasmaFrames = new TextureRegion[8];
+            for (int i = 0; i < 8; i++) {
+                plasmaFrames[i] = frames[0][i];
+                plasmaFrames[i].flip(true, false);
+            }
+            animation = new Animation<>(0.1F, plasmaFrames);
+        } else if (type == ItemTypes.METEOR) {
+            Texture plasmaTexture = GameScreen.getTexture(TextureType.METEOR);
+            // redefine frames in the spritesheet
+            TextureRegion[][] frames = TextureRegion.split(plasmaTexture, 96, 64);
+            // Convert 2D array to 1D array
+            TextureRegion[] plasmaFrames = new TextureRegion[8];
+            for (int i = 0; i < 8; i++) {
+                plasmaFrames[i] = frames[0][i];
+                plasmaFrames[i].flip(true, false);
+            }
+            animation = new Animation<>(0.1F, plasmaFrames);
+        } else if (type == ItemTypes.KUNAI) {
+            Texture plasmaTexture = GameScreen.getTexture(TextureType.KUNAI);
+            // redefine frames in the spritesheet
+            TextureRegion[][] frames = TextureRegion.split(plasmaTexture, 32, 16);
+            // Convert 2D array to 1D array
+            TextureRegion[] plasmaFrames = new TextureRegion[8];
+            for (int i = 0; i < 8; i++) {
+                plasmaFrames[i] = frames[0][i];
+                plasmaFrames[i].flip(true, false);
+            }
+            animation = new Animation<>(0.1F, plasmaFrames);
         }
-
-        fireballAnimation = new Animation<>(0.2F, fireballFrames);
     }
 
     /**
