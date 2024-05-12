@@ -1,5 +1,6 @@
 package ee.taltech.gandalf.entities;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import ee.taltech.gandalf.components.Constants;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -132,6 +133,26 @@ public class Item implements Entity {
         if (type == ItemTypes.FIREBALL) {
             // Get texture from game screen because then OpenGL does not give error
             itemsTexture = GameScreen.getTexture(TextureType.FIREBALL_BOOK);
+            textureHeight = itemsTexture.getHeight() / 2.5f / Constants.PPM;
+            textureWidth = itemsTexture.getWidth() / 2.5f / Constants.PPM;
+        } else if (type == ItemTypes.PLASMA) {
+            itemsTexture = GameScreen.getTexture(TextureType.PLASMA_BOOK);
+            textureHeight = itemsTexture.getHeight() / 2.5f / Constants.PPM;
+            textureWidth = itemsTexture.getWidth() / 2.5f / Constants.PPM;
+        } else if (type == ItemTypes.METEOR) {
+            itemsTexture = GameScreen.getTexture(TextureType.METEOR_BOOK);
+            textureHeight = itemsTexture.getHeight() / 2.5f / Constants.PPM;
+            textureWidth = itemsTexture.getWidth() / 2.5f / Constants.PPM;
+        } else if (type == ItemTypes.KUNAI) {
+            itemsTexture = GameScreen.getTexture(TextureType.KUNAI_BOOK);
+            textureHeight = itemsTexture.getHeight() / 2.5f / Constants.PPM;
+            textureWidth = itemsTexture.getWidth() / 2.5f / Constants.PPM;
+        } else if (type == ItemTypes.ICE_SHARD) {
+            itemsTexture = GameScreen.getTexture(TextureType.ICE_SHARD_BOOK);
+            textureHeight = itemsTexture.getHeight() / 2.5f / Constants.PPM;
+            textureWidth = itemsTexture.getWidth() / 2.5f / Constants.PPM;
+        } else if (type == ItemTypes.POISONBALL) {
+            itemsTexture = GameScreen.getTexture(TextureType.POISONBALL_BOOK);
             textureHeight = itemsTexture.getHeight() / 2.5f / Constants.PPM;
             textureWidth = itemsTexture.getWidth() / 2.5f / Constants.PPM;
         } else if (type == ItemTypes.COIN) {

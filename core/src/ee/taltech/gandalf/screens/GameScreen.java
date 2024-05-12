@@ -21,7 +21,13 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
-import ee.taltech.gandalf.components.*;
+import ee.taltech.gandalf.components.Constants;
+import ee.taltech.gandalf.components.GameObjectComparator;
+import ee.taltech.gandalf.components.ItemTypes;
+import ee.taltech.gandalf.components.Lobby;
+import ee.taltech.gandalf.components.PlayZone;
+import ee.taltech.gandalf.components.StartedGame;
+import ee.taltech.gandalf.components.TextureType;
 import ee.taltech.gandalf.entities.*;
 import ee.taltech.gandalf.entities.collision.CollisionHandler;
 import ee.taltech.gandalf.input.PlayerInput;
@@ -34,6 +40,8 @@ import ee.taltech.gandalf.world.WorldCollision;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static ee.taltech.gandalf.components.ItemTypes.*;
 
 public class GameScreen extends ScreenAdapter {
     private final World world;
@@ -50,20 +58,25 @@ public class GameScreen extends ScreenAdapter {
 
     private final Map<Integer, PlayerCharacter> gamePlayers;
     private final PlayerCharacter clientCharacter;
-
+    private TmxMapLoader mapLoader;
+    private TiledMap map;
     private final OrthogonalTiledMapRenderer renderer;
-    private final TmxMapLoader mapLoader;
-    private final TiledMap map;
-
     private static Texture otherPlayZoneTexture;
     private static Texture otherExpectedZoneTexture;
     private static Texture fireballTexture;
+    private static Texture plasmaTexture;
+    private static Texture meteorTexture;
+    private static Texture kunaiTexture;
     private static Texture fireballBook;
+    private static Texture plasmaBook;
+    private static Texture meteorBook;
+    private static Texture kunaiBook;
+    private static Texture iceShardBook;
+    private static Texture poisonBallBook;
     private static Texture coinTexture;
     private static Texture pumpkinAttackingTexture;
     private static Texture pumpkinWalkingTexture;
     private static Texture healingPotionTexture;
-
     private static Texture firstPlayZoneTexture;
     private static Texture firstExpectedZoneTexture;
     private float elapsedTime;
@@ -71,7 +84,6 @@ public class GameScreen extends ScreenAdapter {
     private float mobAttackAnimationTime;
     private Integer attackAnimationCount = 0;
     private final ShapeRenderer shapeRenderer;
-
     private final Box2DDebugRenderer debugRenderer; // For debugging
     private TextureRegion currentCharacterFrame;
     private TextureRegion currentMobFrame;
@@ -162,6 +174,14 @@ public class GameScreen extends ScreenAdapter {
         return switch (textureType) {
             case FIREBALL_BOOK -> fireballBook;
             case FIREBALL -> fireballTexture;
+            case PLASMA_BOOK -> plasmaBook;
+            case PLASMA -> plasmaTexture;
+            case METEOR_BOOK -> meteorBook;
+            case METEOR -> meteorTexture;
+            case KUNAI_BOOK -> kunaiBook;
+            case KUNAI -> kunaiTexture;
+            case ICE_SHARD_BOOK -> iceShardBook;
+            case POISONBALL_BOOK -> poisonBallBook;
             case COIN -> coinTexture;
             case PUMPKINATTACK -> pumpkinAttackingTexture;
             case PUMPKINWALK -> pumpkinWalkingTexture;
@@ -176,9 +196,17 @@ public class GameScreen extends ScreenAdapter {
     private static void setTextures() {
         // *------ BOOK TEXTURES ------*
         fireballBook = new Texture("Spells/Fireball/fireball_book.png");
+        plasmaBook = new Texture("Spells/Plasma/plasma_book.png");
+        meteorBook = new Texture("Spells/Meteor/meteor_book.png");
+        kunaiBook = new Texture("Spells/Kunai/kunai_book.png");
+        iceShardBook = new Texture("Spells/IceShard/iceshard_book.png");
+        poisonBallBook = new Texture("Spells/Poisonball/poisonball_book.png");
 
         // *------ SPELL TEXTURES ------*
-        fireballTexture = new Texture("Spells/Fireball/spell1_Fireball.png");
+        fireballTexture = new Texture("Spells/Fireball/packFireball.png");
+        plasmaTexture = new Texture("Spells/Plasma/packPlasma.png");
+        meteorTexture = new Texture("Spells/Meteor/packMeteor.png");
+        kunaiTexture = new Texture("Spells/Kunai/packKunai.png");
 
         // *------ HEALING POTION TEXTURES ------*
         healingPotionTexture = new Texture("Potion/potion.png");
@@ -346,14 +374,66 @@ public class GameScreen extends ScreenAdapter {
         if (spell.rotation().isPresent()) {
             if (spell.getType() == ItemTypes.FIREBALL) {
                 game.batch.begin();
-                TextureRegion spellCurrentFrame = spell.getFireballAnimation().getKeyFrame(elapsedTime, true);
+                TextureRegion spellCurrentFrame = spell.getAnimation().getKeyFrame(elapsedTime, true);
+                float fireballXOffset = (float) (Constants.FIREBALL_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
+                float fireballYOffset = (float) (Constants.FIREBALL_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
                 game.batch.draw(spellCurrentFrame,
-                        spell.getXPosition() - 32 / Constants.PPM / 2,
-                        spell.getYPosition() - 17 / Constants.PPM / 2,
-                        32 / Constants.PPM / 2,
-                        32 / Constants.PPM / 2,
-                        32 / Constants.PPM,
-                        17 / Constants.PPM,
+                        (float) spell.getXPosition() - fireballXOffset - Constants.FIREBALL_WIDTH / 8 - 1.05f,
+                        (float) spell.getYPosition() - fireballYOffset - Constants.FIREBALL_HEIGHT / 2.5f - 0.41f,
+                        Constants.FIREBALL_WIDTH / 2,
+                        Constants.FIREBALL_HEIGHT / 2,
+                        Constants.FIREBALL_WIDTH,
+                        Constants.FIREBALL_HEIGHT,
+                        0.8f,
+                        0.8f,
+                        spell.rotation().get());
+                game.batch.end();
+            } else if (spell.getType() == ItemTypes.PLASMA) {
+                game.batch.begin();
+                TextureRegion spellCurrentFrame = spell.getAnimation().getKeyFrame(elapsedTime, true);
+                float plasmaXOffset = (float) (Constants.PLASMA_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
+                float plasmaYOffset = (float) (Constants.PLASMA_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
+                game.batch.draw(spellCurrentFrame,
+                        spell.getXPosition() - plasmaXOffset - Constants.PLASMA_HEIGHT / 8 - 0.5f,
+                        spell.getYPosition() - plasmaYOffset - Constants.PLASMA_HEIGHT / 1.5f - 0.03f,
+                        Constants.PLASMA_WIDTH / 2,
+                        Constants.PLASMA_HEIGHT / 2,
+                        Constants.PLASMA_WIDTH,
+                        Constants.PLASMA_HEIGHT,
+                        0.5f,
+                        0.5f,
+                        spell.rotation().get());
+                game.batch.end();
+            } else if (spell.getType() == METEOR) {
+                game.batch.begin();
+                TextureRegion spellCurrentFrame = spell.getAnimation().getKeyFrame(elapsedTime, true);
+                float meteorXOffset = (float) (Constants.METEOR_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
+                float meteorYOffset = (float) (Constants.METEOR_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
+                game.batch.draw(spellCurrentFrame,
+                        // in place
+                        (float) spell.getXPosition() - meteorXOffset - Constants.METEOR_WIDTH / 2,
+                        (float) spell.getYPosition() - meteorYOffset - Constants.METEOR_HEIGHT / 1.5f,
+                        Constants.METEOR_WIDTH / 2,
+                        Constants.METEOR_HEIGHT / 2,
+                        Constants.METEOR_WIDTH,
+                        Constants.METEOR_HEIGHT,
+                        1,
+                        1,
+                        spell.rotation().get());
+                game.batch.end();
+            } else if (spell.getType() == KUNAI) {
+                game.batch.begin();
+                TextureRegion spellCurrentFrame = spell.getAnimation().getKeyFrame(elapsedTime, true);
+                float meteorXOffset = (float) (Constants.KUNAI_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
+                float meteorYOffset = (float) (Constants.KUNAI_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
+                game.batch.draw(spellCurrentFrame,
+                        // in place
+                        (float) spell.getXPosition() - meteorXOffset - Constants.KUNAI_WIDTH / 2,
+                        (float) spell.getYPosition() - meteorYOffset - Constants.KUNAI_HEIGHT / 1.5f,
+                        Constants.KUNAI_WIDTH / 2,
+                        Constants.KUNAI_HEIGHT / 2,
+                        Constants.KUNAI_WIDTH,
+                        Constants.KUNAI_HEIGHT,
                         1,
                         1,
                         spell.rotation().get());
