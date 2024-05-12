@@ -18,20 +18,7 @@ public class Item implements Entity {
     private final Texture texture;
     private float textureWidth;
     private float textureHeight;
-    private Texture coinRotationTexture;
     private Animation<TextureRegion> coinRotationAnimation;
-
-    /**
-     * Construct Item that is in the inventory and does not need coordinates.
-     *
-     * @param id item's ID
-     * @param type item's type
-     */
-    public Item(Integer id, ItemTypes type) {
-        this.type = type;
-        this.id = id;
-        this.texture = setTextureBasedOnType();
-    }
 
     /**
      * Construct Item that is on the ground and needs coordinates.
@@ -107,7 +94,6 @@ public class Item implements Entity {
         return xPosition;
     }
 
-
     /**
      * Get item's y coordinate.
      *
@@ -116,10 +102,6 @@ public class Item implements Entity {
     @Override
     public float getYPosition() {
         return yPosition;
-    }
-    @Override
-    public float getHeight() {
-        return 0;
     }
 
     /**

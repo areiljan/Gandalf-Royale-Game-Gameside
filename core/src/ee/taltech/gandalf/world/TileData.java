@@ -53,7 +53,6 @@ public class TileData implements Entity {
     /**
      * @return Asset height
      */
-    @Override
     public float getHeight() {
         return sprite.getHeight();
     }

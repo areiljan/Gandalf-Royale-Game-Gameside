@@ -1,7 +1,5 @@
 package ee.taltech.gandalf.world;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.maps.*;
 import com.badlogic.gdx.maps.objects.EllipseMapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
@@ -11,18 +9,15 @@ import com.badlogic.gdx.math.Ellipse;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.utils.Json;
 import com.esotericsoftware.kryo.io.Output;
 import ee.taltech.gandalf.components.Constants;
 import ee.taltech.gandalf.network.NetworkClient;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Writer;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class WorldCollision {
 

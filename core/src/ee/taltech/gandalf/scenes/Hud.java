@@ -295,18 +295,21 @@ public class Hud {
             messageTimer++; // increment message timer
         }
 
+        // Draw
         drawInventory();
         drawMessage();
         drawCoinCounter();
         drawTimeCounter(currentTime);
-        if (startedGame.getPlayZone() != null && !startedGame.getPlayZone().areCoordinatesInNewZone((int)player.getXPosition(), (int) player.getYPosition())) {
+        if (startedGame.getPlayZone() != null
+                && !startedGame.getPlayZone().areCoordinatesInNewZone((int)player.getXPosition(),
+                (int) player.getYPosition())) {
             zoneArrowGroup.setVisible(true);
-            System.out.println("drawing arrow now");
             drawZoneArrow();
         } else {
             zoneArrowGroup.setVisible(false);
         }
 
+        // Update stage
         stage.act();
         stage.draw();
     }

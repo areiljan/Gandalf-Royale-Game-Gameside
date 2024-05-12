@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import ee.taltech.gandalf.components.TextureType;
-import ee.taltech.gandalf.network.messages.game.ActionTaken;
 import ee.taltech.gandalf.screens.GameScreen;
 
 public class MobAnimator {
@@ -15,7 +14,6 @@ public class MobAnimator {
     private Animation<TextureRegion> movementAnimation;
     private Animation<TextureRegion> flippedAttackAnimation;
     private Animation<TextureRegion> flippedMovementAnimation;
-    Texture spriteSheet;
 
     /**
      * Construct PlayerCharacterAnimator.

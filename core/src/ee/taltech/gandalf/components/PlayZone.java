@@ -96,22 +96,7 @@ public class PlayZone {
         String message = "";
 
         if (stage % 2 != 0) {
-            if (stage == 1) {
-                currentPlayZoneX = firstPlayZoneX;
-                currentPlayZoneY = firstPlayZoneY;
-                message += "-----------------------PHASE ONE-----------------------\n";
-            } else if (stage == 3) {
-                currentPlayZoneX = secondPlayZoneX;
-                currentPlayZoneY = secondPlayZoneY;
-                message += "-----------------------PHASE TWO-----------------------\n";
-            }else if (stage == 5) {
-                currentPlayZoneX = thirdPlayZoneX;
-                currentPlayZoneY = thirdPlayZoneY;
-                message += "----------------------PHASE THREE----------------------\n";
-            }
-            message += "             coordinates x: " + currentPlayZoneX + " y: " + currentPlayZoneY + "                  \n";
-            message += "                      You have 60 seconds\n";
-            message += "-----------------------------------------------------------";
+            message += "60 seconds until next zone";
         }
         else {
             if (stage == 2) {
