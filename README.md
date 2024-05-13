@@ -45,8 +45,8 @@ Please note: This game is still under development, so you might encounter some b
 3. Ready, set, play! - You can start the game with at least 2 players.
 4. Change inventory slots - Inventory slots can be changed with scroll wheel or '1', '2', '3' buttons. Highlighted slot is currently selected.
 
-NB! Items and AI are spawned in after 15 seconds and then you can find items left from the spawn. AI is wandering around, but is should be also somewhere on the left side from your spawn.
+After 15 seconds all player will be put to random spots, also items and mobs will spawn.
 
 5. Pick up items - Items can be picked up with 'F' button when player stands on the item.
 6. Fire away! - Click the left mouse button when an item is selected and then you can shoot spells.
-7. Drop items - Items can be dropped with 'R' button when item is in the currently selected slot.
+7. Drop items - Items can be dropped with 'F' button when item is in the currently selected slot.
