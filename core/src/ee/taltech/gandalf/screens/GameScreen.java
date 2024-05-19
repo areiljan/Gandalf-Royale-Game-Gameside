@@ -48,8 +48,8 @@ public class GameScreen extends ScreenAdapter {
     GandalfRoyale game;
     NetworkClient nc;
 
-    private ExtendViewport viewport;
-    private OrthographicCamera camera;
+    private final ExtendViewport viewport;
+    private final OrthographicCamera camera;
 
     private final Hud hud;
     private final MenuWindow menuWindow;
@@ -97,7 +97,7 @@ public class GameScreen extends ScreenAdapter {
     private TextureRegion currentCoinFrame;
     private PlayZone playZone;
     private Integer currentTime;
-    private List<TiledMapTileLayer> layersToBeOrdered;
+    private final List<TiledMapTileLayer> layersToBeOrdered;
 
 
     private final InputMultiplexer inputMultiplexer;
@@ -399,8 +399,8 @@ public class GameScreen extends ScreenAdapter {
                 float fireballXOffset = (float) (Constants.FIREBALL_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
                 float fireballYOffset = (float) (Constants.FIREBALL_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
                 game.batch.draw(spellCurrentFrame,
-                        (float) spell.getXPosition() - fireballXOffset - Constants.FIREBALL_WIDTH / 8 - 1.05f,
-                        (float) spell.getYPosition() - fireballYOffset - Constants.FIREBALL_HEIGHT / 2.5f - 0.41f,
+                        spell.getXPosition() - fireballXOffset - Constants.FIREBALL_WIDTH / 8 - 1.05f,
+                        spell.getYPosition() - fireballYOffset - Constants.FIREBALL_HEIGHT / 2.5f - 0.41f,
                         Constants.FIREBALL_WIDTH / 2,
                         Constants.FIREBALL_HEIGHT / 2,
                         Constants.FIREBALL_WIDTH,
@@ -409,7 +409,7 @@ public class GameScreen extends ScreenAdapter {
                         0.8f,
                         spell.rotation().get());
                 game.batch.end();
-            } else if (spell.getType() == ItemTypes.PLASMA) {
+            } else if (spell.getType() == ItemTypes.PLASMA || spell.getType() == MAGIC_MISSILE) {
                 game.batch.begin();
                 TextureRegion spellCurrentFrame = spell.getAnimation().getKeyFrame(elapsedTime, true);
                 float plasmaXOffset = (float) (Constants.PLASMA_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
@@ -431,9 +431,8 @@ public class GameScreen extends ScreenAdapter {
                 float meteorXOffset = (float) (Constants.METEOR_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
                 float meteorYOffset = (float) (Constants.METEOR_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
                 game.batch.draw(spellCurrentFrame,
-                        // in place
-                        (float) spell.getXPosition() - meteorXOffset - Constants.METEOR_WIDTH / 2,
-                        (float) spell.getYPosition() - meteorYOffset - Constants.METEOR_HEIGHT / 1.5f,
+                        spell.getXPosition() - meteorXOffset - Constants.METEOR_WIDTH / 2,
+                        spell.getYPosition() - meteorYOffset - Constants.METEOR_HEIGHT / 1.5f,
                         Constants.METEOR_WIDTH / 2,
                         Constants.METEOR_HEIGHT / 2,
                         Constants.METEOR_WIDTH,
@@ -442,48 +441,14 @@ public class GameScreen extends ScreenAdapter {
                         1,
                         spell.rotation().get());
                 game.batch.end();
-            } else if (spell.getType() == KUNAI) {
+            } else if (spell.getType() == KUNAI || spell.getType() == ICE_SHARD) {
                 game.batch.begin();
                 TextureRegion spellCurrentFrame = spell.getAnimation().getKeyFrame(elapsedTime, true);
                 float meteorXOffset = (float) (Constants.KUNAI_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
                 float meteorYOffset = (float) (Constants.KUNAI_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
                 game.batch.draw(spellCurrentFrame,
-                        // in place
-                        (float) spell.getXPosition() - meteorXOffset - Constants.KUNAI_WIDTH / 2,
-                        (float) spell.getYPosition() - meteorYOffset - Constants.KUNAI_HEIGHT / 1.5f,
-                        Constants.KUNAI_WIDTH / 2,
-                        Constants.KUNAI_HEIGHT / 2,
-                        Constants.KUNAI_WIDTH,
-                        Constants.KUNAI_HEIGHT,
-                        1,
-                        1,
-                        spell.rotation().get());
-                game.batch.end();
-            } else if (spell.getType() == MAGIC_MISSILE) {
-                game.batch.begin();
-                TextureRegion spellCurrentFrame = spell.getAnimation().getKeyFrame(elapsedTime, true);
-                float plasmaXOffset = (float) (Constants.PLASMA_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
-                float plasmaYOffset = (float) (Constants.PLASMA_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
-                game.batch.draw(spellCurrentFrame,
-                        spell.getXPosition() - plasmaXOffset - Constants.PLASMA_HEIGHT / 8 - 0.5f,
-                        spell.getYPosition() - plasmaYOffset - Constants.PLASMA_HEIGHT / 1.5f - 0.03f,
-                        Constants.PLASMA_WIDTH / 2,
-                        Constants.PLASMA_HEIGHT / 2,
-                        Constants.PLASMA_WIDTH,
-                        Constants.PLASMA_HEIGHT,
-                        0.5f,
-                        0.5f,
-                        spell.rotation().get());
-                game.batch.end();
-            } else if (spell.getType() == ICE_SHARD) {
-                game.batch.begin();
-                TextureRegion spellCurrentFrame = spell.getAnimation().getKeyFrame(elapsedTime, true);
-                float meteorXOffset = (float) (Constants.KUNAI_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
-                float meteorYOffset = (float) (Constants.KUNAI_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
-                game.batch.draw(spellCurrentFrame,
-                        // in place
-                        (float) spell.getXPosition() - meteorXOffset - Constants.KUNAI_WIDTH / 2,
-                        (float) spell.getYPosition() - meteorYOffset - Constants.KUNAI_HEIGHT / 1.5f,
+                        spell.getXPosition() - meteorXOffset - Constants.KUNAI_WIDTH / 2,
+                        spell.getYPosition() - meteorYOffset - Constants.KUNAI_HEIGHT / 1.5f,
                         Constants.KUNAI_WIDTH / 2,
                         Constants.KUNAI_HEIGHT / 2,
                         Constants.KUNAI_WIDTH,
