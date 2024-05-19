@@ -1,6 +1,5 @@
 package ee.taltech.gandalf.entities;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import ee.taltech.gandalf.components.Constants;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -151,8 +150,8 @@ public class Item implements Entity {
             itemsTexture = GameScreen.getTexture(TextureType.ICE_SHARD_BOOK);
             textureHeight = itemsTexture.getHeight() / 2.5f / Constants.PPM;
             textureWidth = itemsTexture.getWidth() / 2.5f / Constants.PPM;
-        } else if (type == ItemTypes.POISONBALL) {
-            itemsTexture = GameScreen.getTexture(TextureType.POISONBALL_BOOK);
+        } else if (type == ItemTypes.MAGIC_MISSILE) {
+            itemsTexture = GameScreen.getTexture(TextureType.MAGICMISSILE_BOOK);
             textureHeight = itemsTexture.getHeight() / 2.5f / Constants.PPM;
             textureWidth = itemsTexture.getWidth() / 2.5f / Constants.PPM;
         } else if (type == ItemTypes.COIN) {
