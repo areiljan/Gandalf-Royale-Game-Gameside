@@ -28,5 +28,5 @@ public class Constants {
     public static final List<String> LAYERS_TO_BE_ORDERED = List.of("props on props", "props", "Merchant", "rocks", "vegetation");
     public static final int PUMPKIN_WIDTH = 1;
     public static final int PUMPKIN_HEIGHT = 1;
-
+    public static final int MOB_HEALTH = 70;
 }
