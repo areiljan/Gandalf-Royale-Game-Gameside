@@ -94,7 +94,12 @@ public class GameEndScreen extends ScreenAdapter {
         List<String> stringList = new ArrayList<>();
 
         for (int i = 0; i < deadPlayers.size(); i++) {
-            int ranking = 1 + deadPlayers.size() - i;
+            int ranking;
+            if (deadPlayers.size() != gameInstance.getGamePlayers().size()) {
+                ranking = 1 + deadPlayers.size() - i;
+            } else {
+                ranking = deadPlayers.size() - i;
+            }
             String row = String.format("%s.  player  %s", ranking, deadPlayers.get(i));
             if (i != 0) {
                 row += "\n";
