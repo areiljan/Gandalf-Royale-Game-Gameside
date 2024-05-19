@@ -1,6 +1,8 @@
 package ee.taltech.gandalf.entities;
 
 
+import ee.taltech.gandalf.components.Constants;
+
 public class Mob implements Entity {
     private float xPosition;
     private float yPosition;
@@ -22,6 +24,7 @@ public class Mob implements Entity {
         this.yPosition = y;
         this.id = id;
         this.lookRight = true;
+        this.health = Constants.MOB_HEALTH;
         this.mobAnimator = new MobAnimator(this, id);
     }
 
