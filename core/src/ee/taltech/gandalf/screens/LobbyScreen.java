@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.gandalf.network.messages.lobby.GetLobbies;
@@ -78,8 +79,8 @@ public class LobbyScreen extends ScreenAdapter {
         headerTable = new Table();
 
         // Styling labels
-        headingStyle = new Label.LabelStyle(game.font, Color.FIREBRICK);
-        gameStyle = new Label.LabelStyle(game.font, Color.WHITE);
+        headingStyle = new Label.LabelStyle(GandalfRoyale.font, Color.WHITE);
+        gameStyle = new Label.LabelStyle(GandalfRoyale.font, Color.WHITE);
 
         // Styling buttons
         textButtonStyle = new TextButton.TextButtonStyle();
@@ -87,8 +88,8 @@ public class LobbyScreen extends ScreenAdapter {
 //        textButtonStyle.down = skin.getDrawable("button.down")
         textButtonStyle.pressedOffsetX = 2;
         textButtonStyle.pressedOffsetY = -2;
-        textButtonStyle.font = game.font;
-        textButtonStyle.fontColor = Color.RED;
+        textButtonStyle.font = GandalfRoyale.font;
+        textButtonStyle.fontColor = Color.WHITE;
 
         // Create pop-up window where player can name their game
         gameNamingWindow = createGameNamingWindow();
@@ -159,12 +160,12 @@ public class LobbyScreen extends ScreenAdapter {
         // Styling window
         Window.WindowStyle windowStyle = new Window.WindowStyle();
         windowStyle.titleFont = GandalfRoyale.font;
-        windowStyle.titleFontColor = Color.RED;
+        windowStyle.titleFontColor = Color.WHITE;
 
         // Styling text field
         TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
         textFieldStyle.font = GandalfRoyale.font;
-        textFieldStyle.fontColor = Color.BLUE;
+        textFieldStyle.fontColor = Color.WHITE;
 
         // Creating game naming window
         Window namingWindow = new Window("Starting Game", windowStyle);
@@ -188,10 +189,6 @@ public class LobbyScreen extends ScreenAdapter {
 
         // Packing window up
         namingWindow.pack();
-
-        // Setting windows position on the stage
-        namingWindow.setPosition(stage.getWidth() / 2 - namingWindow.getWidth() / 2,
-                stage.getHeight() / 2 - namingWindow.getHeight() / 2);
 
         // Returning visual part of the window
         return namingWindow;
@@ -225,8 +222,8 @@ public class LobbyScreen extends ScreenAdapter {
         lobbyTable.add(buttonJoin).pad(10).left();
 
         // Add lobbyTable to root table
-        root.row().padTop(20); // Empty row
-        root.add(lobbyTable).growX();
+        root.row(); // Empty row
+        root.add(lobbyTable).growX().padTop(20);
     }
 
     /**
@@ -276,8 +273,10 @@ public class LobbyScreen extends ScreenAdapter {
      */
     public void leaveLobby(Integer gameId, Integer playerId) {
         Lobby lobby = lobbies.get(gameId); // Get correct lobby from lobbies Map
-        lobby.removePlayer(playerId); // Remove player from given lobby
-        lobbyPlayerCountLabels.get(gameId).setText(lobby.getPlayerCount() + "/10"); // Show new player count
+        if (lobby != null) {
+            lobby.removePlayer(playerId); // Remove player from given lobby
+            lobbyPlayerCountLabels.get(gameId).setText(lobby.getPlayerCount() + "/10"); // Show new player count
+        }
     }
 
     /**
@@ -286,7 +285,29 @@ public class LobbyScreen extends ScreenAdapter {
      * @param gameId which lobby has to be dismantled
      */
     public void dismantleLobby(Integer gameId) {
-        lobbyTables.get(gameId).remove(); // Remove correct lobby table from root table
+        Lobby lobby = lobbies.get(gameId);
+        if (lobby != null) {
+            lobbies.remove(gameId); // Remove lobby form map
+            lobbyTables.get(gameId).remove(); // Remove correct lobby table from root table
+        }
+    }
+
+    /**
+     * Remove empty rows from the root table.
+     */
+    private void removeEmptyRows() {
+        Array<Cell> cells = root.getCells(); // Get table cells
+
+        for (int i = cells.size - 1; i >= 0; i--) { // Check all cells in the table
+            Cell cell = cells.get(i);
+            if (cell.getActor() == null) {
+                cells.removeIndex(i);
+            }
+        }
+
+        // Rebuild the table layout
+        root.invalidate();
+        root.layout();
     }
 
     /**
@@ -309,6 +330,8 @@ public class LobbyScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        removeEmptyRows();
+
         // Show the stage
         stage.act(delta);
         stage.draw();
@@ -323,6 +346,11 @@ public class LobbyScreen extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
         game.viewport.update(width, height, true);
+
+
+        // Setting windows position on the stage
+        gameNamingWindow.setPosition(stage.getWidth() / 2 - gameNamingWindow.getWidth() / 2,
+                stage.getHeight() / 2 - gameNamingWindow.getHeight() / 2);
     }
 
     /**

@@ -61,7 +61,7 @@ public class MenuScreen extends ScreenAdapter {
         table.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // Styling heading
-        Label.LabelStyle headingStyle = new Label.LabelStyle(GandalfRoyale.font, Color.FIREBRICK);
+        Label.LabelStyle headingStyle = new Label.LabelStyle(GandalfRoyale.font, Color.BLACK);
 
         // Styling buttons
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
@@ -70,7 +70,7 @@ public class MenuScreen extends ScreenAdapter {
         textButtonStyle.pressedOffsetX = 2;
         textButtonStyle.pressedOffsetY = -2;
         textButtonStyle.font = game.font;
-        textButtonStyle.fontColor = Color.BLACK;
+        textButtonStyle.fontColor = Color.WHITE;
 
         // Creating heading
         Label heading = new Label("GandalfRoyale", headingStyle);
