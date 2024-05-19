@@ -16,7 +16,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -72,12 +71,14 @@ public class GameScreen extends ScreenAdapter {
     private static Texture plasmaTexture;
     private static Texture meteorTexture;
     private static Texture kunaiTexture;
+    private static Texture magicMissileTexture;
+    private static Texture iceShardTexture;
     private static Texture fireballBook;
     private static Texture plasmaBook;
     private static Texture meteorBook;
     private static Texture kunaiBook;
     private static Texture iceShardBook;
-    private static Texture poisonBallBook;
+    private static Texture magicMissileBook;
     private static Texture coinTexture;
     private static Texture pumpkinAttackingTexture;
     private static Texture pumpkinWalkingTexture;
@@ -188,7 +189,9 @@ public class GameScreen extends ScreenAdapter {
             case KUNAI_BOOK -> kunaiBook;
             case KUNAI -> kunaiTexture;
             case ICE_SHARD_BOOK -> iceShardBook;
-            case POISONBALL_BOOK -> poisonBallBook;
+            case ICE_SHARD -> iceShardTexture;
+            case MAGICMISSILE_BOOK -> magicMissileBook;
+            case MAGICMISSILE -> magicMissileTexture;
             case COIN -> coinTexture;
             case PUMPKINATTACK -> pumpkinAttackingTexture;
             case PUMPKINWALK -> pumpkinWalkingTexture;
@@ -216,13 +219,15 @@ public class GameScreen extends ScreenAdapter {
         meteorBook = new Texture("Spells/Meteor/meteor_book.png");
         kunaiBook = new Texture("Spells/Kunai/kunai_book.png");
         iceShardBook = new Texture("Spells/IceShard/iceshard_book.png");
-        poisonBallBook = new Texture("Spells/Poisonball/poisonball_book.png");
+        magicMissileBook = new Texture("Spells/MagicMissile/magicMissile_book.png");
 
         // *------ SPELL TEXTURES ------*
         fireballTexture = new Texture("Spells/Fireball/packFireball.png");
         plasmaTexture = new Texture("Spells/Plasma/packPlasma.png");
         meteorTexture = new Texture("Spells/Meteor/packMeteor.png");
         kunaiTexture = new Texture("Spells/Kunai/packKunai.png");
+        magicMissileTexture = new Texture("Spells/MagicMissile/packMagicMissile.png");
+        iceShardTexture = new Texture("Spells/IceShard/packIceShard.png");
 
         // *------ HEALING POTION TEXTURES ------*
         healingPotionTexture = new Texture("Potion/potion.png");
@@ -454,6 +459,39 @@ public class GameScreen extends ScreenAdapter {
                         1,
                         spell.rotation().get());
                 game.batch.end();
+            } else if (spell.getType() == MAGIC_MISSILE) {
+                game.batch.begin();
+                TextureRegion spellCurrentFrame = spell.getAnimation().getKeyFrame(elapsedTime, true);
+                float plasmaXOffset = (float) (Constants.PLASMA_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
+                float plasmaYOffset = (float) (Constants.PLASMA_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
+                game.batch.draw(spellCurrentFrame,
+                        spell.getXPosition() - plasmaXOffset - Constants.PLASMA_HEIGHT / 8 - 0.5f,
+                        spell.getYPosition() - plasmaYOffset - Constants.PLASMA_HEIGHT / 1.5f - 0.03f,
+                        Constants.PLASMA_WIDTH / 2,
+                        Constants.PLASMA_HEIGHT / 2,
+                        Constants.PLASMA_WIDTH,
+                        Constants.PLASMA_HEIGHT,
+                        0.5f,
+                        0.5f,
+                        spell.rotation().get());
+                game.batch.end();
+            } else if (spell.getType() == ICE_SHARD) {
+                game.batch.begin();
+                TextureRegion spellCurrentFrame = spell.getAnimation().getKeyFrame(elapsedTime, true);
+                float meteorXOffset = (float) (Constants.KUNAI_WIDTH / 4 * (Math.cos(Math.toRadians(spell.rotation().get()))));
+                float meteorYOffset = (float) (Constants.KUNAI_HEIGHT / 4 * (Math.sin(Math.toRadians(spell.rotation().get()))));
+                game.batch.draw(spellCurrentFrame,
+                        // in place
+                        (float) spell.getXPosition() - meteorXOffset - Constants.KUNAI_WIDTH / 2,
+                        (float) spell.getYPosition() - meteorYOffset - Constants.KUNAI_HEIGHT / 1.5f,
+                        Constants.KUNAI_WIDTH / 2,
+                        Constants.KUNAI_HEIGHT / 2,
+                        Constants.KUNAI_WIDTH,
+                        Constants.KUNAI_HEIGHT,
+                        1,
+                        1,
+                        spell.rotation().get());
+                game.batch.end();
             }
         }
     }
@@ -623,12 +661,12 @@ public class GameScreen extends ScreenAdapter {
 
         // Render game objects
         game.batch.begin();
-        camera.zoom = 3f; // To render 3X bigger area than seen.
+        camera.zoom = 4.5f; // To render 3X bigger area than seen.
         renderer.setView(camera);
         renderer.render(Constants.BACKGROUND_LAYERS);
         game.batch.end();
         renderByLayering(); // Render entities and tiles
-        camera.zoom = 1f; // Reset the camera back to its original state.
+        camera.zoom = 1.5f; // Reset the camera back to its original state.
 
         if (startedGame.getPlayZone() != null) {
             drawPlayZone();

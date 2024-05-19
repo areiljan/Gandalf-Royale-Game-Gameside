@@ -117,6 +117,29 @@ public class Spell implements Entity {
                 plasmaFrames[i].flip(true, false);
             }
             animation = new Animation<>(0.1F, plasmaFrames);
+        } else if (type == ItemTypes.MAGIC_MISSILE) {
+            Texture plasmaTexture = GameScreen.getTexture(TextureType.MAGICMISSILE);
+            // redefine frames in the spritesheet
+            TextureRegion[][] frames = TextureRegion.split(plasmaTexture, 24, 16);
+            // Convert 2D array to 1D array
+            TextureRegion[] plasmaFrames = new TextureRegion[8];
+            for (int i = 0; i < 8; i++) {
+                plasmaFrames[i] = frames[0][i];
+                plasmaFrames[i].flip(true, false);
+            }
+            animation = new Animation<>(0.1F, plasmaFrames);
+        } else if (type == ItemTypes.ICE_SHARD) {
+            Texture plasmaTexture = GameScreen.getTexture(TextureType.ICE_SHARD);
+            // redefine frames in the spritesheet
+            TextureRegion[][] frames = TextureRegion.split(plasmaTexture, 32, 16);
+            // Convert 2D array to 1D array
+            TextureRegion[] plasmaFrames = new TextureRegion[8];
+            for (int i = 0; i < 8; i++) {
+                plasmaFrames[i] = frames[0][i];
+                plasmaFrames[i].flip(true, false);
+            }
+            animation = new Animation<>(0.1F, plasmaFrames);
+            System.out.println("ice shard");
         }
     }
 
