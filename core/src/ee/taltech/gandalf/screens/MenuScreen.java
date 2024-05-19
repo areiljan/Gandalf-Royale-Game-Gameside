@@ -3,14 +3,18 @@ package ee.taltech.gandalf.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.gandalf.scenes.SettingsWindow;
 
@@ -18,6 +22,7 @@ import ee.taltech.gandalf.scenes.SettingsWindow;
 public class MenuScreen extends ScreenAdapter {
 
     GandalfRoyale game;
+    Stage backgroundStage;
     Stage stage;
     Table root;
     TextButton buttonPlay;
@@ -25,10 +30,10 @@ public class MenuScreen extends ScreenAdapter {
     TextButton buttonExit;
 
     private boolean settingsWindowShown;
-    private SettingsWindow settingsWindow;
+    private final SettingsWindow settingsWindow;
 
     // Background picture constants
-    private static final Texture BACKGROUND_TEXTURE = new Texture("menuBackground.png"); // Background image
+    private static final Image BACKGROUND = new Image(new Texture("menuBackground.jpg")); // Background image
 
     /**
      * Construct MenuScreen.
@@ -37,6 +42,8 @@ public class MenuScreen extends ScreenAdapter {
      */
     public MenuScreen(GandalfRoyale game) {
         this.game = game;
+
+        backgroundStage = new Stage(new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()), game.batch);
 
         stage = new Stage(game.viewport, game.batch); // Creating a stage (place, where things can be put on)
 
@@ -56,12 +63,18 @@ public class MenuScreen extends ScreenAdapter {
      * Create visual part of the MenuScreen.
      */
     private void createUI() {
+        // Put background image on background stage
+        BACKGROUND.setFillParent(true);
+        BACKGROUND.setScaling(Scaling.fillY);
+        backgroundStage.addActor(BACKGROUND);
+
         // Creating a table (place, where things can be put in and positioned)
         Table table = new Table();
         table.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        // Styling heading
-        Label.LabelStyle headingStyle = new Label.LabelStyle(GandalfRoyale.font, Color.FIREBRICK);
+        // Styling labels
+        Label.LabelStyle headingStyle = new Label.LabelStyle(GandalfRoyale.font, Color.BLACK);
+        Label.LabelStyle creaditsStyle = new Label.LabelStyle(GandalfRoyale.font, Color.WHITE);
 
         // Styling buttons
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
@@ -70,7 +83,7 @@ public class MenuScreen extends ScreenAdapter {
         textButtonStyle.pressedOffsetX = 2;
         textButtonStyle.pressedOffsetY = -2;
         textButtonStyle.font = game.font;
-        textButtonStyle.fontColor = Color.BLACK;
+        textButtonStyle.fontColor = Color.WHITE;
 
         // Creating heading
         Label heading = new Label("GandalfRoyale", headingStyle);
@@ -92,7 +105,7 @@ public class MenuScreen extends ScreenAdapter {
         buttonExit.getLabel().setFontScale(2);
 
         // Creating credits (creator names) label
-        Label credits = new Label("*Artur_Reiljan*Rasmus_Kilkson*Ramus_Raasuke*", headingStyle);
+        Label credits = new Label("*  Artur Reiljan  *  Rasmus Kilkson  *  Rasmus Raasuke  *", creaditsStyle);
 
         // Adding elements to the Table
         table.add(heading);
@@ -104,7 +117,7 @@ public class MenuScreen extends ScreenAdapter {
         table.row();
         table.add(buttonExit);
         table.row();
-        table.add(credits);
+        table.add(credits).expandY().bottom();
 
         // Adding the Table to the root table that is on stage
         root.add(table);
@@ -167,10 +180,11 @@ public class MenuScreen extends ScreenAdapter {
      */
     @Override
     public void render(float delta) {
-        // Draw background picture
-        game.batch.begin();
-        game.batch.draw(BACKGROUND_TEXTURE, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        game.batch.end();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); // Clean the screen
+
+        // Update background stage
+        backgroundStage.act(delta);
+        backgroundStage.draw();
 
         // Draw settings window
         if (settingsWindowShown) {
@@ -191,6 +205,7 @@ public class MenuScreen extends ScreenAdapter {
     @Override
     public void resize(int width, int height) {
         game.viewport.update(width, height, true);
+        backgroundStage.getViewport().update(width, height, true);
         settingsWindow.resize(width, height);
     }
 
@@ -207,6 +222,7 @@ public class MenuScreen extends ScreenAdapter {
      */
     @Override
     public void dispose() {
+        backgroundStage.dispose();
         stage.dispose();
     }
 }

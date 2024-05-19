@@ -117,7 +117,7 @@ public class SettingsWindow implements InputProcessor {
         pickAndDrop = new Label("Pick up / drop:  " + Input.Keys.toString(keyBindings.get("PICK")), labelStyle);
 
         // Create tips
-        Label tips = new Label("ESC to stop editing", labelStyle);
+        Label tips = new Label("ESC for cancel", labelStyle);
 
         // Create back button
         backButton = new TextButton("Back", textButtonStyle);

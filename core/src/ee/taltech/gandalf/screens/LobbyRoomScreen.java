@@ -6,10 +6,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array;
 import ee.taltech.gandalf.GandalfRoyale;
 import ee.taltech.gandalf.network.listeners.lobby.LobbyRoomListener;
 import ee.taltech.gandalf.network.messages.lobby.Leave;
@@ -57,7 +59,7 @@ public class LobbyRoomScreen extends ScreenAdapter {
         headerTable = new Table(); // Creating a headerTable
 
         // Styling labels
-        Label.LabelStyle headingStyle = new Label.LabelStyle(game.font, Color.FIREBRICK);
+        Label.LabelStyle headingStyle = new Label.LabelStyle(game.font, Color.WHITE);
 
         // Styling buttons
         textButtonStyle = new TextButton.TextButtonStyle();
@@ -66,7 +68,7 @@ public class LobbyRoomScreen extends ScreenAdapter {
         textButtonStyle.pressedOffsetX = 2;
         textButtonStyle.pressedOffsetY = -2;
         textButtonStyle.font = game.font;
-        textButtonStyle.fontColor = Color.RED;
+        textButtonStyle.fontColor = Color.WHITE;
 
         // Create header
         buttonLeave = new TextButton("Leave", textButtonStyle);
@@ -144,8 +146,8 @@ public class LobbyRoomScreen extends ScreenAdapter {
         playerTable.add(playerIdLabel).pad(10).expandX().left();
 
         // Add lobbyTable to root table
-        root.row().padTop(20); // Empty row
-        root.add(playerTable).growX();
+        root.row(); // Empty row
+        root.add(playerTable).growX().padTop(20);
     }
 
     /**
@@ -174,7 +176,8 @@ public class LobbyRoomScreen extends ScreenAdapter {
      */
     public void leaveLobby(Integer playerId) {
         lobby.removePlayer(playerId);
-        playerTables.get(playerId).remove();
+        Table table = playerTables.remove(playerId);
+        root.removeActor(table);
     }
 
     /**
@@ -182,6 +185,24 @@ public class LobbyRoomScreen extends ScreenAdapter {
      */
     public void startGame() {
         game.screenController.setGameScreen(lobby);
+    }
+
+    /**
+     * Remove empty rows from the root table.
+     */
+    private void removeEmptyRows() {
+        Array<Cell> cells = root.getCells(); // Get table cells
+
+        for (int i = cells.size - 1; i >= 0; i--) { // Check all cells in the table
+            Cell cell = cells.get(i);
+            if (cell.getActor() == null) {
+                cells.removeIndex(i);
+            }
+        }
+
+        // Rebuild the table layout
+        root.invalidate();
+        root.layout();
     }
 
     /**
@@ -204,6 +225,8 @@ public class LobbyRoomScreen extends ScreenAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glFlush();
+
+        removeEmptyRows();
 
         // Show the stage
         stage.act(delta);

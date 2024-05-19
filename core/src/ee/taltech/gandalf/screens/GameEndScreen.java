@@ -34,6 +34,7 @@ public class GameEndScreen extends ScreenAdapter {
         this.winnerId = winnerId;
 
         deadPlayers = gameInstance.getDeadPlayers();
+        deadPlayers.remove(winnerId); // Is activated only if last players both died together
 
         stage = new Stage(game.viewport, game.batch);
 
