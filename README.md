@@ -36,7 +36,7 @@ But if you want to run it locally then here is guide:
 
 Have fun :P
 
-### How to play and game controlls
+### How to play and game controls
 
 Please note: This game is still under development, so you might encounter some bugs.
 
