@@ -12,6 +12,7 @@ Each player has three resources: **health**, **mana** and **gold**.
 
 **Gold** - Visible to only the player. Dropped by goblins when killed. Can be used to buy items from the shop.
 
+ 
 
 ### Installation and starting
 
